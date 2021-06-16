@@ -1,0 +1,41 @@
+.init:
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    HUB: aliyun-va-hub.byted.org
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+      - .gradle/7.0
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+  services:
+    - name: docker:stable-dind
+      command:
+        - --insecure-registry=hub.byted.org
+        - --insecure-registry=aliyun-va-hub.byted.org
+        - --insecure-registry=aliyun-sin-hub.byted.org
+      alias: docker
+
+stages:
+  - build
+  - test
+
+#gradle build
+build:
+  stage: build
+  script: ./gradlew build shadowJar --info
+  image: ${HUB}/openjdk:11-jdk-slim
+  extends: .init
+  artifacts:
+    paths:
+      - "build/libs"
+      - "build/classes"
+      - "build/generated"
+    reports:
+      junit: "build/test-results/test/**/TEST-*.xml"
+    expire_in: 1 week
+  tags:
+    - boei18n
