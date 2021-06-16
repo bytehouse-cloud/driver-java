@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<ruleset name="AlibabaP3cRules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <!-- To See https://github.com/alibaba/p3c/tree/master/p3c-pmd/src/main/resources/rulesets/java -->
+    <description>阿里巴巴开发手册规则配置</description>
+    <exclude-pattern>.*/\.gradle/.*</exclude-pattern>
+    <exclude-pattern>.*/build/.*</exclude-pattern>
+    <exclude-pattern>.*/src/main/java/com/bytedance/bytehouse/loader/tmp/.*</exclude-pattern>
+
+    <rule ref="rulesets/java/ali-comment.xml">
+        <exclude name="ClassMustHaveAuthorRule"/>
+        <exclude name="AbstractMethodOrInterfaceMethodMustUseJavadocRule"/>
+        <exclude name="AvoidCommentBehindStatementRule"/>
+    </rule>
+    <rule ref="rulesets/java/ali-concurrent.xml"/>
+    <rule ref="rulesets/java/ali-constant.xml"/>
+    <rule ref="rulesets/java/ali-exception.xml"/>
+    <rule ref="rulesets/java/ali-flowcontrol.xml"/>
+    <rule ref="rulesets/java/ali-naming.xml">
+        <exclude name="ClassNamingShouldBeCamelRule"/>
+        <exclude name="LowerCamelCaseVariableNamingRule"/>
+    </rule>
+    <rule ref="rulesets/java/ali-oop.xml"/>
+    <rule ref="rulesets/java/ali-orm.xml"/>
+    <rule ref="rulesets/java/ali-other.xml"/>
+    <rule ref="rulesets/java/ali-set.xml"/>
+</ruleset>

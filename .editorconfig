@@ -1,0 +1,40 @@
+root = true
+
+[*]
+insert_final_newline = true
+
+[*.{adoc,bat,groovy,html,java,js,jsp,kt,kts,md,properties,py,rb,sh,sql,svg,txt,xml,xsd,json}]
+charset = utf-8
+
+[*.{groovy,java,kt,kts,xml,xsd,json}]
+max_line_length = 100
+indent_style = space
+indent_size = 4
+continuation_indent_size = 8
+end_of_line = lf
+
+# static imports | non-static imports
+ij_java_imports_layout = $*,|,*
+
+# Do NOT use star imports
+ij_java_names_count_to_use_import_on_demand = 999
+ij_java_class_count_to_use_import_on_demand = 999
+
+ij_java_generate_final_locals = true
+ij_java_generate_final_parameters = true
+ij_java_doc_indent_on_continuation = true
+ij_java_doc_add_p_tag_on_empty_lines = false
+ij_java_blank_lines_around_field = 1
+ij_java_blank_lines_after_class_header = 1
+ij_java_keep_blank_lines_before_right_brace = 0
+ij_java_keep_blank_lines_between_package_declaration_and_header = 0
+ij_java_keep_blank_lines_in_code = 1
+ij_java_keep_blank_lines_in_declarations = 0
+
+ij_java_method_annotation_wrap = split_into_lines
+ij_java_parameter_annotation_wrap = normal
+ij_java_variable_annotation_wrap = normal
+ij_java_field_annotation_wrap = split_into_lines
+ij_java_class_annotation_wrap = split_into_lines
+
+ij_java_binary_operation_sign_on_next_line = true
