@@ -1,10 +1,6 @@
 plugins {
     id 'java-library'
-    id "io.freefair.lombok" version "5.1.1"
-    id "jacoco"
-    id "checkstyle"
-    id "pmd"
-    id "maven-publish"
+    id 'checkstyle'
     id "com.github.johnrengelman.shadow" version "6.1.0"
 }
 
@@ -29,20 +25,17 @@ repositories {
 }
 
 dependencies {
-    pmd 'com.alibaba.p3c:p3c-pmd:2.1.1'
-    pmd "net.sourceforge.pmd:pmd-core:${pmdVersion}"
-    pmd "net.sourceforge.pmd:pmd-java:${pmdVersion}"
-    pmd "net.sourceforge.pmd:pmd-java8:${pmdVersion}"
+    implementation "io.airlift:aircompressor:0.18"
+    implementation "org.slf4j:slf4j-api:1.7.30"
+    implementation "org.slf4j:slf4j-simple:1.7.30"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
 
-    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
-    implementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
-    implementation "log4j:log4j:${log4jVersion}"
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
-    testImplementation "org.assertj:assertj-core:${assertjVersion}"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "ru.yandex.clickhouse:clickhouse-jdbc:0.2.5"
+    testImplementation "org.mockito:mockito-core:3.6.28"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    testImplementation "com.google.guava:guava:16.0.1"
+    testImplementation "org.testcontainers:junit-jupiter:1.15.1"
+    testImplementation "org.testcontainers:clickhouse:1.15.1"
 }
 
 shadowJar {
@@ -50,46 +43,10 @@ shadowJar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Explicit strategy to exclude duplicates
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
-
-checkstyle {
-    toolVersion '8.36'
-    configFile file("config/checkstyle/google_checks.xml")
-}
-
-pmd {
-    sourceSets = [sourceSets.main]
-    ruleSetFiles = files(
-            "config/pmd/quickstart.xml",
-            "config/pmd/p3c-ruleset.xml"
-    )
-    ruleSets = []
-}
-
 test {
     useJUnitPlatform()
 }
 
-publishing {
-    publications {
-        shadow(MavenPublication) {
-            publication -> project.shadow.component(publication)
-        }
-    }
-    repositories {
-        maven {
-            name "nexus"
-            def releasesRepoUrl = "https://maven.byted.org/repository/releases"
-            def snapshotsRepoUrl = "https://maven.byted.org/repository/snapshots"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username = "$bytedanceRepoUser"
-                password = "$bytedanceRepoPassword"
-            }
-        }
-    }
+checkstyle {
+    configFile file("config/checkstyle/checkstyle.xml")
 }
