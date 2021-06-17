@@ -8,6 +8,3 @@ build/
 *.iml
 *.iws
 *.ipr
-
-# Lombok config
-lombok.config
