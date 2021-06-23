@@ -73,9 +73,6 @@ public class ClickHouseStatement implements SQLStatement {
     public int executeUpdate(String query) throws SQLException {
 
         return ExceptionUtil.rethrowSQLException(() -> {
-            cfg.settings().put(SettingKey.max_result_rows, maxRows);
-            cfg.settings().put(SettingKey.result_overflow_mode, "break");
-
             extractDBAndTableName(query);
             Matcher matcher = VALUES_REGEX.matcher(query);
 
@@ -148,6 +145,7 @@ public class ClickHouseStatement implements SQLStatement {
     public void setMaxRows(int max) throws SQLException {
         Validate.isTrue(max >= 0, "Illegal maxRows value: " + max);
         maxRows = max;
+        cfg.settings().put(SettingKey.max_result_rows, maxRows);
     }
 
     // JDBC returns timeout in seconds
