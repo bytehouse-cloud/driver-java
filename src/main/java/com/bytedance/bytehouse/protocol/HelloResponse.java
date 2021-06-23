@@ -29,8 +29,10 @@ public class HelloResponse implements Response {
         long serverReversion = deserializer.readVarInt();
         String serverTimeZone = getTimeZone(deserializer, serverReversion);
         String serverDisplayName = getDisplayName(deserializer, serverReversion);
+        long serverVersionPatch = getVersionPatch(deserializer, serverReversion);
 
-        return new HelloResponse(name, majorVersion, minorVersion, serverReversion, serverTimeZone, serverDisplayName);
+        return new HelloResponse(name, majorVersion, minorVersion, serverReversion,
+                serverTimeZone, serverDisplayName, serverVersionPatch);
     }
 
     private static String getTimeZone(BinaryDeserializer deserializer, long serverReversion) throws IOException {
@@ -43,17 +45,24 @@ public class HelloResponse implements Response {
                 deserializer.readUTF8StringBinary() : "localhost";
     }
 
+    private static long getVersionPatch(BinaryDeserializer deserializer, long serverReversion) throws IOException {
+        return serverReversion >= ClickHouseDefines.DBMS_MIN_REVISION_WITH_VERSION_PATCH ?
+                deserializer.readVarInt() : 0;
+    }
+
     private final long majorVersion;
     private final long minorVersion;
     private final long reversion;
     private final String serverName;
     private final String serverTimeZone;
     private final String serverDisplayName;
+    private final long serverVersionPatch;
 
     public HelloResponse(
             String serverName, long majorVersion, long minorVersion, long reversion,
             String serverTimeZone,
-            String serverDisplayName) {
+            String serverDisplayName,
+            long serverVersionPatch) {
 
         this.reversion = reversion;
         this.serverName = serverName;
@@ -61,6 +70,7 @@ public class HelloResponse implements Response {
         this.minorVersion = minorVersion;
         this.serverTimeZone = serverTimeZone;
         this.serverDisplayName = serverDisplayName;
+        this.serverVersionPatch = serverVersionPatch;
     }
 
     @Override
@@ -90,5 +100,9 @@ public class HelloResponse implements Response {
 
     public String serverDisplayName() {
         return serverDisplayName;
+    }
+
+    public long serverVersionPatch() {
+        return serverVersionPatch;
     }
 }

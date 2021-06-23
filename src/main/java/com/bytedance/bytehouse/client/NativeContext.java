@@ -77,6 +77,7 @@ public class NativeContext {
             serializer.writeVarInt(ClickHouseDefines.MINOR_VERSION);
             serializer.writeVarInt(ClickHouseDefines.CLIENT_REVISION);
             serializer.writeUTF8StringBinary("");
+            serializer.writeVarInt(ClickHouseDefines.CLIENT_REVISION); // might be versionPatch instead
         }
     }
 
@@ -86,17 +87,19 @@ public class NativeContext {
         private final long reversion;
         private final ZoneId timeZone;
         private final String displayName;
+        private final long versionPatch;
         private final ClickHouseConfig configure;
 
         public ServerContext(long majorVersion, long minorVersion, long reversion,
                              ClickHouseConfig configure,
-                             ZoneId timeZone, String displayName) {
+                             ZoneId timeZone, String displayName, long versionPatch) {
             this.majorVersion = majorVersion;
             this.minorVersion = minorVersion;
             this.reversion = reversion;
             this.configure = configure;
             this.timeZone = timeZone;
             this.displayName = displayName;
+            this.versionPatch = versionPatch;
         }
 
         public long majorVersion() {
@@ -121,6 +124,10 @@ public class NativeContext {
 
         public String displayName() {
             return displayName;
+        }
+
+        public long versionPatch() {
+            return versionPatch;
         }
 
         public ClickHouseConfig getConfigure() {

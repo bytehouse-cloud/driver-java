@@ -326,7 +326,7 @@ public class ClickHouseConnection implements SQLConnection {
             ZoneId timeZone = ZoneId.of(response.serverTimeZone());
             return new NativeContext.ServerContext(
                     response.majorVersion(), response.minorVersion(), response.reversion(),
-                    configure, timeZone, response.serverDisplayName());
+                    configure, timeZone, response.serverDisplayName(), response.serverVersionPatch());
         } catch (SQLException rethrows) {
             nativeClient.silentDisconnect();
             throw rethrows;
