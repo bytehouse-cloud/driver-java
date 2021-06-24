@@ -31,7 +31,9 @@ class ClickHouseConfigTest {
         ClickHouseConfig cfg = ClickHouseConfig.Builder.builder().build();
         assertEquals("127.0.0.1", cfg.host());
         assertEquals(9000, cfg.port());
+        assertEquals("", cfg.accountId());
         assertEquals("default", cfg.user());
+        assertEquals("default", cfg.fullUsername());
         assertEquals("", cfg.password());
         assertEquals(Duration.ZERO, cfg.queryTimeout());
         assertEquals(Duration.ZERO, cfg.connectTimeout());
@@ -49,10 +51,13 @@ class ClickHouseConfigTest {
                 .charset("GBK")
                 .withSetting(SettingKey.allow_distributed_ddl, true)
                 .build()
-                .withCredentials("user", "passWorD");
+                .withCredentials("user", "passWorD")
+                .withAccountId("123");
         assertEquals("1.2.3.4", cfg.host());
         assertEquals(8123, cfg.port());
+        assertEquals("123", cfg.accountId());
         assertEquals("user", cfg.user());
+        assertEquals("123::user", cfg.fullUsername());
         assertEquals("passWorD", cfg.password());
         assertEquals(Duration.ZERO, cfg.queryTimeout());
         assertEquals(Duration.ZERO, cfg.connectTimeout());

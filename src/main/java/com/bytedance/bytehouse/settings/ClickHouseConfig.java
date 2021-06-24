@@ -31,6 +31,7 @@ public class ClickHouseConfig implements Serializable {
     private final String host;
     private final int port;
     private final String database;
+    private final String accountId;
     private final String user;
     private final String password;
     private final Duration queryTimeout;
@@ -39,12 +40,13 @@ public class ClickHouseConfig implements Serializable {
     private final Map<SettingKey, Serializable> settings;
     private final boolean tcpKeepAlive;
 
-    private ClickHouseConfig(String host, int port, String database, String user, String password,
+    private ClickHouseConfig(String host, int port, String database, String accountId, String user, String password,
                              Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive,
                              String charset, Map<SettingKey, Serializable> settings) {
         this.host = host;
         this.port = port;
         this.database = database;
+        this.accountId = accountId;
         this.user = user;
         this.password = password;
         this.queryTimeout = queryTimeout;
@@ -66,8 +68,19 @@ public class ClickHouseConfig implements Serializable {
         return this.database;
     }
 
+    public String accountId() {
+        return this.accountId;
+    }
+
     public String user() {
         return this.user;
+    }
+
+    public String fullUsername() {
+        if (StrUtil.isBlank(this.accountId)) {
+            return this.user;
+        }
+        return String.format("%s::%s", this.accountId, this.user);
     }
 
     public String password() {
@@ -114,6 +127,12 @@ public class ClickHouseConfig implements Serializable {
     public ClickHouseConfig withDatabase(String database) {
         return Builder.builder(this)
                 .database(database)
+                .build();
+    }
+
+    public ClickHouseConfig withAccountId(String accountId) {
+        return Builder.builder(this)
+                .accountId(accountId)
                 .build();
     }
 
@@ -175,6 +194,7 @@ public class ClickHouseConfig implements Serializable {
         private String host;
         private int port;
         private String database;
+        private String accountId;
         private String user;
         private String password;
         private Duration connectTimeout;
@@ -195,6 +215,7 @@ public class ClickHouseConfig implements Serializable {
                     .host(cfg.host())
                     .port(cfg.port())
                     .database(cfg.database())
+                    .accountId(cfg.accountId())
                     .user(cfg.user())
                     .password(cfg.password())
                     .connectTimeout(cfg.connectTimeout())
@@ -226,6 +247,11 @@ public class ClickHouseConfig implements Serializable {
 
         public Builder database(String database) {
             this.withSetting(SettingKey.database, database);
+            return this;
+        }
+
+        public Builder accountId(String accountId) {
+            this.withSetting(SettingKey.account_id, accountId);
             return this;
         }
 
@@ -285,6 +311,7 @@ public class ClickHouseConfig implements Serializable {
         public ClickHouseConfig build() {
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
+            this.accountId = (String) this.settings.getOrDefault(SettingKey.account_id, "");
             this.user = (String) this.settings.getOrDefault(SettingKey.user, "default");
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
             this.database = (String) this.settings.getOrDefault(SettingKey.database, "default");
@@ -297,12 +324,15 @@ public class ClickHouseConfig implements Serializable {
             purgeSettings();
 
             return new ClickHouseConfig(
-                    host, port, database, user, password, queryTimeout, connectTimeout, tcpKeepAlive, charset.name(), settings);
+                    host, port, database, accountId, user, password, queryTimeout,
+                    connectTimeout, tcpKeepAlive, charset.name(), settings
+            );
         }
 
         private void revisit() {
             if (StrUtil.isBlank(this.host)) this.host = "127.0.0.1";
             if (this.port == -1) this.port = 9000;
+            if (StrUtil.isBlank(this.accountId)) this.accountId = "";
             if (StrUtil.isBlank(this.user)) this.user = "default";
             if (StrUtil.isBlank(this.password)) this.password = "";
             if (StrUtil.isBlank(this.database)) this.database = "default";
@@ -314,6 +344,7 @@ public class ClickHouseConfig implements Serializable {
             this.settings.remove(SettingKey.port);
             this.settings.remove(SettingKey.host);
             this.settings.remove(SettingKey.password);
+            this.settings.remove(SettingKey.account_id);
             this.settings.remove(SettingKey.user);
             this.settings.remove(SettingKey.database);
             this.settings.remove(SettingKey.query_timeout);

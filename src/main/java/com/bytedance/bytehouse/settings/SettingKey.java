@@ -802,6 +802,11 @@ public class SettingKey implements Serializable {
             .withType(SettingType.Int32)
             .build();
 
+    public static SettingKey account_id = SettingKey.builder()
+            .withName("account_id")
+            .withType(SettingType.UTF8)
+            .build();
+
     public static SettingKey user = SettingKey.builder()
             .withName("user")
             .withType(SettingType.UTF8)

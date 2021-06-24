@@ -24,6 +24,10 @@ public interface Response {
 
     ProtoType type();
 
+    /**
+     * The cases to handle follows
+     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/response.go">response.go</a>
+     */
     static Response readFrom(BinaryDeserializer deserializer, NativeContext.ServerContext info) throws IOException, SQLException {
         switch ((int) deserializer.readVarInt()) {
             case 0:
@@ -46,6 +50,16 @@ public interface Response {
                 return ExtremesResponse.readFrom(deserializer, info);
             case 9:
                 throw new NotImplementedException("RESPONSE_TABLES_STATUS_RESPONSE");
+            case 10:
+                return LogResponse.readFrom(deserializer, info);
+            case 11:
+                return TableColumnsResponse.readFrom(deserializer);
+            case 12:
+                return QueryPlanResponse.readFrom(deserializer);
+            case 13:
+                return AggQueryPlanResponse.readFrom(deserializer);
+            case 14:
+                return QueryMetadataResponse.readFrom(deserializer);
             default:
                 throw new IllegalStateException("Accept the id of response that is not recognized by Server.");
         }
@@ -61,7 +75,12 @@ public interface Response {
         RESPONSE_PROFILE_INFO(6),
         RESPONSE_TOTALS(7),
         RESPONSE_EXTREMES(8),
-        RESPONSE_TABLES_STATUS_RESPONSE(9);
+        RESPONSE_TABLES_STATUS_RESPONSE(9),
+        RESPONSE_LOG(10),
+        RESPONSE_TABLE_COLUMNS(11),
+        RESPONSE_QUERY_PLAN(12),
+        RESPONSE_AGG_QUERY_PLAN(13),
+        RESPONSE_QUERY_METADATA(14);
 
         private final int id;
 
