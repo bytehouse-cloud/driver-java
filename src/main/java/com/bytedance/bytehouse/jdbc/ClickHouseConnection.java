@@ -320,7 +320,8 @@ public class ClickHouseConnection implements SQLConnection {
     private static NativeContext.ServerContext serverContext(NativeClient nativeClient, ClickHouseConfig configure) throws SQLException {
         try {
             long revision = ClickHouseDefines.CLIENT_REVISION;
-            nativeClient.sendHello("client", revision, configure.database(), configure.user(), configure.password());
+            nativeClient.sendHello("client", revision, configure.database(),
+                    configure.fullUsername(), configure.password());
 
             HelloResponse response = nativeClient.receiveHello(configure.queryTimeout(), null);
             ZoneId timeZone = ZoneId.of(response.serverTimeZone());

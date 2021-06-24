@@ -19,6 +19,12 @@ public class ClickHouseDefines {
     public static final String DEFAULT_CATALOG = "default";
     public static final String DEFAULT_DATABASE = "default";
 
+    /**
+     * Client version follows
+     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/client_info.go">
+     *     client_info.go
+     * </a>
+     */
     public static final int MAJOR_VERSION = 0;
     public static final int MINOR_VERSION = 1;
     public static final int CLIENT_REVISION = 54406;

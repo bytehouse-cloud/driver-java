@@ -186,16 +186,32 @@ public class BalancedClickhouseDataSourceITest extends AbstractITest {
 
         // with connection parameters
         dataSource = new BalancedClickhouseDataSource(
-                String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s,%s:%s/click?query_timeout=12345&user=readonly", CK_HOST, CK_PORT, CK_IP, CK_PORT), properties);
+                String.format(
+                        Locale.ROOT,
+                        "jdbc:clickhouse://%s:%s,%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
+                        CK_HOST, CK_PORT, CK_IP, CK_PORT
+                ), properties);
         cfg = dataSource.getCfg();
         assertEquals(Duration.ofSeconds(6789), cfg.queryTimeout());
+        assertEquals("123", cfg.accountId());
         assertEquals("readonly", cfg.user());
+        assertEquals("123::readonly", cfg.fullUsername());
         assertEquals("888888", cfg.password());
         assertEquals("click", cfg.database());
         assertEquals(2, dataSource.getAllClickhouseUrls().size());
-        assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/click?query_timeout=12345&user=readonly", CK_HOST, CK_PORT),
-                dataSource.getAllClickhouseUrls().get(0));
-        assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/click?query_timeout=12345&user=readonly", CK_IP, CK_PORT),
-                dataSource.getAllClickhouseUrls().get(1));
+        assertEquals(
+                String.format(
+                        Locale.ROOT, "jdbc:clickhouse://%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
+                        CK_HOST, CK_PORT
+                ),
+                dataSource.getAllClickhouseUrls().get(0)
+        );
+        assertEquals(
+                String.format(
+                        Locale.ROOT, "jdbc:clickhouse://%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
+                        CK_IP, CK_PORT
+                ),
+                dataSource.getAllClickhouseUrls().get(1)
+        );
     }
 }
