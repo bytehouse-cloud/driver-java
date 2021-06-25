@@ -36,9 +36,9 @@ public class ClickHouseConfig implements Serializable {
     private final String password;
     private final Duration queryTimeout;
     private final Duration connectTimeout;
+    private final boolean tcpKeepAlive;
     private final String charset; // use String because Charset is not serializable
     private final Map<SettingKey, Serializable> settings;
-    private final boolean tcpKeepAlive;
 
     private ClickHouseConfig(String host, int port, String database, String accountId, String user, String password,
                              Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive,
@@ -76,13 +76,6 @@ public class ClickHouseConfig implements Serializable {
         return this.user;
     }
 
-    public String fullUsername() {
-        if (StrUtil.isBlank(this.accountId)) {
-            return this.user;
-        }
-        return String.format("%s::%s", this.accountId, this.user);
-    }
-
     public String password() {
         return this.password;
     }
@@ -95,8 +88,23 @@ public class ClickHouseConfig implements Serializable {
         return this.connectTimeout;
     }
 
+    public boolean tcpKeepAlive() {
+        return tcpKeepAlive;
+    }
+
     public Charset charset() {
         return Charset.forName(charset);
+    }
+
+    public Map<SettingKey, Serializable> settings() {
+        return settings;
+    }
+
+    public String fullUsername() {
+        if (StrUtil.isBlank(this.accountId)) {
+            return this.user;
+        }
+        return String.format("%s::%s", this.accountId, this.user);
     }
 
     public String jdbcUrl() {
@@ -111,10 +119,6 @@ public class ClickHouseConfig implements Serializable {
             builder.append("&").append(entry.getKey().name()).append("=").append(entry.getValue());
         }
         return builder.toString();
-    }
-
-    public Map<SettingKey, Serializable> settings() {
-        return settings;
     }
 
     public ClickHouseConfig withHostPort(String host, int port) {
@@ -186,10 +190,6 @@ public class ClickHouseConfig implements Serializable {
                 .build();
     }
 
-    public boolean tcpKeepAlive() {
-        return tcpKeepAlive;
-    }
-
     public static final class Builder {
         private String host;
         private int port;
@@ -197,8 +197,8 @@ public class ClickHouseConfig implements Serializable {
         private String accountId;
         private String user;
         private String password;
-        private Duration connectTimeout;
         private Duration queryTimeout;
+        private Duration connectTimeout;
         private boolean tcpKeepAlive;
         private Charset charset;
         private Map<SettingKey, Serializable> settings = new HashMap<>();
@@ -218,10 +218,10 @@ public class ClickHouseConfig implements Serializable {
                     .accountId(cfg.accountId())
                     .user(cfg.user())
                     .password(cfg.password())
-                    .connectTimeout(cfg.connectTimeout())
                     .queryTimeout(cfg.queryTimeout())
-                    .charset(cfg.charset())
+                    .connectTimeout(cfg.connectTimeout())
                     .tcpKeepAlive(cfg.tcpKeepAlive())
+                    .charset(cfg.charset())
                     .withSettings(cfg.settings());
         }
 
@@ -265,13 +265,13 @@ public class ClickHouseConfig implements Serializable {
             return this;
         }
 
-        public Builder connectTimeout(Duration connectTimeout) {
-            this.withSetting(SettingKey.connect_timeout, connectTimeout);
+        public Builder queryTimeout(Duration queryTimeout) {
+            this.withSetting(SettingKey.query_timeout, queryTimeout);
             return this;
         }
 
-        public Builder queryTimeout(Duration queryTimeout) {
-            this.withSetting(SettingKey.query_timeout, queryTimeout);
+        public Builder connectTimeout(Duration connectTimeout) {
+            this.withSetting(SettingKey.connect_timeout, connectTimeout);
             return this;
         }
 
@@ -311,12 +311,12 @@ public class ClickHouseConfig implements Serializable {
         public ClickHouseConfig build() {
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
+            this.database = (String) this.settings.getOrDefault(SettingKey.database, "default");
             this.accountId = (String) this.settings.getOrDefault(SettingKey.account_id, "");
             this.user = (String) this.settings.getOrDefault(SettingKey.user, "default");
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
-            this.database = (String) this.settings.getOrDefault(SettingKey.database, "default");
-            this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connect_timeout, Duration.ZERO);
             this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.query_timeout, Duration.ZERO);
+            this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connect_timeout, Duration.ZERO);
             this.tcpKeepAlive = (boolean) this.settings.getOrDefault(SettingKey.tcp_keep_alive, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
 
@@ -332,21 +332,21 @@ public class ClickHouseConfig implements Serializable {
         private void revisit() {
             if (StrUtil.isBlank(this.host)) this.host = "127.0.0.1";
             if (this.port == -1) this.port = 9000;
+            if (StrUtil.isBlank(this.database)) this.database = "default";
             if (StrUtil.isBlank(this.accountId)) this.accountId = "";
             if (StrUtil.isBlank(this.user)) this.user = "default";
             if (StrUtil.isBlank(this.password)) this.password = "";
-            if (StrUtil.isBlank(this.database)) this.database = "default";
             if (this.queryTimeout.isNegative()) this.queryTimeout = Duration.ZERO;
             if (this.connectTimeout.isNegative()) this.connectTimeout = Duration.ZERO;
         }
 
         private void purgeSettings() {
-            this.settings.remove(SettingKey.port);
             this.settings.remove(SettingKey.host);
-            this.settings.remove(SettingKey.password);
+            this.settings.remove(SettingKey.port);
+            this.settings.remove(SettingKey.database);
             this.settings.remove(SettingKey.account_id);
             this.settings.remove(SettingKey.user);
-            this.settings.remove(SettingKey.database);
+            this.settings.remove(SettingKey.password);
             this.settings.remove(SettingKey.query_timeout);
             this.settings.remove(SettingKey.connect_timeout);
             this.settings.remove(SettingKey.tcp_keep_alive);
