@@ -28,6 +28,14 @@ public class SettingKey implements Serializable {
     // key always is lower case
     private static final Map<String, SettingKey> DEFINED_SETTING_KEYS = new ConcurrentHashMap<>();
 
+    /**
+     * ------------------- QUERY SETTINGS ----------------------
+     * <br/>
+     * Adopted from:
+     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/settings/default.go">
+     *     default.go
+     * </a>
+     */
     public static SettingKey min_compress_block_size = SettingKey.builder()
             .withName("min_compress_block_size")
             .withType(SettingType.Int64)
@@ -88,24 +96,6 @@ public class SettingKey implements Serializable {
             .withDescription("The interval in microseconds to check if the request is cancelled, and to send progress info.")
             .build();
 
-    public static SettingKey connect_timeout = SettingKey.builder()
-            .withName("connect_timeout")
-            .withType(SettingType.Seconds)
-            .withDescription("Connection timeout if there are no replicas.")
-            .build();
-
-    public static SettingKey connect_timeout_with_failover_ms = SettingKey.builder()
-            .withName("connect_timeout_with_failover_ms")
-            .withType(SettingType.Milliseconds)
-            .withDescription("Connection timeout for selecting first healthy replica.")
-            .build();
-
-    public static SettingKey queue_max_wait_ms = SettingKey.builder()
-            .withName("queue_max_wait_ms")
-            .withType(SettingType.Milliseconds)
-            .withDescription("The wait time in the request queue, if the number of concurrent requests exceeds the maximum.")
-            .build();
-
     public static SettingKey poll_interval = SettingKey.builder()
             .withName("poll_interval")
             .withType(SettingType.Int64)
@@ -124,24 +114,6 @@ public class SettingKey implements Serializable {
             .withDescription("The maximum number of attempts to connect to replicas.")
             .build();
 
-    public static SettingKey extremes = SettingKey.builder()
-            .withName("extremes")
-            .withType(SettingType.Bool)
-            .withDescription("Calculate minimums and maximums of the result columns. They can be output in JSON-formats.")
-            .build();
-
-    public static SettingKey use_uncompressed_cache = SettingKey.builder()
-            .withName("use_uncompressed_cache")
-            .withType(SettingType.Bool)
-            .withDescription("Whether to use the cache of uncompressed blocks.")
-            .build();
-
-    public static SettingKey replace_running_query = SettingKey.builder()
-            .withName("replace_running_query")
-            .withType(SettingType.Bool)
-            .withDescription("Whether the running request should be canceled with the same id as the new one.")
-            .build();
-
     public static SettingKey background_pool_size = SettingKey.builder()
             .withName("background_pool_size")
             .withType(SettingType.Int64)
@@ -152,24 +124,6 @@ public class SettingKey implements Serializable {
             .withName("background_schedule_pool_size")
             .withType(SettingType.Int64)
             .withDescription("Number of threads performing background tasks for replicated tables. Only has meaning at server startup.")
-            .build();
-
-    public static SettingKey distributed_directory_monitor_sleep_time_ms = SettingKey.builder()
-            .withName("distributed_directory_monitor_sleep_time_ms")
-            .withType(SettingType.Milliseconds)
-            .withDescription("Sleep time for StorageDistributed DirectoryMonitors in case there is no work or exception has been thrown.")
-            .build();
-
-    public static SettingKey distributed_directory_monitor_batch_inserts = SettingKey.builder()
-            .withName("distributed_directory_monitor_batch_inserts")
-            .withType(SettingType.Bool)
-            .withDescription("Should StorageDistributed DirectoryMonitors try to batch individual inserts into bigger ones.")
-            .build();
-
-    public static SettingKey optimize_move_to_prewhere = SettingKey.builder()
-            .withName("optimize_move_to_prewhere")
-            .withType(SettingType.Bool)
-            .withDescription("Allows disabling WHERE to PREWHERE optimization in SELECT queries from MergeTree.")
             .build();
 
     public static SettingKey replication_alter_partitions_sync = SettingKey.builder()
@@ -184,28 +138,15 @@ public class SettingKey implements Serializable {
             .withDescription("Wait for actions to change the table structure within the specified number of seconds. 0 - wait unlimited time.")
             .build();
 
-    public static SettingKey totals_auto_threshold = SettingKey.builder()
-            .withName("totals_auto_threshold")
-            .withType(SettingType.Float32)
-            .withDescription("The threshold for totals_mode = 'auto'.")
-            .build();
-
-    public static SettingKey compile = SettingKey.builder()
-            .withName("compile")
-            .withType(SettingType.Bool)
-            .withDescription("Whether query compilation is enabled.")
-            .build();
-
-    public static SettingKey compile_expressions = SettingKey.builder()
-            .withName("compile_expressions")
-            .withType(SettingType.Bool)
-            .withDescription("Compile some scalar functions and operators to native code.")
-            .build();
-
     public static SettingKey min_count_to_compile = SettingKey.builder()
             .withName("min_count_to_compile")
             .withType(SettingType.Int64)
             .withDescription("The number of structurally identical queries before they are compiled.")
+            .build();
+
+    public static SettingKey min_count_to_compile_expression = SettingKey.builder()
+            .withName("min_count_to_compile_expression")
+            .withType(SettingType.Int64)
             .build();
 
     public static SettingKey group_by_two_level_threshold = SettingKey.builder()
@@ -220,22 +161,10 @@ public class SettingKey implements Serializable {
             .withDescription("From what size of the aggregation state in bytes, a two-level aggregation begins to be used. 0 - the threshold is not set. Two-level aggregation is used when at least one of the thresholds is triggered.")
             .build();
 
-    public static SettingKey distributed_aggregation_memory_efficient = SettingKey.builder()
-            .withName("distributed_aggregation_memory_efficient")
-            .withType(SettingType.Bool)
-            .withDescription("Is the memory-saving mode of distributed aggregation enabled.")
-            .build();
-
     public static SettingKey aggregation_memory_efficient_merge_threads = SettingKey.builder()
             .withName("aggregation_memory_efficient_merge_threads")
             .withType(SettingType.Int64)
             .withDescription("Number of threads to use for merge intermediate aggregation results in memory efficient mode. When bigger, then more memory is consumed. 0 means - same as 'max_threads'.")
-            .build();
-
-    public static SettingKey max_threads = SettingKey.builder()
-            .withName("max_threads")
-            .withType(SettingType.Int64)
-            .withDescription("The maximum number of threads to execute the request. By default, it is determined automatically.")
             .build();
 
     public static SettingKey max_parallel_replicas = SettingKey.builder()
@@ -244,16 +173,14 @@ public class SettingKey implements Serializable {
             .withDescription("The maximum number of replicas of each shard used when the query is executed. For consistency (to get different parts of the same partition), this option only works for the specified sampling key. The lag of the replicas is not controlled.")
             .build();
 
-    public static SettingKey skip_unavailable_shards = SettingKey.builder()
-            .withName("skip_unavailable_shards")
-            .withType(SettingType.Bool)
-            .withDescription("Silently skip unavailable shards.")
+    public static SettingKey parallel_replicas_count = SettingKey.builder()
+            .withName("parallel_replicas_count")
+            .withType(SettingType.Int64)
             .build();
 
-    public static SettingKey distributed_group_by_no_merge = SettingKey.builder()
-            .withName("distributed_group_by_no_merge")
-            .withType(SettingType.Bool)
-            .withDescription("Do not merge aggregation states from different servers for distributed query processing - in case it is for certain that there are different keys on different shards.")
+    public static SettingKey parallel_replica_offset = SettingKey.builder()
+            .withName("parallel_replica_offset")
+            .withType(SettingType.Int64)
             .build();
 
     public static SettingKey merge_tree_min_rows_for_concurrent_read = SettingKey.builder()
@@ -280,12 +207,6 @@ public class SettingKey implements Serializable {
             .withDescription("The maximum number of rows per request, to use the cache of uncompressed data. If the request is large, the cache is not used. (For large queries not to flush out the cache.)")
             .build();
 
-    public static SettingKey merge_tree_uniform_read_distribution = SettingKey.builder()
-            .withName("merge_tree_uniform_read_distribution")
-            .withType(SettingType.Bool)
-            .withDescription("Distribute read from MergeTree over threads evenly, ensuring stable average execution time of each thread within one read operation.")
-            .build();
-
     public static SettingKey mysql_max_rows_to_insert = SettingKey.builder()
             .withName("mysql_max_rows_to_insert")
             .withType(SettingType.Int64)
@@ -304,46 +225,16 @@ public class SettingKey implements Serializable {
             .withDescription("The minimum number of bytes for input/output operations is bypassing the page cache. 0 - disabled.")
             .build();
 
-    public static SettingKey force_index_by_date = SettingKey.builder()
-            .withName("force_index_by_date")
-            .withType(SettingType.Bool)
-            .withDescription("Throw an exception if there is a partition key in a table, and it is not used.")
-            .build();
-
-    public static SettingKey force_primary_key = SettingKey.builder()
-            .withName("force_primary_key")
-            .withType(SettingType.Bool)
-            .withDescription("Throw an exception if there is primary key in a table, and it is not used.")
-            .build();
-
     public static SettingKey mark_cache_min_lifetime = SettingKey.builder()
             .withName("mark_cache_min_lifetime")
             .withType(SettingType.Int64)
             .withDescription("If the maximum size of mark_cache is exceeded, delete only records older than mark_cache_min_lifetime seconds.")
             .build();
 
-    public static SettingKey max_streams_to_max_threads_ratio = SettingKey.builder()
-            .withName("max_streams_to_max_threads_ratio")
-            .withType(SettingType.Float32)
-            .withDescription("Allows you to use more sources than the number of threads - to more evenly distribute work across threads. It is assumed that this is a temporary solution, since it will be possible in the future to make the number of sources equal to the number of threads, but for each source to dynamically select available work for itself.")
-            .build();
-
-    public static SettingKey network_zstd_compression_level = SettingKey.builder()
-            .withName("network_zstd_compression_level")
-            .withType(SettingType.Int64)
-            .withDescription("Allows you to select the level of ZSTD compression.")
-            .build();
-
     public static SettingKey priority = SettingKey.builder()
             .withName("priority")
             .withType(SettingType.Int64)
             .withDescription("Priority of the query. 1 - the highest, higher value - lower priority; 0 - do not use priorities.")
-            .build();
-
-    public static SettingKey log_queries = SettingKey.builder()
-            .withName("log_queries")
-            .withType(SettingType.Bool)
-            .withDescription("Log requests and write the log to the system table.")
             .build();
 
     public static SettingKey log_queries_cut_to_length = SettingKey.builder()
@@ -356,12 +247,6 @@ public class SettingKey implements Serializable {
             .withName("max_concurrent_queries_for_user")
             .withType(SettingType.Int64)
             .withDescription("The maximum number of concurrent requests per user.")
-            .build();
-
-    public static SettingKey insert_deduplicate = SettingKey.builder()
-            .withName("insert_deduplicate")
-            .withType(SettingType.Bool)
-            .withDescription("For INSERT queries in the replicated table, specifies that deduplication of insertings blocks should be preformed")
             .build();
 
     public static SettingKey insert_quorum = SettingKey.builder()
@@ -382,22 +267,10 @@ public class SettingKey implements Serializable {
             .withDescription("The maximum number of different shards and the maximum number of replicas of one shard in the `remote` function.")
             .build();
 
-    public static SettingKey read_backoff_min_latency_ms = SettingKey.builder()
-            .withName("read_backoff_min_latency_ms")
-            .withType(SettingType.Milliseconds)
-            .withDescription("Setting to reduce the number of threads in case of slow reads. Pay attention only to reads that took at least that much time.")
-            .build();
-
     public static SettingKey read_backoff_max_throughput = SettingKey.builder()
             .withName("read_backoff_max_throughput")
             .withType(SettingType.Int64)
             .withDescription("Settings to reduce the number of threads in case of slow reads. Count events when the read bandwidth is less than that many bytes per second.")
-            .build();
-
-    public static SettingKey read_backoff_min_interval_between_events_ms = SettingKey.builder()
-            .withName("read_backoff_min_interval_between_events_ms")
-            .withType(SettingType.Milliseconds)
-            .withDescription("Settings to reduce the number of threads in case of slow reads. Do not pay attention to the event, if the previous one has passed less than a certain amount of time.")
             .build();
 
     public static SettingKey read_backoff_min_events = SettingKey.builder()
@@ -406,88 +279,20 @@ public class SettingKey implements Serializable {
             .withDescription("Settings to reduce the number of threads in case of slow reads. The number of events after which the number of threads will be reduced.")
             .build();
 
-    public static SettingKey memory_tracker_fault_probability = SettingKey.builder()
-            .withName("memory_tracker_fault_probability")
-            .withType(SettingType.Float32)
-            .withDescription("For testing of `exception safety` - throw an exception every time you allocate memory with the specified probability.")
-            .build();
-
-    public static SettingKey enable_http_compression = SettingKey.builder()
-            .withName("enable_http_compression")
-            .withType(SettingType.Bool)
-            .withDescription("Compress the result if the client over HTTP said that it understands data compressed by gzip or deflate.")
-            .build();
-
-    public static SettingKey http_zlib_compression_level = SettingKey.builder()
-            .withName("http_zlib_compression_level")
-            .withType(SettingType.Int64)
-            .withDescription("Compression level - used if the client on HTTP said that it understands data compressed by gzip or deflate.")
-            .build();
-
-    public static SettingKey http_native_compression_disable_checksumming_on_decompress = SettingKey.builder()
-            .withName("http_native_compression_disable_checksumming_on_decompress")
-            .withType(SettingType.Bool)
-            .withDescription("If you uncompress the POST data from the client compressed by the native format, do not check the checksum.")
-            .build();
-
-    public static SettingKey count_distinct_implementation = SettingKey.builder()
-            .withName("count_distinct_implementation")
-            .withType(SettingType.UTF8)
-            .withDescription("What aggregate function to use for implementation of count(DISTINCT ...)")
-            .build();
-
-    public static SettingKey output_format_write_statistics = SettingKey.builder()
-            .withName("output_format_write_statistics")
-            .withType(SettingType.Bool)
-            .withDescription("Write statistics about read rows, bytes, time elapsed in suitable output formats.")
-            .build();
-
-    public static SettingKey add_http_cors_header = SettingKey.builder()
-            .withName("add_http_cors_header")
-            .withType(SettingType.Bool)
-            .withDescription("Write add http CORS header.")
-            .build();
-
-    public static SettingKey input_format_skip_unknown_fields = SettingKey.builder()
-            .withName("input_format_skip_unknown_fields")
-            .withType(SettingType.Bool)
-            .withDescription("Skip columns with unknown names from input data (it works for JSONEachRow and TSKV formats).")
-            .build();
-
-    public static SettingKey input_format_values_interpret_expressions = SettingKey.builder()
-            .withName("input_format_values_interpret_expressions")
-            .withType(SettingType.Bool)
-            .withDescription("For Values format: if field could not be parsed by streaming parser, run SQL parser and try to interpret it as SQL expression.")
-            .build();
-
-    public static SettingKey output_format_json_quote_64bit_integers = SettingKey.builder()
-            .withName("output_format_json_quote_64bit_integers")
-            .withType(SettingType.Bool)
-            .withDescription("Controls quoting of 64-bit integers in JSON output format.")
-            .build();
-
-    public static SettingKey output_format_json_quote_denormals = SettingKey.builder()
-            .withName("output_format_json_quote_denormals")
-            .withType(SettingType.Bool)
-            .withDescription("Enables '+nan', '-nan', '+inf', '-inf' outputs in JSON output format.")
-            .build();
-
     public static SettingKey output_format_pretty_max_rows = SettingKey.builder()
             .withName("output_format_pretty_max_rows")
             .withType(SettingType.Int64)
             .withDescription("Rows limit for Pretty formats.")
             .build();
 
-    public static SettingKey use_client_time_zone = SettingKey.builder()
-            .withName("use_client_time_zone")
-            .withType(SettingType.Bool)
-            .withDescription("Use client timezone for interpreting DateTime string values, instead of adopting server timezone.")
+    public static SettingKey output_format_pretty_max_column_pad_width = SettingKey.builder()
+            .withName("output_format_pretty_max_column_pad_width")
+            .withType(SettingType.Int64)
             .build();
 
-    public static SettingKey send_progress_in_http_headers = SettingKey.builder()
-            .withName("send_progress_in_http_headers")
-            .withType(SettingType.Bool)
-            .withDescription("Send progress notifications using X-ClickHouse-Progress headers. Some clients do not support high amount of HTTP headers (Python requests in particular), so it is disabled by default.")
+    public static SettingKey output_format_parquet_row_group_size = SettingKey.builder()
+            .withName("output_format_parquet_row_group_size")
+            .withType(SettingType.Int64)
             .build();
 
     public static SettingKey http_headers_progress_interval_ms = SettingKey.builder()
@@ -496,28 +301,15 @@ public class SettingKey implements Serializable {
             .withDescription("Do not send HTTP headers X-ClickHouse-Progress more frequently than at each specified interval.")
             .build();
 
-    public static SettingKey fsync_metadata = SettingKey.builder()
-            .withName("fsync_metadata")
-            .withType(SettingType.Bool)
-            .withDescription("Do fsync after changing metadata for tables and databases (.sql files). Could be disabled in case of poor latency on server with high load of DDL queries and high load of disk subsystem.")
-            .build();
-
     public static SettingKey input_format_allow_errors_num = SettingKey.builder()
             .withName("input_format_allow_errors_num")
             .withType(SettingType.Int64)
             .withDescription("Maximum absolute amount of errors while reading text formats (like CSV, TSV). In case of error, if both absolute and relative values are non-zero, and at least absolute or relative amount of errors is lower than corresponding value, will skip until next line and continue.")
             .build();
 
-    public static SettingKey input_format_allow_errors_ratio = SettingKey.builder()
-            .withName("input_format_allow_errors_ratio")
-            .withType(SettingType.Float32)
-            .withDescription("Maximum relative amount of errors while reading text formats (like CSV, TSV). In case of error, if both absolute and relative values are non-zero, and at least absolute or relative amount of errors is lower than corresponding value, will skip until next line and continue.")
-            .build();
-
-    public static SettingKey join_use_nulls = SettingKey.builder()
-            .withName("join_use_nulls")
-            .withType(SettingType.Bool)
-            .withDescription("Use NULLs for non-joined rows of outer JOINs. If false, use default value of corresponding columns data type.")
+    public static SettingKey preferred_block_size_bytes = SettingKey.builder()
+            .withName("preferred_block_size_bytes")
+            .withType(SettingType.Int64)
             .build();
 
     public static SettingKey max_replica_delay_for_distributed_queries = SettingKey.builder()
@@ -526,94 +318,16 @@ public class SettingKey implements Serializable {
             .withDescription("If set, distributed queries of Replicated tables will choose servers with replication delay in seconds less than the specified value (not inclusive). Zero means do not take delay into account.")
             .build();
 
-    public static SettingKey fallback_to_stale_replicas_for_distributed_queries = SettingKey.builder()
-            .withName("fallback_to_stale_replicas_for_distributed_queries")
-            .withType(SettingType.Bool)
-            .withDescription("Suppose max_replica_delay_for_distributed_queries is set and all replicas for the queried table are stale. If this setting is enabled, the query will be performed anyway, otherwise the error will be reported.")
-            .build();
-
     public static SettingKey preferred_max_column_in_block_size_bytes = SettingKey.builder()
             .withName("preferred_max_column_in_block_size_bytes")
             .withType(SettingType.Int64)
             .withDescription("Limit on max column size in block while reading. Helps to decrease cache misses count. Should be close to L2 cache size.")
             .build();
 
-    public static SettingKey insert_distributed_sync = SettingKey.builder()
-            .withName("insert_distributed_sync")
-            .withType(SettingType.Bool)
-            .withDescription("If setting is enabled, insert query into distributed waits until data will be sent to all nodes in cluster.")
-            .build();
-
     public static SettingKey insert_distributed_timeout = SettingKey.builder()
             .withName("insert_distributed_timeout")
             .withType(SettingType.Int64)
             .withDescription("Timeout for insert query into distributed. Setting is used only with insert_distributed_sync enabled. Zero value means no timeout.")
-            .build();
-
-    public static SettingKey distributed_ddl_task_timeout = SettingKey.builder()
-            .withName("distributed_ddl_task_timeout")
-            .withType(SettingType.Int64)
-            .withDescription("Timeout for DDL query responses from all hosts in cluster. Negative value means infinite.")
-            .build();
-
-    public static SettingKey stream_flush_interval_ms = SettingKey.builder()
-            .withName("stream_flush_interval_ms")
-            .withType(SettingType.Milliseconds)
-            .withDescription("Timeout for flushing data from streaming storages.")
-            .build();
-
-    public static SettingKey format_schema = SettingKey.builder()
-            .withName("format_schema")
-            .withType(SettingType.UTF8)
-            .withDescription("Schema identifier (used by schema-based formats)")
-            .build();
-
-    public static SettingKey insert_allow_materialized_columns = SettingKey.builder()
-            .withName("insert_allow_materialized_columns")
-            .withType(SettingType.Bool)
-            .withDescription("If setting is enabled, Allow materialized columns in INSERT.")
-            .build();
-
-    public static SettingKey http_connection_timeout = SettingKey.builder()
-            .withName("http_connection_timeout")
-            .withType(SettingType.Seconds)
-            .withDescription("HTTP connection timeout.")
-            .build();
-
-    public static SettingKey http_send_timeout = SettingKey.builder()
-            .withName("http_send_timeout")
-            .withType(SettingType.Seconds)
-            .withDescription("HTTP send timeout")
-            .build();
-
-    public static SettingKey http_receive_timeout = SettingKey.builder()
-            .withName("http_receive_timeout")
-            .withType(SettingType.Seconds)
-            .withDescription("HTTP receive timeout")
-            .build();
-
-    public static SettingKey optimize_throw_if_noop = SettingKey.builder()
-            .withName("optimize_throw_if_noop")
-            .withType(SettingType.Bool)
-            .withDescription("If setting is enabled and OPTIMIZE query didn't actually assign a merge then an explanatory exception is thrown")
-            .build();
-
-    public static SettingKey use_index_for_in_with_subqueries = SettingKey.builder()
-            .withName("use_index_for_in_with_subqueries")
-            .withType(SettingType.Bool)
-            .withDescription("Try using an index if there is a subquery or a table expression on the right side of the IN operator.")
-            .build();
-
-    public static SettingKey empty_result_for_aggregation_by_empty_set = SettingKey.builder()
-            .withName("empty_result_for_aggregation_by_empty_set")
-            .withType(SettingType.Bool)
-            .withDescription("Return empty result when aggregating without keys on empty set.")
-            .build();
-
-    public static SettingKey allow_distributed_ddl = SettingKey.builder()
-            .withName("allow_distributed_ddl")
-            .withType(SettingType.Bool)
-            .withDescription("If it is set to true, then a user is allowed to executed distributed DDL queries.")
             .build();
 
     public static SettingKey odbc_max_field_size = SettingKey.builder()
@@ -634,6 +348,36 @@ public class SettingKey implements Serializable {
             .withDescription("Limit on read bytes (after decompression) from the most 'deep' sources. That is, only in the deepest subquery. When reading from a remote server, it is only checked on a remote server.")
             .build();
 
+    public static SettingKey max_rows_to_group_by = SettingKey.builder()
+            .withName("max_rows_to_group_by")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_bytes_before_external_group_by = SettingKey.builder()
+            .withName("max_bytes_before_external_group_by")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_rows_to_sort = SettingKey.builder()
+            .withName("max_rows_to_sort")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_bytes_to_sort = SettingKey.builder()
+            .withName("max_bytes_to_sort")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_bytes_before_external_sort = SettingKey.builder()
+            .withName("max_bytes_before_external_sort")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_bytes_before_remerge_sort = SettingKey.builder()
+            .withName("max_bytes_before_remerge_sort")
+            .withType(SettingType.Int64)
+            .build();
+
     public static SettingKey max_result_rows = SettingKey.builder()
             .withName("max_result_rows")
             .withType(SettingType.Int64)
@@ -646,22 +390,51 @@ public class SettingKey implements Serializable {
             .withDescription("Limit on result size in bytes (uncompressed). Also checked for intermediate data sent from remote servers.")
             .build();
 
-    public static SettingKey result_overflow_mode = SettingKey.builder()
-            .withName("result_overflow_mode")
-            .withType(SettingType.UTF8)
-            .withDescription("What to do when the limit is exceeded.")
-            .build();
-
     public static SettingKey min_execution_speed = SettingKey.builder()
             .withName("min_execution_speed")
             .withType(SettingType.Int64)
             .withDescription("In rows per second.")
             .build();
 
-    public static SettingKey timeout_before_checking_execution_speed = SettingKey.builder()
-            .withName("timeout_before_checking_execution_speed")
-            .withType(SettingType.Seconds)
-            .withDescription("Check that the speed is not too low after the specified time has elapsed.")
+    public static SettingKey max_execution_speed = SettingKey.builder()
+            .withName("max_execution_speed")
+            .withType(SettingType.Int64)
+            .withDescription("In rows per second.")
+            .build();
+
+    public static SettingKey min_execution_speed_bytes = SettingKey.builder()
+            .withName("min_execution_speed_bytes")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_execution_speed_bytes = SettingKey.builder()
+            .withName("max_execution_speed_bytes")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_columns_to_read = SettingKey.builder()
+            .withName("max_columns_to_read")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_temporary_columns = SettingKey.builder()
+            .withName("max_temporary_columns")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_temporary_non_const_columns = SettingKey.builder()
+            .withName("max_temporary_non_const_columns")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_subquery_depth = SettingKey.builder()
+            .withName("max_subquery_depth")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_pipeline_depth = SettingKey.builder()
+            .withName("max_pipeline_depth")
+            .withType(SettingType.Int64)
             .build();
 
     public static SettingKey max_ast_depth = SettingKey.builder()
@@ -778,28 +551,1153 @@ public class SettingKey implements Serializable {
             .withDescription("The maximum speed of data exchange over the network in bytes per second for all concurrently running queries. Zero means unlimited.")
             .build();
 
-    public static SettingKey format_csv_delimiter = SettingKey.builder()
-            .withName("format_csv_delimiter")
-            .withType(SettingType.Char)
-            .withDescription("The character to be considered as a delimiter in CSV data. If setting with a string, a string has to have a length of 1.")
-            .build();
-
-    public static SettingKey enable_conditional_computation = SettingKey.builder()
-            .withName("enable_conditional_computation")
+    public static SettingKey low_cardinality_max_dictionary_size = SettingKey.builder()
+            .withName("low_cardinality_max_dictionary_size")
             .withType(SettingType.Int64)
-            .withDescription("Enable conditional computations")
             .build();
 
-    public static SettingKey allow_experimental_bigint_types = SettingKey.builder()
-            .withName("allow_experimental_bigint_types")
+    public static SettingKey max_fetch_partition_retries_count = SettingKey.builder()
+            .withName("max_fetch_partition_retries_count")
             .withType(SettingType.Int64)
-            .withDescription("Allow Int128, Int256, UInt256 and Decimal256 types")
             .build();
 
+    public static SettingKey http_max_multipart_form_data_size = SettingKey.builder()
+            .withName("http_max_multipart_form_data_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_partitions_per_insert_block = SettingKey.builder()
+            .withName("max_partitions_per_insert_block")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_threads = SettingKey.builder()
+            .withName("max_threads")
+            .withType(SettingType.Int64)
+            .withDescription("The maximum number of threads to execute the request. By default, it is determined automatically.")
+            .build();
+
+    public static SettingKey network_zstd_compression_level = SettingKey.builder()
+            .withName("network_zstd_compression_level")
+            .withType(SettingType.Int64)
+            .withDescription("Allows you to select the level of ZSTD compression.")
+            .build();
+
+    public static SettingKey http_zlib_compression_level = SettingKey.builder()
+            .withName("http_zlib_compression_level")
+            .withType(SettingType.Int64)
+            .withDescription("Compression level - used if the client on HTTP said that it understands data compressed by gzip or deflate.")
+            .build();
+
+    public static SettingKey distributed_ddl_task_timeout = SettingKey.builder()
+            .withName("distributed_ddl_task_timeout")
+            .withType(SettingType.Int64)
+            .withDescription("Timeout for DDL query responses from all hosts in cluster. Negative value means infinite.")
+            .build();
+
+    public static SettingKey extremes = SettingKey.builder()
+            .withName("extremes")
+            .withType(SettingType.Bool)
+            .withDescription("Calculate minimums and maximums of the result columns. They can be output in JSON-formats.")
+            .build();
+
+    public static SettingKey use_uncompressed_cache = SettingKey.builder()
+            .withName("use_uncompressed_cache")
+            .withType(SettingType.Bool)
+            .withDescription("Whether to use the cache of uncompressed blocks.")
+            .build();
+
+    public static SettingKey replace_running_query = SettingKey.builder()
+            .withName("replace_running_query")
+            .withType(SettingType.Bool)
+            .withDescription("Whether the running request should be canceled with the same id as the new one.")
+            .build();
+
+    public static SettingKey distributed_directory_monitor_batch_inserts = SettingKey.builder()
+            .withName("distributed_directory_monitor_batch_inserts")
+            .withType(SettingType.Bool)
+            .withDescription("Should StorageDistributed DirectoryMonitors try to batch individual inserts into bigger ones.")
+            .build();
+
+    public static SettingKey optimize_move_to_prewhere = SettingKey.builder()
+            .withName("optimize_move_to_prewhere")
+            .withType(SettingType.Bool)
+            .withDescription("Allows disabling WHERE to PREWHERE optimization in SELECT queries from MergeTree.")
+            .build();
+
+    public static SettingKey compile = SettingKey.builder()
+            .withName("compile")
+            .withType(SettingType.Bool)
+            .withDescription("Whether query compilation is enabled.")
+            .build();
+
+    public static SettingKey compile_expressions = SettingKey.builder()
+            .withName("compile_expressions")
+            .withType(SettingType.Bool)
+            .withDescription("Compile some scalar functions and operators to native code.")
+            .build();
+
+    public static SettingKey distributed_aggregation_memory_efficient = SettingKey.builder()
+            .withName("distributed_aggregation_memory_efficient")
+            .withType(SettingType.Bool)
+            .withDescription("Is the memory-saving mode of distributed aggregation enabled.")
+            .build();
+
+    public static SettingKey skip_unavailable_shards = SettingKey.builder()
+            .withName("skip_unavailable_shards")
+            .withType(SettingType.Bool)
+            .withDescription("Silently skip unavailable shards.")
+            .build();
+
+    public static SettingKey distributed_group_by_no_merge = SettingKey.builder()
+            .withName("distributed_group_by_no_merge")
+            .withType(SettingType.Bool)
+            .withDescription("Do not merge aggregation states from different servers for distributed query processing - in case it is for certain that there are different keys on different shards.")
+            .build();
+
+    public static SettingKey optimize_skip_unused_shards = SettingKey.builder()
+            .withName("optimize_skip_unused_shards")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey merge_tree_uniform_read_distribution = SettingKey.builder()
+            .withName("merge_tree_uniform_read_distribution")
+            .withType(SettingType.Bool)
+            .withDescription("Distribute read from MergeTree over threads evenly, ensuring stable average execution time of each thread within one read operation.")
+            .build();
+
+    public static SettingKey force_index_by_date = SettingKey.builder()
+            .withName("force_index_by_date")
+            .withType(SettingType.Bool)
+            .withDescription("Throw an exception if there is a partition key in a table, and it is not used.")
+            .build();
+
+    public static SettingKey force_primary_key = SettingKey.builder()
+            .withName("force_primary_key")
+            .withType(SettingType.Bool)
+            .withDescription("Throw an exception if there is primary key in a table, and it is not used.")
+            .build();
+
+    public static SettingKey log_queries = SettingKey.builder()
+            .withName("log_queries")
+            .withType(SettingType.Bool)
+            .withDescription("Log requests and write the log to the system table.")
+            .build();
+
+    public static SettingKey insert_deduplicate = SettingKey.builder()
+            .withName("insert_deduplicate")
+            .withType(SettingType.Bool)
+            .withDescription("For INSERT queries in the replicated table, specifies that deduplication of insertings blocks should be preformed")
+            .build();
+
+    public static SettingKey enable_http_compression = SettingKey.builder()
+            .withName("enable_http_compression")
+            .withType(SettingType.Bool)
+            .withDescription("Compress the result if the client over HTTP said that it understands data compressed by gzip or deflate.")
+            .build();
+
+    public static SettingKey http_native_compression_disable_checksumming_on_decompress = SettingKey.builder()
+            .withName("http_native_compression_disable_checksumming_on_decompress")
+            .withType(SettingType.Bool)
+            .withDescription("If you uncompress the POST data from the client compressed by the native format, do not check the checksum.")
+            .build();
+
+    public static SettingKey output_format_write_statistics = SettingKey.builder()
+            .withName("output_format_write_statistics")
+            .withType(SettingType.Bool)
+            .withDescription("Write statistics about read rows, bytes, time elapsed in suitable output formats.")
+            .build();
+
+    public static SettingKey add_http_cors_header = SettingKey.builder()
+            .withName("add_http_cors_header")
+            .withType(SettingType.Bool)
+            .withDescription("Write add http CORS header.")
+            .build();
+
+    public static SettingKey input_format_skip_unknown_fields = SettingKey.builder()
+            .withName("input_format_skip_unknown_fields")
+            .withType(SettingType.Bool)
+            .withDescription("Skip columns with unknown names from input data (it works for JSONEachRow and TSKV formats).")
+            .build();
+
+    public static SettingKey input_format_import_nested_json = SettingKey.builder()
+            .withName("input_format_import_nested_json")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey input_format_defaults_for_omitted_fields = SettingKey.builder()
+            .withName("input_format_defaults_for_omitted_fields")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey input_format_values_interpret_expressions = SettingKey.builder()
+            .withName("input_format_values_interpret_expressions")
+            .withType(SettingType.Bool)
+            .withDescription("For Values format: if field could not be parsed by streaming parser, run SQL parser and try to interpret it as SQL expression.")
+            .build();
+
+    public static SettingKey output_format_json_quote_64bit_integers = SettingKey.builder()
+            .withName("output_format_json_quote_64bit_integers")
+            .withType(SettingType.Bool)
+            .withDescription("Controls quoting of 64-bit integers in JSON output format.")
+            .build();
+
+    public static SettingKey output_format_json_quote_denormals = SettingKey.builder()
+            .withName("output_format_json_quote_denormals")
+            .withType(SettingType.Bool)
+            .withDescription("Enables '+nan', '-nan', '+inf', '-inf' outputs in JSON output format.")
+            .build();
+
+    public static SettingKey output_format_json_escape_forward_slashes = SettingKey.builder()
+            .withName("output_format_json_escape_forward_slashes")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey output_format_pretty_color = SettingKey.builder()
+            .withName("output_format_pretty_color")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey use_client_time_zone = SettingKey.builder()
+            .withName("use_client_time_zone")
+            .withType(SettingType.Bool)
+            .withDescription("Use client timezone for interpreting DateTime string values, instead of adopting server timezone.")
+            .build();
+
+    public static SettingKey send_progress_in_http_headers = SettingKey.builder()
+            .withName("send_progress_in_http_headers")
+            .withType(SettingType.Bool)
+            .withDescription("Send progress notifications using X-ClickHouse-Progress headers. Some clients do not support high amount of HTTP headers (Python requests in particular), so it is disabled by default.")
+            .build();
+
+    public static SettingKey fsync_metadata = SettingKey.builder()
+            .withName("fsync_metadata")
+            .withType(SettingType.Bool)
+            .withDescription("Do fsync after changing metadata for tables and databases (.sql files). Could be disabled in case of poor latency on server with high load of DDL queries and high load of disk subsystem.")
+            .build();
+
+    public static SettingKey join_use_nulls = SettingKey.builder()
+            .withName("join_use_nulls")
+            .withType(SettingType.Bool)
+            .withDescription("Use NULLs for non-joined rows of outer JOINs. If false, use default value of corresponding columns data type.")
+            .build();
+
+    public static SettingKey fallback_to_stale_replicas_for_distributed_queries = SettingKey.builder()
+            .withName("fallback_to_stale_replicas_for_distributed_queries")
+            .withType(SettingType.Bool)
+            .withDescription("Suppose max_replica_delay_for_distributed_queries is set and all replicas for the queried table are stale. If this setting is enabled, the query will be performed anyway, otherwise the error will be reported.")
+            .build();
+
+    public static SettingKey insert_distributed_sync = SettingKey.builder()
+            .withName("insert_distributed_sync")
+            .withType(SettingType.Bool)
+            .withDescription("If setting is enabled, insert query into distributed waits until data will be sent to all nodes in cluster.")
+            .build();
+
+    public static SettingKey insert_allow_materialized_columns = SettingKey.builder()
+            .withName("insert_allow_materialized_columns")
+            .withType(SettingType.Bool)
+            .withDescription("If setting is enabled, Allow materialized columns in INSERT.")
+            .build();
+
+    public static SettingKey optimize_throw_if_noop = SettingKey.builder()
+            .withName("optimize_throw_if_noop")
+            .withType(SettingType.Bool)
+            .withDescription("If setting is enabled and OPTIMIZE query didn't actually assign a merge then an explanatory exception is thrown")
+            .build();
+
+    public static SettingKey use_index_for_in_with_subqueries = SettingKey.builder()
+            .withName("use_index_for_in_with_subqueries")
+            .withType(SettingType.Bool)
+            .withDescription("Try using an index if there is a subquery or a table expression on the right side of the IN operator.")
+            .build();
+
+    public static SettingKey empty_result_for_aggregation_by_empty_set = SettingKey.builder()
+            .withName("empty_result_for_aggregation_by_empty_set")
+            .withType(SettingType.Bool)
+            .withDescription("Return empty result when aggregating without keys on empty set.")
+            .build();
+
+    public static SettingKey allow_distributed_ddl = SettingKey.builder()
+            .withName("allow_distributed_ddl")
+            .withType(SettingType.Bool)
+            .withDescription("If it is set to true, then a user is allowed to executed distributed DDL queries.")
+            .build();
+
+    public static SettingKey join_any_take_last_row = SettingKey.builder()
+            .withName("join_any_take_last_row")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey format_csv_allow_single_quotes = SettingKey.builder()
+            .withName("format_csv_allow_single_quotes")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey format_csv_allow_double_quotes = SettingKey.builder()
+            .withName("format_csv_allow_double_quotes")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey log_profile_events = SettingKey.builder()
+            .withName("log_profile_events")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey log_query_settings = SettingKey.builder()
+            .withName("log_query_settings")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey log_query_threads = SettingKey.builder()
+            .withName("log_query_threads")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_optimize_predicate_expression = SettingKey.builder()
+            .withName("enable_optimize_predicate_expression")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey low_cardinality_use_single_dictionary_for_part = SettingKey.builder()
+            .withName("low_cardinality_use_single_dictionary_for_part")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey decimal_check_overflow = SettingKey.builder()
+            .withName("decimal_check_overflow")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey prefer_localhost_replica = SettingKey.builder()
+            .withName("prefer_localhost_replica")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey calculate_text_stack_trace = SettingKey.builder()
+            .withName("calculate_text_stack_trace")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_ddl = SettingKey.builder()
+            .withName("allow_ddl")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey parallel_view_processing = SettingKey.builder()
+            .withName("parallel_view_processing")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_debug_queries = SettingKey.builder()
+            .withName("enable_debug_queries")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_unaligned_array_join = SettingKey.builder()
+            .withName("enable_unaligned_array_join")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey low_cardinality_allow_in_native_format = SettingKey.builder()
+            .withName("low_cardinality_allow_in_native_format")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_experimental_multiple_joins_emulation = SettingKey.builder()
+            .withName("allow_experimental_multiple_joins_emulation")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_experimental_cross_to_join_conversion = SettingKey.builder()
+            .withName("allow_experimental_cross_to_join_conversion")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey cancel_http_readonly_queries_on_client_close = SettingKey.builder()
+            .withName("cancel_http_readonly_queries_on_client_close")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey external_table_functions_use_nulls = SettingKey.builder()
+            .withName("external_table_functions_use_nulls")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_experimental_data_skipping_indices = SettingKey.builder()
+            .withName("allow_experimental_data_skipping_indices")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_hyperscan = SettingKey.builder()
+            .withName("allow_hyperscan")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_simdjson = SettingKey.builder()
+            .withName("allow_simdjson")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey connect_timeout = SettingKey.builder()
+            .withName("connect_timeout")
+            .withType(SettingType.Seconds)
+            .withDescription("Connection timeout if there are no replicas.")
+            .build();
+
+    public static SettingKey connect_timeout_with_failover_ms = SettingKey.builder()
+            .withName("connect_timeout_with_failover_ms")
+            .withType(SettingType.Milliseconds)
+            .withDescription("Connection timeout for selecting first healthy replica.")
+            .build();
+
+    public static SettingKey receive_timeout = SettingKey.builder()
+            .withName("receive_timeout")
+            .withType(SettingType.Seconds)
+            .build();
+
+    public static SettingKey send_timeout = SettingKey.builder()
+            .withName("send_timeout")
+            .withType(SettingType.Seconds)
+            .build();
+
+    public static SettingKey tcp_keep_alive_timeout = SettingKey.builder()
+            .withName("tcp_keep_alive_timeout")
+            .withType(SettingType.Seconds)
+            .build();
+
+    public static SettingKey queue_max_wait_ms = SettingKey.builder()
+            .withName("queue_max_wait_ms")
+            .withType(SettingType.Milliseconds)
+            .withDescription("The wait time in the request queue, if the number of concurrent requests exceeds the maximum.")
+            .build();
+
+    public static SettingKey distributed_directory_monitor_sleep_time_ms = SettingKey.builder()
+            .withName("distributed_directory_monitor_sleep_time_ms")
+            .withType(SettingType.Milliseconds)
+            .withDescription("Sleep time for StorageDistributed DirectoryMonitors in case there is no work or exception has been thrown.")
+            .build();
+
+    public static SettingKey insert_quorum_timeout = SettingKey.builder()
+            .withName("insert_quorum_timeout")
+            .withType(SettingType.Seconds)
+            .build();
+
+    public static SettingKey read_backoff_min_latency_ms = SettingKey.builder()
+            .withName("read_backoff_min_latency_ms")
+            .withType(SettingType.Milliseconds)
+            .withDescription("Setting to reduce the number of threads in case of slow reads. Pay attention only to reads that took at least that much time.")
+            .build();
+
+    public static SettingKey read_backoff_min_interval_between_events_ms = SettingKey.builder()
+            .withName("read_backoff_min_interval_between_events_ms")
+            .withType(SettingType.Milliseconds)
+            .withDescription("Settings to reduce the number of threads in case of slow reads. Do not pay attention to the event, if the previous one has passed less than a certain amount of time.")
+            .build();
+
+    public static SettingKey stream_flush_interval_ms = SettingKey.builder()
+            .withName("stream_flush_interval_ms")
+            .withType(SettingType.Milliseconds)
+            .withDescription("Timeout for flushing data from streaming storages.")
+            .build();
+
+    public static SettingKey stream_poll_timeout_ms = SettingKey.builder()
+            .withName("stream_poll_timeout_ms")
+            .withType(SettingType.Milliseconds)
+            .build();
+
+    public static SettingKey http_connection_timeout = SettingKey.builder()
+            .withName("http_connection_timeout")
+            .withType(SettingType.Seconds)
+            .withDescription("HTTP connection timeout.")
+            .build();
+
+    public static SettingKey http_send_timeout = SettingKey.builder()
+            .withName("http_send_timeout")
+            .withType(SettingType.Seconds)
+            .withDescription("HTTP send timeout")
+            .build();
+
+    public static SettingKey http_receive_timeout = SettingKey.builder()
+            .withName("http_receive_timeout")
+            .withType(SettingType.Seconds)
+            .withDescription("HTTP receive timeout")
+            .build();
+
+    public static SettingKey max_execution_time = SettingKey.builder()
+            .withName("max_execution_time")
+            .withType(SettingType.Seconds)
+            .build();
+
+    public static SettingKey timeout_before_checking_execution_speed = SettingKey.builder()
+            .withName("timeout_before_checking_execution_speed")
+            .withType(SettingType.Seconds)
+            .withDescription("Check that the speed is not too low after the specified time has elapsed.")
+            .build();
+
+    public static SettingKey send_logs_level = SettingKey.builder()
+            .withName("send_logs_level")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey read_overflow_mode = SettingKey.builder()
+            .withName("read_overflow_mode")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey totals_mode = SettingKey.builder()
+            .withName("totals_mode")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey group_by_overflow_mode = SettingKey.builder()
+            .withName("group_by_overflow_mode")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey joined_subquery_requires_alias = SettingKey.builder()
+            .withName("joined_subquery_requires_alias")
+            .withType(SettingType.Bool)
+            .build();
+
+    // ------------------------- CNCH SPECIFIC QUERY SETTINGS -------------------------------
+
+    public static SettingKey enable_operator_level_profile = SettingKey.builder()
+            .withName("enable_operator_level_profile")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_query_level_profiling = SettingKey.builder()
+            .withName("enable_query_level_profiling")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey totals_auto_threshold = SettingKey.builder()
+            .withName("totals_auto_threshold")
+            .withType(SettingType.Float32)
+            .build();
+
+    public static SettingKey idle_connection_timeout = SettingKey.builder()
+            .withName("idle_connection_timeout")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey additional_background_pool_size = SettingKey.builder()
+            .withName("additional_background_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey background_consume_schedule_pool_size = SettingKey.builder()
+            .withName("background_consume_schedule_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey background_dump_thread_pool_size = SettingKey.builder()
+            .withName("background_dump_thread_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey local_disk_cache_thread_pool_size = SettingKey.builder()
+            .withName("local_disk_cache_thread_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_insert_block_size_bytes = SettingKey.builder()
+            .withName("max_insert_block_size_bytes")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey load_balancing_offset = SettingKey.builder()
+            .withName("load_balancing_offset")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey query_cache_min_lifetime = SettingKey.builder()
+            .withName("query_cache_min_lifetime")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey part_cache_min_lifetime = SettingKey.builder()
+            .withName("part_cache_min_lifetime")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_streams_to_max_threads_ratio = SettingKey.builder()
+            .withName("max_streams_to_max_threads_ratio")
+            .withType(SettingType.Float32)
+            .build();
+
+    public static SettingKey network_compression_method = SettingKey.builder()
+            .withName("network_compression_method")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey free_resource_early_in_write = SettingKey.builder()
+            .withName("free_resource_early_in_write")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey optimize_map_column_serialization = SettingKey.builder()
+            .withName("optimize_map_column_serialization")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey memory_tracker_fault_probability = SettingKey.builder()
+            .withName("memory_tracker_fault_probability")
+            .withType(SettingType.Float32)
+            .build();
+
+    public static SettingKey count_distinct_implementation = SettingKey.builder()
+            .withName("count_distinct_implementation")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey input_format_json_aggregate_function_type_base64_encode = SettingKey.builder()
+            .withName("input_format_json_aggregate_function_type_base64_encode")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey input_format_allow_errors_ratio = SettingKey.builder()
+            .withName("input_format_allow_errors_ratio")
+            .withType(SettingType.Float32)
+            .build();
+
+    public static SettingKey max_replica_delay_for_write_queries = SettingKey.builder()
+            .withName("max_replica_delay_for_write_queries")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey kafka_session_timeout_ms = SettingKey.builder()
+            .withName("kafka_session_timeout_ms")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey kafka_max_partition_fetch_bytes = SettingKey.builder()
+            .withName("kafka_max_partition_fetch_bytes")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey format_schema = SettingKey.builder()
+            .withName("format_schema")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey funnel_old_rule = SettingKey.builder()
+            .withName("funnel_old_rule")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey distributed_perfect_shard = SettingKey.builder()
+            .withName("distributed_perfect_shard")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey disable_perfect_shard_auto_merge = SettingKey.builder()
+            .withName("disable_perfect_shard_auto_merge")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey snappy_format_blocked = SettingKey.builder()
+            .withName("snappy_format_blocked")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey skip_nullinput_notnull_col = SettingKey.builder()
+            .withName("skip_nullinput_notnull_col")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey deduce_part_eliminate = SettingKey.builder()
+            .withName("deduce_part_eliminate")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey optimize_subpart_number = SettingKey.builder()
+            .withName("optimize_subpart_number")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey optimize_subpart_key = SettingKey.builder()
+            .withName("optimize_subpart_key")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey enable_bloom_filter = SettingKey.builder()
+            .withName("enable_bloom_filter")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_range_bloom_filter = SettingKey.builder()
+            .withName("enable_range_bloom_filter")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey parallel_fetch_part = SettingKey.builder()
+            .withName("parallel_fetch_part")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey disable_remote_stream_log = SettingKey.builder()
+            .withName("disable_remote_stream_log")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey decrease_error_period = SettingKey.builder()
+            .withName("decrease_error_period")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey enable_sync_from_ha = SettingKey.builder()
+            .withName("enable_sync_from_ha")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey pathgraph_threshold_y = SettingKey.builder()
+            .withName("pathgraph_threshold_y")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey pathgraph_threshold_x = SettingKey.builder()
+            .withName("pathgraph_threshold_x")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey enable_dictionary_compression = SettingKey.builder()
+            .withName("enable_dictionary_compression")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_sync_fetch = SettingKey.builder()
+            .withName("enable_sync_fetch")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey TEST_KNOB = SettingKey.builder()
+            .withName("TEST_KNOB")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey enable_sample_by_range = SettingKey.builder()
+            .withName("enable_sample_by_range")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_deterministic_sample_by_range = SettingKey.builder()
+            .withName("enable_deterministic_sample_by_range")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_final_sample = SettingKey.builder()
+            .withName("enable_final_sample")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_sample_size_for_optimize = SettingKey.builder()
+            .withName("max_sample_size_for_optimize")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey enable_ab_index_optimization = SettingKey.builder()
+            .withName("enable_ab_index_optimization")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_sync_build_bitmap = SettingKey.builder()
+            .withName("enable_sync_build_bitmap")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_async_build_bitmap_in_attach = SettingKey.builder()
+            .withName("enable_async_build_bitmap_in_attach")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_query_cache = SettingKey.builder()
+            .withName("enable_query_cache")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_variadic_arraySetCheck = SettingKey.builder()
+            .withName("enable_variadic_arraySetCheck")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey ntimes_slower_to_alarm = SettingKey.builder()
+            .withName("ntimes_slower_to_alarm")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey check_consistency = SettingKey.builder()
+            .withName("check_consistency")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_parallel_threads_for_resharding = SettingKey.builder()
+            .withName("max_parallel_threads_for_resharding")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_partitions_for_resharding = SettingKey.builder()
+            .withName("max_partitions_for_resharding")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_network_bandwidth_for_fetch = SettingKey.builder()
+            .withName("max_network_bandwidth_for_fetch")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey format_csv_write_utf8_with_bom = SettingKey.builder()
+            .withName("format_csv_write_utf8_with_bom")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey format_protobuf_enable_multiple_message = SettingKey.builder()
+            .withName("format_protobuf_enable_multiple_message")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey format_protobuf_default_length_parser = SettingKey.builder()
+            .withName("format_protobuf_default_length_parser")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey rm_zknodes_while_alter_engine = SettingKey.builder()
+            .withName("rm_zknodes_while_alter_engine")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey mimic_replica_name = SettingKey.builder()
+            .withName("mimic_replica_name")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey force_release_when_mmap_exceed = SettingKey.builder()
+            .withName("force_release_when_mmap_exceed")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey asterisk_left_columns_only = SettingKey.builder()
+            .withName("asterisk_left_columns_only")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey kms_token = SettingKey.builder()
+            .withName("kms_token")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey encrypt_key = SettingKey.builder()
+            .withName("encrypt_key")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey enable_final_for_delta = SettingKey.builder()
+            .withName("enable_final_for_delta")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey slow_query_ms = SettingKey.builder()
+            .withName("slow_query_ms")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_rows_to_schedule_merge = SettingKey.builder()
+            .withName("max_rows_to_schedule_merge")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey expired_start_hour_to_merge = SettingKey.builder()
+            .withName("expired_start_hour_to_merge")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey expired_end_hour_to_merge = SettingKey.builder()
+            .withName("expired_end_hour_to_merge")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey strict_rows_to_schedule_merge = SettingKey.builder()
+            .withName("strict_rows_to_schedule_merge")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_parts_to_optimize = SettingKey.builder()
+            .withName("max_parts_to_optimize")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey enable_merge_scheduler = SettingKey.builder()
+            .withName("enable_merge_scheduler")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_rows_for_resharding = SettingKey.builder()
+            .withName("max_rows_for_resharding")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey conservative_merge_predicate = SettingKey.builder()
+            .withName("conservative_merge_predicate")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey tealimit_order_keep = SettingKey.builder()
+            .withName("tealimit_order_keep")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey databases_load_pool_size = SettingKey.builder()
+            .withName("databases_load_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey tables_load_pool_size = SettingKey.builder()
+            .withName("tables_load_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey parts_load_pool_size = SettingKey.builder()
+            .withName("parts_load_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey parts_preallocate_pool_size = SettingKey.builder()
+            .withName("parts_preallocate_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey connection_check_pool_size = SettingKey.builder()
+            .withName("connection_check_pool_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey query_auto_retry = SettingKey.builder()
+            .withName("query_auto_retry")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey query_auto_retry_millisecond = SettingKey.builder()
+            .withName("query_auto_retry_millisecond")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey process_list_block_time = SettingKey.builder()
+            .withName("process_list_block_time")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey check_query_single_value_result = SettingKey.builder()
+            .withName("check_query_single_value_result")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_view_based_query_rewrite = SettingKey.builder()
+            .withName("enable_view_based_query_rewrite")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_hdfs_write_buffer_size = SettingKey.builder()
+            .withName("max_hdfs_write_buffer_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey input_format_max_map_key_long = SettingKey.builder()
+            .withName("input_format_max_map_key_long")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey input_format_parse_null_map_as_empty = SettingKey.builder()
+            .withName("input_format_parse_null_map_as_empty")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey input_format_skip_null_map_value = SettingKey.builder()
+            .withName("input_format_skip_null_map_value")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey cascading_refresh_materialized_view = SettingKey.builder()
+            .withName("cascading_refresh_materialized_view")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey batch_size_in_attaching_parts = SettingKey.builder()
+            .withName("batch_size_in_attaching_parts")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey remote_query_memory_table = SettingKey.builder()
+            .withName("remote_query_memory_table")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_ingest_columns_size = SettingKey.builder()
+            .withName("max_ingest_columns_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_ingest_rows_size = SettingKey.builder()
+            .withName("max_ingest_rows_size")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey aggressive_merge_in_optimize = SettingKey.builder()
+            .withName("aggressive_merge_in_optimize")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_detail_event_log = SettingKey.builder()
+            .withName("enable_detail_event_log")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_compressed_bytes_to_read = SettingKey.builder()
+            .withName("max_compressed_bytes_to_read")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey max_uncompressed_bytes_to_read = SettingKey.builder()
+            .withName("max_uncompressed_bytes_to_read")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey constraint_skip_violate = SettingKey.builder()
+            .withName("constraint_skip_violate")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey distributed_to_local = SettingKey.builder()
+            .withName("distributed_to_local")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_hdfs_read_network_bandwidth = SettingKey.builder()
+            .withName("max_hdfs_read_network_bandwidth")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey allow_map_access_without_key = SettingKey.builder()
+            .withName("allow_map_access_without_key")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey debug_cnch_remain_temp_part = SettingKey.builder()
+            .withName("debug_cnch_remain_temp_part")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey debug_cnch_force_commit_parts_rpc = SettingKey.builder()
+            .withName("debug_cnch_force_commit_parts_rpc")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey show_table_uuid_in_table_create_query_if_not_nil = SettingKey.builder()
+            .withName("show_table_uuid_in_table_create_query_if_not_nil")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey cnch_alter_task_timeout = SettingKey.builder()
+            .withName("cnch_alter_task_timeout")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey query_worker_fault_tolerance = SettingKey.builder()
+            .withName("query_worker_fault_tolerance")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey virtual_warehouse_write = SettingKey.builder()
+            .withName("virtual_warehouse_write")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey restore_table_expression_in_distributed = SettingKey.builder()
+            .withName("restore_table_expression_in_distributed")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey catalog_enable_streaming_rpc = SettingKey.builder()
+            .withName("catalog_enable_streaming_rpc")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey max_rpc_read_timeout_ms = SettingKey.builder()
+            .withName("max_rpc_read_timeout_ms")
+            .withType(SettingType.Int64)
+            .build();
+
+    public static SettingKey preload_checksums_and_primary_index_cache = SettingKey.builder()
+            .withName("preload_checksums_and_primary_index_cache")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_testlog_to_console = SettingKey.builder()
+            .withName("enable_testlog_to_console")
+            .withType(SettingType.Bool)
+            .build();
+
+    // CNCH Distributed Stages
+    public static SettingKey enable_distributed_stages = SettingKey.builder()
+            .withName("enable_distributed_stages")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_experimental_map_type = SettingKey.builder()
+            .withName("allow_experimental_map_type")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey allow_introspection_functions = SettingKey.builder()
+            .withName("allow_introspection_functions")
+            .withType(SettingType.Bool)
+            .build();
+
+    // ----------------------------- GATEWAY SETTINGS -------------------------------------
+    public static SettingKey skip_history = SettingKey.builder()
+            .withName("skip_history")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey ansi_sql = SettingKey.builder()
+            .withName("ansi_sql")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey enable_query_metadata = SettingKey.builder()
+            .withName("enable_query_metadata")
+            .withType(SettingType.Bool)
+            .build();
+
+    public static SettingKey active_role = SettingKey.builder()
+            .withName("active_role")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey log_id = SettingKey.builder()
+            .withName("log_id")
+            .withType(SettingType.UTF8)
+            .build();
+
+    public static SettingKey virtual_warehouse = SettingKey.builder()
+            .withName("virtual_warehouse")
+            .withType(SettingType.UTF8)
+            .build();
+
+    // ----------------------------- NON QUERY SETTINGS -------------------------------------
+    public static SettingKey host = SettingKey.builder()
+            .withName("host")
+            .withType(SettingType.UTF8)
+            .build();
 
     public static SettingKey port = SettingKey.builder()
             .withName("port")
             .withType(SettingType.Int32)
+            .build();
+
+    public static SettingKey database = SettingKey.builder()
+            .withName("database")
+            .withType(SettingType.UTF8)
             .build();
 
     public static SettingKey account_id = SettingKey.builder()
@@ -809,16 +1707,6 @@ public class SettingKey implements Serializable {
 
     public static SettingKey user = SettingKey.builder()
             .withName("user")
-            .withType(SettingType.UTF8)
-            .build();
-
-    public static SettingKey host = SettingKey.builder()
-            .withName("host")
-            .withType(SettingType.UTF8)
-            .build();
-
-    public static SettingKey database = SettingKey.builder()
-            .withName("database")
             .withType(SettingType.UTF8)
             .build();
 
