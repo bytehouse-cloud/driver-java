@@ -47,7 +47,9 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getURL() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/default?query_timeout=0&connect_timeout=0&charset=UTF-8&tcp_keep_alive=false", CK_HOST, CK_PORT),
+            assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/default?query_timeout=0" +
+                            "&connect_timeout=0&charset=UTF-8&tcp_keep_alive=false" +
+                            "&tcp_no_delay=true&secure=false&skip_verification=false", CK_HOST, CK_PORT),
                     dm.getURL());
         });
     }

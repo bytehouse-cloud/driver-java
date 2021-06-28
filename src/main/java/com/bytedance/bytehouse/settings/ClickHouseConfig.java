@@ -37,12 +37,16 @@ public class ClickHouseConfig implements Serializable {
     private final Duration queryTimeout;
     private final Duration connectTimeout;
     private final boolean tcpKeepAlive;
+    private final boolean tcpNoDelay;
+    private final boolean secure;
+    private final boolean skipVerification;
     private final String charset; // use String because Charset is not serializable
     private final Map<SettingKey, Serializable> settings;
 
     private ClickHouseConfig(String host, int port, String database, String accountId, String user, String password,
-                             Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive,
-                             String charset, Map<SettingKey, Serializable> settings) {
+                             Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive, boolean tcpNoDelay,
+                             boolean secure, boolean skipVerification, String charset,
+                             Map<SettingKey, Serializable> settings) {
         this.host = host;
         this.port = port;
         this.database = database;
@@ -52,6 +56,9 @@ public class ClickHouseConfig implements Serializable {
         this.queryTimeout = queryTimeout;
         this.connectTimeout = connectTimeout;
         this.tcpKeepAlive = tcpKeepAlive;
+        this.tcpNoDelay = tcpNoDelay;
+        this.secure = secure;
+        this.skipVerification = skipVerification;
         this.charset = charset;
         this.settings = settings;
     }
@@ -92,6 +99,18 @@ public class ClickHouseConfig implements Serializable {
         return tcpKeepAlive;
     }
 
+    public boolean tcpNoDelay() {
+        return tcpNoDelay;
+    }
+
+    public boolean secure() {
+        return secure;
+    }
+
+    public boolean skipVerification() {
+        return skipVerification;
+    }
+
     public Charset charset() {
         return Charset.forName(charset);
     }
@@ -113,7 +132,10 @@ public class ClickHouseConfig implements Serializable {
                 .append("?").append(SettingKey.query_timeout.name()).append("=").append(queryTimeout.getSeconds())
                 .append("&").append(SettingKey.connect_timeout.name()).append("=").append(connectTimeout.getSeconds())
                 .append("&").append(SettingKey.charset.name()).append("=").append(charset)
-                .append("&").append(SettingKey.tcp_keep_alive.name()).append("=").append(tcpKeepAlive);
+                .append("&").append(SettingKey.tcp_keep_alive.name()).append("=").append(tcpKeepAlive)
+                .append("&").append(SettingKey.tcp_no_delay.name()).append("=").append(tcpNoDelay)
+                .append("&").append(SettingKey.secure.name()).append("=").append(secure)
+                .append("&").append(SettingKey.skip_verification.name()).append("=").append(skipVerification);
 
         for (Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
             builder.append("&").append(entry.getKey().name()).append("=").append(entry.getValue());
@@ -153,9 +175,33 @@ public class ClickHouseConfig implements Serializable {
                 .build();
     }
 
+    public ClickHouseConfig withConnectTimeout(Duration timeout) {
+        return Builder.builder(this)
+                .connectTimeout(timeout)
+                .build();
+    }
+
     public ClickHouseConfig withTcpKeepAlive(boolean enable) {
         return Builder.builder(this)
                 .tcpKeepAlive(enable)
+                .build();
+    }
+
+    public ClickHouseConfig withTcpNoDelay(boolean tcpNoDelay) {
+        return Builder.builder(this)
+                .tcpNoDelay(tcpNoDelay)
+                .build();
+    }
+
+    public ClickHouseConfig withSecure(boolean secure) {
+        return Builder.builder(this)
+                .secure(secure)
+                .build();
+    }
+
+    public ClickHouseConfig withSkipVerification(boolean skipVerification) {
+        return Builder.builder(this)
+                .skipVerification(skipVerification)
                 .build();
     }
 
@@ -200,6 +246,9 @@ public class ClickHouseConfig implements Serializable {
         private Duration queryTimeout;
         private Duration connectTimeout;
         private boolean tcpKeepAlive;
+        private boolean tcpNoDelay;
+        private boolean secure;
+        private boolean skipVerification;
         private Charset charset;
         private Map<SettingKey, Serializable> settings = new HashMap<>();
 
@@ -221,6 +270,9 @@ public class ClickHouseConfig implements Serializable {
                     .queryTimeout(cfg.queryTimeout())
                     .connectTimeout(cfg.connectTimeout())
                     .tcpKeepAlive(cfg.tcpKeepAlive())
+                    .tcpNoDelay(cfg.tcpNoDelay())
+                    .secure(cfg.secure())
+                    .skipVerification(cfg.skipVerification())
                     .charset(cfg.charset())
                     .withSettings(cfg.settings());
         }
@@ -280,6 +332,21 @@ public class ClickHouseConfig implements Serializable {
             return this;
         }
 
+        public Builder tcpNoDelay(boolean tcpNoDelay) {
+            this.withSetting(SettingKey.tcp_no_delay, tcpNoDelay);
+            return this;
+        }
+
+        public Builder secure(boolean secure) {
+            this.withSetting(SettingKey.secure, secure);
+            return this;
+        }
+
+        public Builder skipVerification(boolean skipVerification) {
+            this.withSetting(SettingKey.skip_verification, skipVerification);
+            return this;
+        }
+
         public Builder charset(String charset) {
             this.withSetting(SettingKey.charset, charset);
             return this;
@@ -318,6 +385,9 @@ public class ClickHouseConfig implements Serializable {
             this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.query_timeout, Duration.ZERO);
             this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connect_timeout, Duration.ZERO);
             this.tcpKeepAlive = (boolean) this.settings.getOrDefault(SettingKey.tcp_keep_alive, false);
+            this.tcpNoDelay = (boolean) this.settings.getOrDefault(SettingKey.tcp_no_delay, true);
+            this.secure = (boolean) this.settings.getOrDefault(SettingKey.secure, false);
+            this.skipVerification = (boolean) this.settings.getOrDefault(SettingKey.skip_verification, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
 
             revisit();
@@ -325,7 +395,8 @@ public class ClickHouseConfig implements Serializable {
 
             return new ClickHouseConfig(
                     host, port, database, accountId, user, password, queryTimeout,
-                    connectTimeout, tcpKeepAlive, charset.name(), settings
+                    connectTimeout, tcpKeepAlive, tcpNoDelay, secure, skipVerification,
+                    charset.name(), settings
             );
         }
 
@@ -350,6 +421,9 @@ public class ClickHouseConfig implements Serializable {
             this.settings.remove(SettingKey.query_timeout);
             this.settings.remove(SettingKey.connect_timeout);
             this.settings.remove(SettingKey.tcp_keep_alive);
+            this.settings.remove(SettingKey.tcp_no_delay);
+            this.settings.remove(SettingKey.secure);
+            this.settings.remove(SettingKey.skip_verification);
             this.settings.remove(SettingKey.charset);
         }
     }
