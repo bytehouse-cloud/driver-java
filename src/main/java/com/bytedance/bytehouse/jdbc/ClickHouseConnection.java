@@ -324,7 +324,7 @@ public class ClickHouseConnection implements SQLConnection {
                     configure.fullUsername(), configure.password());
 
             HelloResponse response = nativeClient.receiveHello(configure.queryTimeout(), null);
-            ZoneId timeZone = ZoneId.of(response.serverTimeZone());
+            ZoneId timeZone = getZoneId(response.serverTimeZone());
             return new NativeContext.ServerContext(
                     response.majorVersion(), response.minorVersion(), response.reversion(),
                     configure, timeZone, response.serverDisplayName(), response.serverVersionPatch());
@@ -332,5 +332,17 @@ public class ClickHouseConnection implements SQLConnection {
             nativeClient.silentDisconnect();
             throw rethrows;
         }
+    }
+
+    /**
+     * Temporary fix for CNCH returning "Local" as a serverTimeZone.
+     */
+    private static ZoneId getZoneId(String serverTimeZone) {
+        if (serverTimeZone.equals("Local")) {
+            return ZoneId.systemDefault();
+        } else {
+            return ZoneId.of(serverTimeZone);
+        }
+
     }
 }

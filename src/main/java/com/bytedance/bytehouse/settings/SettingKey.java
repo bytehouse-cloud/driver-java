@@ -1726,6 +1726,24 @@ public class SettingKey implements Serializable {
             .withType(SettingType.Bool)
             .build();
 
+    public static SettingKey tcp_no_delay = SettingKey.builder()
+            .withName("tcp_no_delay")
+            .withType(SettingType.Bool)
+            .withDescription("defines if Nagle's algorithm and Delayed ACK should not be used")
+            .build();
+
+    public static SettingKey secure = SettingKey.builder()
+            .withName("secure")
+            .withType(SettingType.Bool)
+            .withDescription("defines if secure tcp connection is used")
+            .build();
+
+    public static SettingKey skip_verification = SettingKey.builder()
+            .withName("skip_verification")
+            .withType(SettingType.Bool)
+            .withDescription("defines if skip tls verification")
+            .build();
+
     public static SettingKey charset = SettingKey.builder()
             .withName("charset")
             .withType(SettingType.UTF8)

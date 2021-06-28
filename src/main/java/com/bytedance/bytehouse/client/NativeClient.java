@@ -28,27 +28,37 @@ import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.settings.ClickHouseConfig;
 import com.bytedance.bytehouse.settings.ClickHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
+
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
-// TODO throw ClickHouseException instead of SQLException
 public class NativeClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(NativeClient.class);
 
+    /**
+     * Connects to Gateway using either a secure (with TLS) or insecure TCP connection.
+     * Equivalent code in driver-go can be found in dial() function of:
+     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/conn/connect.go">connect.go</a>
+     */
     public static NativeClient connect(ClickHouseConfig configure) throws SQLException {
         try {
             SocketAddress endpoint = new InetSocketAddress(configure.host(), configure.port());
-            // TODO support proxy
-            Socket socket = new Socket();
-            socket.setTcpNoDelay(true);
+
+            Socket socket = obtainSocket(configure);
+            socket.setTcpNoDelay(configure.tcpNoDelay());
             socket.setSendBufferSize(ClickHouseDefines.SOCKET_SEND_BUFFER_BYTES);
             socket.setReceiveBufferSize(ClickHouseDefines.SOCKET_RECV_BUFFER_BYTES);
             socket.setKeepAlive(configure.tcpKeepAlive());
@@ -57,8 +67,59 @@ public class NativeClient {
             return new NativeClient(socket,
                     new BinarySerializer(new SocketBuffedWriter(socket), true),
                     new BinaryDeserializer(new SocketBuffedReader(socket), true));
-        } catch (IOException ex) {
-            throw new SQLException(ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
+    }
+
+    private static Socket obtainSocket(
+            ClickHouseConfig configure
+    ) throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        if (!configure.secure()) {
+            // non-secure connection
+            return new Socket();
+        } else {
+            // secure connection
+            SSLSocketFactory sslSocketFactory;
+            if (configure.skipVerification()) {
+                // TrustManager that trusts all certificates. Used to skip TLS verification.
+                TrustManager[] trustAllCertsManager = new TrustManager[] {new X509ExtendedTrustManager() {
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) { }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) { }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) { }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) { }
+
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                }};
+
+                SSLContext context = SSLContext.getInstance("TLSv1.2");
+                context.init(null, trustAllCertsManager, new SecureRandom());
+                sslSocketFactory = context.getSocketFactory();
+            } else {
+                sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            }
+
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
+            // Java 8 uses only TLS 1.2 by default. This line enables all supported protocols, including TLS 1.3
+            sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
+
+            return sslSocket;
         }
     }
 

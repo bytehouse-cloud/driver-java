@@ -29,7 +29,8 @@ public interface Response {
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/response.go">response.go</a>
      */
     static Response readFrom(BinaryDeserializer deserializer, NativeContext.ServerContext info) throws IOException, SQLException {
-        switch ((int) deserializer.readVarInt()) {
+        int responseType = (int) deserializer.readVarInt();
+        switch (responseType) {
             case 0:
                 return HelloResponse.readFrom(deserializer);
             case 1:
@@ -61,7 +62,7 @@ public interface Response {
             case 14:
                 return QueryMetadataResponse.readFrom(deserializer);
             default:
-                throw new IllegalStateException("Accept the id of response that is not recognized by Server.");
+                throw new IllegalStateException(String.format("Unknown server response type: %d", responseType));
         }
     }
 
