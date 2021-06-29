@@ -14,9 +14,9 @@
 
 package com.bytedance.bytehouse.misc;
 
-import com.bytedance.bytehouse.exception.ClickHouseException;
-import com.bytedance.bytehouse.exception.ClickHouseSQLException;
-import com.bytedance.bytehouse.settings.ClickHouseErrCode;
+import com.bytedance.bytehouse.exception.ByteHouseException;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import com.bytedance.bytehouse.settings.ByteHouseErrCode;
 
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
@@ -59,27 +59,27 @@ public class ExceptionUtil {
         };
     }
 
-    public static void rethrowSQLException(CheckedRunnable checked) throws ClickHouseSQLException {
+    public static void rethrowSQLException(CheckedRunnable checked) throws ByteHouseSQLException {
         try {
             checked.run();
         } catch (Exception rethrow) {
-            int errCode = ClickHouseErrCode.UNKNOWN_ERROR.code();
-            ClickHouseException ex = ExceptionUtil.recursiveFind(rethrow, ClickHouseException.class);
+            int errCode = ByteHouseErrCode.UNKNOWN_ERROR.code();
+            ByteHouseException ex = ExceptionUtil.recursiveFind(rethrow, ByteHouseException.class);
             if (ex != null)
                 errCode = ex.errCode();
-            throw new ClickHouseSQLException(errCode, rethrow.getMessage(), rethrow);
+            throw new ByteHouseSQLException(errCode, rethrow.getMessage(), rethrow);
         }
     }
 
-    public static <T> T rethrowSQLException(CheckedSupplier<T> checked) throws ClickHouseSQLException {
+    public static <T> T rethrowSQLException(CheckedSupplier<T> checked) throws ByteHouseSQLException {
         try {
             return checked.get();
         } catch (Exception rethrow) {
-            int errCode = ClickHouseErrCode.UNKNOWN_ERROR.code();
-            ClickHouseException ex = ExceptionUtil.recursiveFind(rethrow, ClickHouseException.class);
+            int errCode = ByteHouseErrCode.UNKNOWN_ERROR.code();
+            ByteHouseException ex = ExceptionUtil.recursiveFind(rethrow, ByteHouseException.class);
             if (ex != null)
                 errCode = ex.errCode();
-            throw new ClickHouseSQLException(errCode, rethrow.getMessage(), rethrow);
+            throw new ByteHouseSQLException(errCode, rethrow.getMessage(), rethrow);
         }
     }
 

@@ -19,22 +19,22 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLDatabaseMetadata;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
+public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseDatabaseMetadata.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseDatabaseMetadata.class);
 
     private final String url;
-    private final ClickHouseConnection connection;
+    private final ByteHouseConnection connection;
 
     // we will not close connection
-    public ClickHouseDatabaseMetadata(String url, ClickHouseConnection connection) {
+    public ByteHouseDatabaseMetadata(String url, ByteHouseConnection connection) {
         this.url = url;
         this.connection = connection;
     }
@@ -86,7 +86,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public String getDatabaseProductName() throws SQLException {
-        return "ClickHouse";
+        return "ByteHouse";
     }
 
     @Override
@@ -96,22 +96,22 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public String getDriverName() throws SQLException {
-        return "com.bytedance.bytehouse.clickhouse.native.jdbc";
+        return "com.bytedance.bytehouse.jdbc.ByteHouseDriver";
     }
 
     @Override
     public String getDriverVersion() throws SQLException {
-        return String.valueOf(ClickHouseDefines.CLIENT_REVISION);
+        return String.valueOf(ByteHouseDefines.CLIENT_REVISION);
     }
 
     @Override
     public int getDriverMajorVersion() {
-        return ClickHouseDefines.MAJOR_VERSION;
+        return ByteHouseDefines.MAJOR_VERSION;
     }
 
     @Override
     public int getDriverMinorVersion() {
-        return ClickHouseDefines.MINOR_VERSION;
+        return ByteHouseDefines.MINOR_VERSION;
     }
 
     @Override
@@ -634,7 +634,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
                                    String schemaPattern,
                                    String procedureNamePattern) throws SQLException {
 
-        return ClickHouseResultSetBuilder
+        return ByteHouseResultSetBuilder
                 .builder(9, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames(
@@ -665,7 +665,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
                                          String schemaPattern,
                                          String procedureNamePattern,
                                          String columnNamePattern) throws SQLException {
-        return ClickHouseResultSetBuilder
+        return ByteHouseResultSetBuilder
                 .builder(20, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames(
@@ -710,7 +710,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
         sql += " order by database, name";
         ResultSet result = request(sql);
 
-        ClickHouseResultSetBuilder builder = ClickHouseResultSetBuilder
+        ByteHouseResultSetBuilder builder = ByteHouseResultSetBuilder
                 .builder(10, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames(
@@ -739,7 +739,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
         List<String> typeList = types != null ? Arrays.asList(types) : null;
         while (result.next()) {
             List<String> row = new ArrayList<>();
-            row.add(ClickHouseDefines.DEFAULT_CATALOG);
+            row.add(ByteHouseDefines.DEFAULT_CATALOG);
             row.add(result.getString(1));
             row.add(result.getString(2));
             String type, e = result.getString(3).intern();
@@ -779,7 +779,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
-        String sql = "select name as TABLE_SCHEM, '" + ClickHouseDefines.DEFAULT_CATALOG + "' as TABLE_CATALOG from system.databases";
+        String sql = "select name as TABLE_SCHEM, '" + ByteHouseDefines.DEFAULT_CATALOG + "' as TABLE_CATALOG from system.databases";
         if (catalog != null) {
             sql += " where TABLE_CATALOG = '" + catalog + '\'';
         }
@@ -796,17 +796,17 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public ResultSet getCatalogs() throws SQLException {
-        return ClickHouseResultSetBuilder
+        return ByteHouseResultSetBuilder
                 .builder(1, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames("TABLE_CAT")
                 .columnTypes("String")
-                .addRow(ClickHouseDefines.DEFAULT_CATALOG).build();
+                .addRow(ByteHouseDefines.DEFAULT_CATALOG).build();
     }
 
     @Override
     public ResultSet getTableTypes() throws SQLException {
-        return ClickHouseResultSetBuilder
+        return ByteHouseResultSetBuilder
                 .builder(1, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames("TABLE_TYPE")
@@ -844,7 +844,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
             query.append(" WHERE ");
             buildAndCondition(query, predicates);
         }
-        ClickHouseResultSetBuilder builder = ClickHouseResultSetBuilder
+        ByteHouseResultSetBuilder builder = ByteHouseResultSetBuilder
                 .builder(24, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames(
@@ -902,7 +902,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
         while (descTable.next()) {
             List<Object> row = new ArrayList<>();
             //catalog name
-            row.add(ClickHouseDefines.DEFAULT_CATALOG);
+            row.add(ByteHouseDefines.DEFAULT_CATALOG);
             //database name
             row.add(descTable.getString("database"));
             //table name
@@ -1022,7 +1022,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public ResultSet getTypeInfo() throws SQLException {
-        ClickHouseResultSetBuilder builder = ClickHouseResultSetBuilder
+        ByteHouseResultSetBuilder builder = ByteHouseResultSetBuilder
                 .builder(18, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames(
@@ -1281,12 +1281,12 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public int getJDBCMajorVersion() throws SQLException {
-        return ClickHouseDefines.MAJOR_VERSION;
+        return ByteHouseDefines.MAJOR_VERSION;
     }
 
     @Override
     public int getJDBCMinorVersion() throws SQLException {
-        return ClickHouseDefines.MINOR_VERSION;
+        return ByteHouseDefines.MINOR_VERSION;
     }
 
     @Override
@@ -1354,7 +1354,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public Logger logger() {
-        return ClickHouseDatabaseMetadata.LOG;
+        return ByteHouseDatabaseMetadata.LOG;
     }
 
 
@@ -1364,7 +1364,7 @@ public final class ClickHouseDatabaseMetadata implements SQLDatabaseMetadata {
     }
 
     private ResultSet getEmptyResultSet() throws SQLException {
-        return ClickHouseResultSetBuilder
+        return ByteHouseResultSetBuilder
                 .builder(1, connection.serverContext())
                 .cfg(connection.cfg())
                 .columnNames("some")

@@ -23,14 +23,14 @@ import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
 
-public class ClickHouseArray implements SQLArray {
+public class ByteHouseArray implements SQLArray {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseArray.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseArray.class);
 
     private final IDataType<?, ?> elementDataType;
     private final Object[] elements;
 
-    public ClickHouseArray(IDataType<?, ?> elementDataType, Object[] elements) {
+    public ByteHouseArray(IDataType<?, ?> elementDataType, Object[] elements) {
         this.elementDataType = elementDataType;
         this.elements = elements;
     }
@@ -56,7 +56,7 @@ public class ClickHouseArray implements SQLArray {
 
     @Override
     public Logger logger() {
-        return ClickHouseArray.LOG;
+        return ByteHouseArray.LOG;
     }
 
     @Override
@@ -69,14 +69,14 @@ public class ClickHouseArray implements SQLArray {
         return joiner.toString();
     }
 
-    public ClickHouseArray slice(int offset, int length) {
+    public ByteHouseArray slice(int offset, int length) {
         Object[] result = new Object[length];
         if (length >= 0) System.arraycopy(elements, offset, result, 0, length);
-        return new ClickHouseArray(elementDataType, result);
+        return new ByteHouseArray(elementDataType, result);
     }
 
-    public ClickHouseArray mapElements(BiFunction<IDataType<?, ?>, Object, Object> mapFunc) {
+    public ByteHouseArray mapElements(BiFunction<IDataType<?, ?>, Object, Object> mapFunc) {
         Object[] mapped = Arrays.stream(elements).map(elem -> mapFunc.apply(elementDataType, elem)).toArray();
-        return new ClickHouseArray(elementDataType, mapped);
+        return new ByteHouseArray(elementDataType, mapped);
     }
 }

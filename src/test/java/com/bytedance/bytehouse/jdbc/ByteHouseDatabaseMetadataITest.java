@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -25,7 +25,7 @@ import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClickHouseDatabaseMetadataITest extends AbstractITest {
+class ByteHouseDatabaseMetadataITest extends AbstractITest {
 
     @Test
     void allProceduresAreCallable() throws Exception {
@@ -47,7 +47,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getURL() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/default?query_timeout=0" +
+            assertEquals(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s/default?query_timeout=0" +
                             "&connect_timeout=0&charset=UTF-8&tcp_keep_alive=false" +
                             "&tcp_no_delay=true&secure=false&skip_verification=false", CK_HOST, CK_PORT),
                     dm.getURL());
@@ -106,7 +106,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDatabaseProductName() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals("ClickHouse", dm.getDatabaseProductName());
+            assertEquals("ByteHouse", dm.getDatabaseProductName());
         });
     }
 
@@ -114,7 +114,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDatabaseProductVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(((ClickHouseConnection) connection).serverContext().version(), dm.getDatabaseProductVersion());
+            assertEquals(((ByteHouseConnection) connection).serverContext().version(), dm.getDatabaseProductVersion());
         });
     }
 
@@ -122,7 +122,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverName() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals("com.bytedance.bytehouse.clickhouse.native.jdbc", dm.getDriverName());
+            assertEquals("com.bytedance.bytehouse.jdbc.ByteHouseDriver", dm.getDriverName());
         });
     }
 
@@ -130,7 +130,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(String.valueOf(ClickHouseDefines.CLIENT_REVISION), dm.getDriverVersion());
+            assertEquals(String.valueOf(ByteHouseDefines.CLIENT_REVISION), dm.getDriverVersion());
         });
     }
 
@@ -138,7 +138,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverMajorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ClickHouseDefines.MAJOR_VERSION, dm.getDriverMajorVersion());
+            assertEquals(ByteHouseDefines.MAJOR_VERSION, dm.getDriverMajorVersion());
         });
     }
 
@@ -146,7 +146,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverMinorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ClickHouseDefines.MINOR_VERSION, dm.getDriverMinorVersion());
+            assertEquals(ByteHouseDefines.MINOR_VERSION, dm.getDriverMinorVersion());
         });
     }
 
@@ -1341,7 +1341,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDatabaseMajorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals((int) ((ClickHouseConnection) connection).serverContext().majorVersion(), dm.getDatabaseMajorVersion());
+            assertEquals((int) ((ByteHouseConnection) connection).serverContext().majorVersion(), dm.getDatabaseMajorVersion());
         });
     }
 
@@ -1349,7 +1349,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getDatabaseMinorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals((int) ((ClickHouseConnection) connection).serverContext().minorVersion(), dm.getDatabaseMinorVersion());
+            assertEquals((int) ((ByteHouseConnection) connection).serverContext().minorVersion(), dm.getDatabaseMinorVersion());
         });
     }
 
@@ -1357,7 +1357,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getJDBCMajorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ClickHouseDefines.MAJOR_VERSION, dm.getJDBCMajorVersion());
+            assertEquals(ByteHouseDefines.MAJOR_VERSION, dm.getJDBCMajorVersion());
         });
     }
 
@@ -1365,7 +1365,7 @@ class ClickHouseDatabaseMetadataITest extends AbstractITest {
     void getJDBCMinorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ClickHouseDefines.MINOR_VERSION, dm.getJDBCMinorVersion());
+            assertEquals(ByteHouseDefines.MINOR_VERSION, dm.getJDBCMinorVersion());
         });
     }
 

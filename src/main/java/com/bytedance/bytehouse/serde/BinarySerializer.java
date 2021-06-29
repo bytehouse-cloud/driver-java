@@ -17,7 +17,7 @@ package com.bytedance.bytehouse.serde;
 import com.bytedance.bytehouse.misc.Switcher;
 import com.bytedance.bytehouse.buffer.BuffedWriter;
 import com.bytedance.bytehouse.buffer.CompressedBuffedWriter;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -32,7 +32,7 @@ public class BinarySerializer {
         this.enableCompress = enableCompress;
         BuffedWriter compressWriter = null;
         if (enableCompress) {
-            compressWriter = new CompressedBuffedWriter(ClickHouseDefines.SOCKET_SEND_BUFFER_BYTES, writer);
+            compressWriter = new CompressedBuffedWriter(ByteHouseDefines.SOCKET_SEND_BUFFER_BYTES, writer);
         }
         switcher = new Switcher<>(compressWriter, writer);
     }

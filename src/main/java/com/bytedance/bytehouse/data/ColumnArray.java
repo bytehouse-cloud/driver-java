@@ -15,7 +15,7 @@
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeArray;
-import com.bytedance.bytehouse.jdbc.ClickHouseArray;
+import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class ColumnArray extends AbstractColumn {
 
     @Override
     public void write(Object object) throws IOException, SQLException {
-        Object[] arr = ((ClickHouseArray) object).getArray();
+        Object[] arr = ((ByteHouseArray) object).getArray();
 
         offsets.add(offsets.isEmpty() ? arr.length : offsets.get((offsets.size() - 1)) + arr.length);
         for (Object field : arr) {

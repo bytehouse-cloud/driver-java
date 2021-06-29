@@ -16,8 +16,8 @@ package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.client.NativeContext;
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.stream.QueryResultBuilder;
 
@@ -25,67 +25,67 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-public class ClickHouseResultSetBuilder {
+public class ByteHouseResultSetBuilder {
 
     private final QueryResultBuilder queryResultBuilder;
 
-    private ClickHouseConfig cfg;
-    private String db = ClickHouseDefines.DEFAULT_DATABASE;
+    private ByteHouseConfig cfg;
+    private String db = ByteHouseDefines.DEFAULT_DATABASE;
     private String table = "unknown";
 
-    public static ClickHouseResultSetBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
-        return new ClickHouseResultSetBuilder(QueryResultBuilder.builder(columnsNum, serverContext));
+    public static ByteHouseResultSetBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
+        return new ByteHouseResultSetBuilder(QueryResultBuilder.builder(columnsNum, serverContext));
     }
 
-    private ClickHouseResultSetBuilder(QueryResultBuilder queryResultBuilder) {
+    private ByteHouseResultSetBuilder(QueryResultBuilder queryResultBuilder) {
         this.queryResultBuilder = queryResultBuilder;
     }
 
-    public ClickHouseResultSetBuilder cfg(ClickHouseConfig cfg) {
+    public ByteHouseResultSetBuilder cfg(ByteHouseConfig cfg) {
         this.cfg = cfg;
         return this;
     }
 
-    public ClickHouseResultSetBuilder db(String db) {
+    public ByteHouseResultSetBuilder db(String db) {
         this.db = db;
         return this;
     }
 
-    public ClickHouseResultSetBuilder table(String table) {
+    public ByteHouseResultSetBuilder table(String table) {
         this.table = table;
         return this;
     }
 
-    public ClickHouseResultSetBuilder columnNames(String... names) {
+    public ByteHouseResultSetBuilder columnNames(String... names) {
         return columnNames(Arrays.asList(names));
     }
 
-    public ClickHouseResultSetBuilder columnNames(List<String> names) {
+    public ByteHouseResultSetBuilder columnNames(List<String> names) {
         this.queryResultBuilder.columnNames(names);
         return this;
     }
 
-    public ClickHouseResultSetBuilder columnTypes(String... types) throws SQLException {
+    public ByteHouseResultSetBuilder columnTypes(String... types) throws SQLException {
         return columnTypes(Arrays.asList(types));
     }
 
-    public ClickHouseResultSetBuilder columnTypes(List<String> types) throws SQLException {
+    public ByteHouseResultSetBuilder columnTypes(List<String> types) throws SQLException {
         this.queryResultBuilder.columnTypes(types);
         return this;
     }
 
-    public ClickHouseResultSetBuilder addRow(Object... row) {
+    public ByteHouseResultSetBuilder addRow(Object... row) {
         return addRow(Arrays.asList(row));
     }
 
-    public ClickHouseResultSetBuilder addRow(List<?> row) {
+    public ByteHouseResultSetBuilder addRow(List<?> row) {
         this.queryResultBuilder.addRow(row);
         return this;
     }
 
-    public ClickHouseResultSet build() throws SQLException {
+    public ByteHouseResultSet build() throws SQLException {
         Validate.ensure(cfg != null);
         QueryResult queryResult = this.queryResultBuilder.build();
-        return new ClickHouseResultSet(null, cfg, db, table, queryResult.header(), queryResult.data());
+        return new ByteHouseResultSet(null, cfg, db, table, queryResult.header(), queryResult.data());
     }
 }

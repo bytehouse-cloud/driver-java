@@ -27,14 +27,14 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ClickHouseStruct implements SQLStruct {
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseStruct.class);
+public class ByteHouseStruct implements SQLStruct {
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStruct.class);
     private static final Pattern ATTR_INDEX_REGEX = Pattern.compile("_(\\d+)");
 
     private final String type;
     private final Object[] attributes;
 
-    public ClickHouseStruct(String type, Object[] attributes) {
+    public ByteHouseStruct(String type, Object[] attributes) {
         this.type = type;
         this.attributes = attributes;
     }
@@ -70,7 +70,7 @@ public class ClickHouseStruct implements SQLStruct {
 
     @Override
     public Logger logger() {
-        return ClickHouseStruct.LOG;
+        return ByteHouseStruct.LOG;
     }
 
     @Override
@@ -84,12 +84,12 @@ public class ClickHouseStruct implements SQLStruct {
     }
 
     // actually we should hold nestedTypes on this
-    public ClickHouseStruct mapAttributes(IDataType<?, ?>[] nestedTypes, BiFunction<IDataType<?, ?>, Object, Object> mapFunc) {
+    public ByteHouseStruct mapAttributes(IDataType<?, ?>[] nestedTypes, BiFunction<IDataType<?, ?>, Object, Object> mapFunc) {
         assert nestedTypes.length == attributes.length;
         Object[] mapped = new Object[attributes.length];
         for (int i = 0; i < attributes.length; i++) {
             mapped[i] = mapFunc.apply(nestedTypes[i], attributes[i]);
         }
-        return new ClickHouseStruct(type, mapped);
+        return new ByteHouseStruct(type, mapped);
     }
 }

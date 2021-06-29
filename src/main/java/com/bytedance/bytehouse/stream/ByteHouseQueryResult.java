@@ -23,7 +23,7 @@ import com.bytedance.bytehouse.protocol.Response;
 
 import java.sql.SQLException;
 
-public class ClickHouseQueryResult implements QueryResult {
+public class ByteHouseQueryResult implements QueryResult {
 
     private final CheckedSupplier<Response, SQLException> responseSupplier;
     private Block header;
@@ -34,7 +34,7 @@ public class ClickHouseQueryResult implements QueryResult {
     // ProfileInfo
     // EndOfStream
 
-    public ClickHouseQueryResult(CheckedSupplier<Response, SQLException> responseSupplier) {
+    public ByteHouseQueryResult(CheckedSupplier<Response, SQLException> responseSupplier) {
         this.responseSupplier = responseSupplier;
     }
 

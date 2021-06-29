@@ -19,8 +19,8 @@ import io.airlift.compress.Compressor;
 import io.airlift.compress.lz4.Lz4Compressor;
 import org.junit.jupiter.api.Test;
 
-import static com.bytedance.bytehouse.settings.ClickHouseDefines.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.ClickHouseDefines.COMPRESSION_HEADER_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
 import java.util.Arrays;
 

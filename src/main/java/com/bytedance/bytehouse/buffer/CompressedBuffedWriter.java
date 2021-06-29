@@ -22,8 +22,8 @@ import io.airlift.compress.zstd.ZstdCompressor;
 
 import java.io.IOException;
 
-import static com.bytedance.bytehouse.settings.ClickHouseDefines.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.ClickHouseDefines.COMPRESSION_HEADER_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
 public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
 

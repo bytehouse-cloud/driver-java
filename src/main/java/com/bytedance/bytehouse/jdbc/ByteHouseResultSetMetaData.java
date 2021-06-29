@@ -19,20 +19,20 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSetMetaData;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-public class ClickHouseResultSetMetaData implements SQLResultSetMetaData {
+public class ByteHouseResultSetMetaData implements SQLResultSetMetaData {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseResultSetMetaData.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSetMetaData.class);
 
     private final Block header;
     private final String db;
     private final String table;
 
-    public ClickHouseResultSetMetaData(Block header, String db, String table) {
+    public ByteHouseResultSetMetaData(Block header, String db, String table) {
         this.header = header;
         this.db = db;
         this.table = table;
@@ -116,7 +116,7 @@ public class ClickHouseResultSetMetaData implements SQLResultSetMetaData {
 
     @Override
     public String getCatalogName(int column) throws SQLException {
-        return ClickHouseDefines.DEFAULT_CATALOG;
+        return ByteHouseDefines.DEFAULT_CATALOG;
     }
 
     @Override
@@ -146,6 +146,6 @@ public class ClickHouseResultSetMetaData implements SQLResultSetMetaData {
 
     @Override
     public Logger logger() {
-        return ClickHouseResultSetMetaData.LOG;
+        return ByteHouseResultSetMetaData.LOG;
     }
 }

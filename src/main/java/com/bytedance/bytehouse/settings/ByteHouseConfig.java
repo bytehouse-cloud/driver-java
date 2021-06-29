@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.settings;
 
-import com.bytedance.bytehouse.jdbc.ClickhouseJdbcUrlParser;
+import com.bytedance.bytehouse.jdbc.ByteHouseJdbcUrlParser;
 import com.bytedance.bytehouse.misc.CollectionUtil;
 import com.bytedance.bytehouse.misc.StrUtil;
 import javax.annotation.concurrent.Immutable;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 @Immutable
-public class ClickHouseConfig implements Serializable {
+public class ByteHouseConfig implements Serializable {
 
     private final String host;
     private final int port;
@@ -43,10 +43,10 @@ public class ClickHouseConfig implements Serializable {
     private final String charset; // use String because Charset is not serializable
     private final Map<SettingKey, Serializable> settings;
 
-    private ClickHouseConfig(String host, int port, String database, String accountId, String user, String password,
-                             Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive, boolean tcpNoDelay,
-                             boolean secure, boolean skipVerification, String charset,
-                             Map<SettingKey, Serializable> settings) {
+    private ByteHouseConfig(String host, int port, String database, String accountId, String user, String password,
+                            Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive, boolean tcpNoDelay,
+                            boolean secure, boolean skipVerification, String charset,
+                            Map<SettingKey, Serializable> settings) {
         this.host = host;
         this.port = port;
         this.database = database;
@@ -127,7 +127,7 @@ public class ClickHouseConfig implements Serializable {
     }
 
     public String jdbcUrl() {
-        StringBuilder builder = new StringBuilder(ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFIX)
+        StringBuilder builder = new StringBuilder(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
                 .append("//").append(host).append(":").append(port).append("/").append(database)
                 .append("?").append(SettingKey.query_timeout.name()).append("=").append(queryTimeout.getSeconds())
                 .append("&").append(SettingKey.connect_timeout.name()).append("=").append(connectTimeout.getSeconds())
@@ -143,93 +143,93 @@ public class ClickHouseConfig implements Serializable {
         return builder.toString();
     }
 
-    public ClickHouseConfig withHostPort(String host, int port) {
+    public ByteHouseConfig withHostPort(String host, int port) {
         return Builder.builder(this)
                 .host(host)
                 .port(port)
                 .build();
     }
 
-    public ClickHouseConfig withDatabase(String database) {
+    public ByteHouseConfig withDatabase(String database) {
         return Builder.builder(this)
                 .database(database)
                 .build();
     }
 
-    public ClickHouseConfig withAccountId(String accountId) {
+    public ByteHouseConfig withAccountId(String accountId) {
         return Builder.builder(this)
                 .accountId(accountId)
                 .build();
     }
 
-    public ClickHouseConfig withCredentials(String user, String password) {
+    public ByteHouseConfig withCredentials(String user, String password) {
         return Builder.builder(this)
                 .user(user)
                 .password(password)
                 .build();
     }
 
-    public ClickHouseConfig withQueryTimeout(Duration timeout) {
+    public ByteHouseConfig withQueryTimeout(Duration timeout) {
         return Builder.builder(this)
                 .queryTimeout(timeout)
                 .build();
     }
 
-    public ClickHouseConfig withConnectTimeout(Duration timeout) {
+    public ByteHouseConfig withConnectTimeout(Duration timeout) {
         return Builder.builder(this)
                 .connectTimeout(timeout)
                 .build();
     }
 
-    public ClickHouseConfig withTcpKeepAlive(boolean enable) {
+    public ByteHouseConfig withTcpKeepAlive(boolean enable) {
         return Builder.builder(this)
                 .tcpKeepAlive(enable)
                 .build();
     }
 
-    public ClickHouseConfig withTcpNoDelay(boolean tcpNoDelay) {
+    public ByteHouseConfig withTcpNoDelay(boolean tcpNoDelay) {
         return Builder.builder(this)
                 .tcpNoDelay(tcpNoDelay)
                 .build();
     }
 
-    public ClickHouseConfig withSecure(boolean secure) {
+    public ByteHouseConfig withSecure(boolean secure) {
         return Builder.builder(this)
                 .secure(secure)
                 .build();
     }
 
-    public ClickHouseConfig withSkipVerification(boolean skipVerification) {
+    public ByteHouseConfig withSkipVerification(boolean skipVerification) {
         return Builder.builder(this)
                 .skipVerification(skipVerification)
                 .build();
     }
 
-    public ClickHouseConfig withCharset(Charset charset) {
+    public ByteHouseConfig withCharset(Charset charset) {
         return Builder.builder(this)
                 .charset(charset)
                 .build();
     }
 
-    public ClickHouseConfig withSettings(Map<SettingKey, Serializable> settings) {
+    public ByteHouseConfig withSettings(Map<SettingKey, Serializable> settings) {
         return Builder.builder(this)
                 .withSettings(settings)
                 .build();
     }
 
-    public ClickHouseConfig withJdbcUrl(String url) {
+    public ByteHouseConfig withJdbcUrl(String url) {
         return Builder.builder(this)
                 .withJdbcUrl(url)
                 .build();
     }
 
-    public ClickHouseConfig withProperties(Properties properties) {
+    public ByteHouseConfig withProperties(Properties properties) {
         return Builder.builder(this)
                 .withProperties(properties)
                 .build();
     }
 
-    public ClickHouseConfig with(String url, Properties properties) {
+    public ByteHouseConfig with(String url, Properties properties) {
         return Builder.builder(this)
                 .withJdbcUrl(url)
                 .withProperties(properties)
@@ -259,7 +259,7 @@ public class ClickHouseConfig implements Serializable {
             return new Builder();
         }
 
-        public static Builder builder(ClickHouseConfig cfg) {
+        public static Builder builder(ByteHouseConfig cfg) {
             return new Builder()
                     .host(cfg.host())
                     .port(cfg.port())
@@ -368,14 +368,14 @@ public class ClickHouseConfig implements Serializable {
         }
 
         public Builder withJdbcUrl(String jdbcUrl) {
-            return this.withSettings(ClickhouseJdbcUrlParser.parseJdbcUrl(jdbcUrl));
+            return this.withSettings(ByteHouseJdbcUrlParser.parseJdbcUrl(jdbcUrl));
         }
 
         public Builder withProperties(Properties properties) {
-            return this.withSettings(ClickhouseJdbcUrlParser.parseProperties(properties));
+            return this.withSettings(ByteHouseJdbcUrlParser.parseProperties(properties));
         }
 
-        public ClickHouseConfig build() {
+        public ByteHouseConfig build() {
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
             this.database = (String) this.settings.getOrDefault(SettingKey.database, "default");
@@ -393,7 +393,7 @@ public class ClickHouseConfig implements Serializable {
             revisit();
             purgeSettings();
 
-            return new ClickHouseConfig(
+            return new ByteHouseConfig(
                     host, port, database, accountId, user, password, queryTimeout,
                     connectTimeout, tcpKeepAlive, tcpNoDelay, secure, skipVerification,
                     charset.name(), settings

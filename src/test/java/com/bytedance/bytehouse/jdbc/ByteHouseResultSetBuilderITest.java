@@ -18,14 +18,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClickHouseResultSetBuilderITest extends AbstractITest {
+class ByteHouseResultSetBuilderITest extends AbstractITest {
 
     @Test
     public void testBuildEmptyResultSet() throws Exception {
         withNewConnection(connection -> {
-            ClickHouseResultSet rs = ClickHouseResultSetBuilder
-                    .builder(1, ((ClickHouseConnection) connection).serverContext())
-                    .cfg(((ClickHouseConnection) connection).cfg())
+            ByteHouseResultSet rs = ByteHouseResultSetBuilder
+                    .builder(1, ((ByteHouseConnection) connection).serverContext())
+                    .cfg(((ByteHouseConnection) connection).cfg())
                     .columnNames("some")
                     .columnTypes("String")
                     .build();
@@ -38,9 +38,9 @@ class ClickHouseResultSetBuilderITest extends AbstractITest {
     @Test
     public void testBuildResultSetWithRow() throws Exception {
         withNewConnection(connection -> {
-            ClickHouseResultSet rs = ClickHouseResultSetBuilder
-                    .builder(1, ((ClickHouseConnection) connection).serverContext())
-                    .cfg(((ClickHouseConnection) connection).cfg())
+            ByteHouseResultSet rs = ByteHouseResultSetBuilder
+                    .builder(1, ((ByteHouseConnection) connection).serverContext())
+                    .cfg(((ByteHouseConnection) connection).cfg())
                     .columnNames("some")
                     .columnTypes("String")
                     .addRow("A")

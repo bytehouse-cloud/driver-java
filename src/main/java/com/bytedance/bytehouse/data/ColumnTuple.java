@@ -15,7 +15,7 @@
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
-import com.bytedance.bytehouse.jdbc.ClickHouseStruct;
+import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class ColumnTuple extends AbstractColumn {
 
     @Override
     public void write(Object object) throws IOException, SQLException {
-        ClickHouseStruct tuple = (ClickHouseStruct) object;
+        ByteHouseStruct tuple = (ByteHouseStruct) object;
         for (int i = 0; i < columnDataArray.length; i++) {
             columnDataArray[i].write(tuple.getAttributes()[i]);
         }

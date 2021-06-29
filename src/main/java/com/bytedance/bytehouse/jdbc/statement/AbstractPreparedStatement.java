@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.jdbc.statement;
 
-import com.bytedance.bytehouse.jdbc.ClickHouseConnection;
+import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLPreparedStatement;
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
@@ -32,7 +32,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-public abstract class AbstractPreparedStatement extends ClickHouseStatement implements SQLPreparedStatement {
+public abstract class AbstractPreparedStatement extends ByteHouseStatement implements SQLPreparedStatement {
 
     private final String[] queryParts;
     private final DateTimeFormatter dateFmt;
@@ -41,7 +41,7 @@ public abstract class AbstractPreparedStatement extends ClickHouseStatement impl
 
     protected Object[] parameters;
 
-    public AbstractPreparedStatement(ClickHouseConnection connection, NativeContext nativeContext, String[] queryParts) {
+    public AbstractPreparedStatement(ByteHouseConnection connection, NativeContext nativeContext, String[] queryParts) {
         super(connection, nativeContext);
         this.queryParts = queryParts;
         if (queryParts != null && queryParts.length > 0)

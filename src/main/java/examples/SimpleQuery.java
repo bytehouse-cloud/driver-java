@@ -1,6 +1,6 @@
 package examples;
 
-import com.bytedance.bytehouse.jdbc.BalancedClickhouseDataSource;
+import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -10,13 +10,13 @@ public class SimpleQuery {
 
     public static void main(String[] args) throws Exception {
         // Following environment variables must be defined
-        String url = String.format("jdbc:clickhouse://%s:%s", System.getenv("HOST"), System.getenv("PORT"));
+        String url = String.format("jdbc:bytehouse://%s:%s", System.getenv("HOST"), System.getenv("PORT"));
         Properties properties = new Properties();
         properties.setProperty("account_id", System.getenv("ACCOUNT_ID"));
         properties.setProperty("user", System.getenv("USER"));
         properties.setProperty("password", System.getenv("PASSWORD"));
 
-        DataSource dataSource = new BalancedClickhouseDataSource(url, properties);
+        DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
         Connection connection = dataSource.getConnection();
 
         Statement stmt = connection.createStatement();

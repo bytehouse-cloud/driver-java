@@ -1,1 +1,1 @@
-com.bytedance.bytehouse.jdbc.ClickHouseDriver
+com.bytedance.bytehouse.jdbc.ByteHouseDriver

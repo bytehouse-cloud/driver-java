@@ -17,7 +17,7 @@ package com.bytedance.bytehouse.data.type.complex;
 import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.data.type.DataTypeInt64;
-import com.bytedance.bytehouse.jdbc.ClickHouseArray;
+import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -31,10 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO avoid using ClickHouseArray because it's a subclass of java.sql.Array
-public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
+// TODO avoid using ByteHouseArray because it's a subclass of java.sql.Array
+public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
 
-    public static DataTypeCreator<ClickHouseArray, Array> creator = (lexer, serverContext) -> {
+    public static DataTypeCreator<ByteHouseArray, Array> creator = (lexer, serverContext) -> {
         Validate.isTrue(lexer.character() == '(');
         IDataType<?, ?> arrayNestedType = DataTypeFactory.get(lexer, serverContext);
         Validate.isTrue(lexer.character() == ')');
@@ -43,7 +43,7 @@ public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
     };
 
     private final String name;
-    private final ClickHouseArray defaultValue;
+    private final ByteHouseArray defaultValue;
 
 
     private final IDataType<?, ?> elemDataType;
@@ -54,7 +54,7 @@ public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
         this.name = name;
         this.elemDataType = elemDataType;
         this.offsetIDataType = offsetIDataType;
-        this.defaultValue = new ClickHouseArray(elemDataType, new Object[]{elemDataType.defaultValue()});
+        this.defaultValue = new ByteHouseArray(elemDataType, new Object[]{elemDataType.defaultValue()});
     }
 
     @Override
@@ -68,13 +68,13 @@ public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
     }
 
     @Override
-    public ClickHouseArray defaultValue() {
+    public ByteHouseArray defaultValue() {
         return defaultValue;
     }
 
     @Override
-    public Class<ClickHouseArray> javaType() {
-        return ClickHouseArray.class;
+    public Class<ByteHouseArray> javaType() {
+        return ByteHouseArray.class;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
     }
 
     @Override
-    public ClickHouseArray deserializeText(SQLLexer lexer) throws SQLException {
+    public ByteHouseArray deserializeText(SQLLexer lexer) throws SQLException {
         Validate.isTrue(lexer.character() == '[');
         List<Object> arrayData = new ArrayList<>();
         for (; ; ) {
@@ -106,11 +106,11 @@ public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
             }
             arrayData.add(elemDataType.deserializeText(lexer));
         }
-        return new ClickHouseArray(elemDataType, arrayData.toArray());
+        return new ByteHouseArray(elemDataType, arrayData.toArray());
     }
 
     @Override
-    public void serializeBinary(ClickHouseArray data, BinarySerializer serializer) throws SQLException, IOException {
+    public void serializeBinary(ByteHouseArray data, BinarySerializer serializer) throws SQLException, IOException {
         for (Object f : data.getArray()) {
             getElemDataType().serializeBinary(f, serializer);
         }
@@ -118,27 +118,27 @@ public class DataTypeArray implements IDataType<ClickHouseArray, Array> {
 
 
     @Override
-    public void serializeBinaryBulk(ClickHouseArray[] data, BinarySerializer serializer) throws SQLException, IOException {
+    public void serializeBinaryBulk(ByteHouseArray[] data, BinarySerializer serializer) throws SQLException, IOException {
         offsetIDataType.serializeBinary((long) data.length, serializer);
         getElemDataType().serializeBinaryBulk(data, serializer);
     }
 
     @Override
-    public ClickHouseArray deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
+    public ByteHouseArray deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         Long offset = offsetIDataType.deserializeBinary(deserializer);
         Object[] data = getElemDataType().deserializeBinaryBulk(offset.intValue(), deserializer);
-        return new ClickHouseArray(elemDataType, data);
+        return new ByteHouseArray(elemDataType, data);
     }
 
     @Override
-    public ClickHouseArray[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
-        ClickHouseArray[] arrays = new ClickHouseArray[rows];
+    public ByteHouseArray[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        ByteHouseArray[] arrays = new ByteHouseArray[rows];
         if (rows == 0) {
             return arrays;
         }
 
         int[] offsets = Arrays.stream(offsetIDataType.deserializeBinaryBulk(rows, deserializer)).mapToInt(value -> ((Long) value).intValue()).toArray();
-        ClickHouseArray res = new ClickHouseArray(elemDataType,
+        ByteHouseArray res = new ByteHouseArray(elemDataType,
                 elemDataType.deserializeBinaryBulk(offsets[rows - 1], deserializer));
 
         for (int row = 0, lastOffset = 0; row < rows; row++) {

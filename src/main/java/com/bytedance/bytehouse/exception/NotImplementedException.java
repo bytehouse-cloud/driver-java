@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.exception;
 
-public class NotImplementedException extends ClickHouseClientException {
+public class NotImplementedException extends ByteHouseClientException {
 
     public NotImplementedException(String message) {
         super(message);

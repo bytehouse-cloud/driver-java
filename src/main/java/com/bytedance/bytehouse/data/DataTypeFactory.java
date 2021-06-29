@@ -36,10 +36,10 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
 import com.bytedance.bytehouse.misc.LRUCache;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 
 public class DataTypeFactory {
-    private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE = new LRUCache<>(ClickHouseDefines.DATA_TYPE_CACHE_SIZE);
+    private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE = new LRUCache<>(ByteHouseDefines.DATA_TYPE_CACHE_SIZE);
 
     public static IDataType<?, ?> get(String type, NativeContext.ServerContext serverContext) throws SQLException {
         IDataType<?, ?> dataType = DATA_TYPE_CACHE.get(type);

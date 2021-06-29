@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.exception;
 
-public class NoDefaultValueException extends ClickHouseClientException {
+public class NoDefaultValueException extends ByteHouseClientException {
 
     public NoDefaultValueException(String message) {
         super(message);

@@ -15,7 +15,7 @@
 package com.bytedance.bytehouse.jdbc.statement;
 
 
-import com.bytedance.bytehouse.jdbc.ClickHouseConnection;
+import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 
@@ -26,7 +26,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClickHousePreparedQueryStatement extends AbstractPreparedStatement {
+public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
 
     private static String[] splitQueryByQuestionMark(String query) {
         int lastPos = 0;
@@ -49,11 +49,11 @@ public class ClickHousePreparedQueryStatement extends AbstractPreparedStatement 
         return queryParts.toArray(new String[0]);
     }
 
-    public ClickHousePreparedQueryStatement(ClickHouseConnection conn, NativeContext nativeContext, String query) {
+    public ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String query) {
         this(conn, nativeContext, splitQueryByQuestionMark(query));
     }
 
-    private ClickHousePreparedQueryStatement(ClickHouseConnection conn, NativeContext nativeContext, String[] parts) {
+    private ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String[] parts) {
         super(conn, nativeContext, parts);
     }
 

@@ -15,8 +15,8 @@
 package com.bytedance.bytehouse.jdbc.statement;
 
 import com.bytedance.bytehouse.data.Block;
-import com.bytedance.bytehouse.jdbc.ClickHouseConnection;
-import com.bytedance.bytehouse.jdbc.ClickHouseResultSet;
+import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
+import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLStatement;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
@@ -24,7 +24,7 @@ import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.stream.QueryResult;
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import com.bytedance.bytehouse.stream.ValuesNativeInputFormat;
 
@@ -37,19 +37,19 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ClickHouseStatement implements SQLStatement {
+public class ByteHouseStatement implements SQLStatement {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseStatement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStatement.class);
 
     private static final Pattern VALUES_REGEX = Pattern.compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
     private static final Pattern SELECT_DB_TABLE = Pattern.compile("(?i)FROM\\s+(\\S+\\.)?(\\S+)");
 
     private ResultSet lastResultSet;
     protected Block block;
-    protected final ClickHouseConnection connection;
+    protected final ByteHouseConnection connection;
     protected final NativeContext nativeContext;
 
-    private ClickHouseConfig cfg;
+    private ByteHouseConfig cfg;
     private long maxRows;
     private String db;
     private String table = "unknown";
@@ -57,7 +57,7 @@ public class ClickHouseStatement implements SQLStatement {
     private int updateCount = -1;
     private boolean isClosed = false;
 
-    public ClickHouseStatement(ClickHouseConnection connection, NativeContext nativeContext) {
+    public ByteHouseStatement(ByteHouseConnection connection, NativeContext nativeContext) {
         this.connection = connection;
         this.nativeContext = nativeContext;
         this.cfg = connection.cfg();
@@ -87,7 +87,7 @@ public class ClickHouseStatement implements SQLStatement {
             }
             updateCount = -1;
             QueryResult result = connection.sendQueryRequest(query, cfg);
-            lastResultSet = new ClickHouseResultSet(this, cfg, db, table, result.header(), result.data());
+            lastResultSet = new ByteHouseResultSet(this, cfg, db, table, result.header(), result.data());
             return 0;
         });
     }
@@ -230,7 +230,7 @@ public class ClickHouseStatement implements SQLStatement {
 
     @Override
     public Logger logger() {
-        return ClickHouseStatement.LOG;
+        return ByteHouseStatement.LOG;
     }
 
     protected Block getSampleBlock(final String insertQuery) throws SQLException {

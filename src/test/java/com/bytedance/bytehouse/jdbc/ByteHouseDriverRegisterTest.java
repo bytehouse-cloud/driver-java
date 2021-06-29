@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ClickhouseDriverRegisterTest {
+public class ByteHouseDriverRegisterTest {
 
     private static final int SERVER_PORT = Integer.parseInt(SystemUtil.loadProp("CLICK_HOUSE_SERVER_PORT", "9000"));
 

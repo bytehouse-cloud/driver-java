@@ -109,10 +109,10 @@ public class QueryComplexTypeITest extends AbstractITest {
                 Object[] objects = (Object[]) array1.getArray();
                 assertEquals(4, objects.length);
 
-                ClickHouseArray a1 = (ClickHouseArray) (objects[0]);
-                ClickHouseArray a2 = (ClickHouseArray) (objects[1]);
-                ClickHouseArray a3 = (ClickHouseArray) (objects[2]);
-                ClickHouseArray a4 = (ClickHouseArray) (objects[3]);
+                ByteHouseArray a1 = (ByteHouseArray) (objects[0]);
+                ByteHouseArray a2 = (ByteHouseArray) (objects[1]);
+                ByteHouseArray a3 = (ByteHouseArray) (objects[2]);
+                ByteHouseArray a4 = (ByteHouseArray) (objects[3]);
 
                 assertArrayEquals(new Short[]{(short) 1}, (Object[]) a1.getArray());
                 assertArrayEquals(new Short[]{(short) 2}, (Object[]) a2.getArray());
@@ -152,18 +152,18 @@ public class QueryComplexTypeITest extends AbstractITest {
 
             Object[] row1 = (Object[]) array1.getArray();
             assertEquals(2, row1.length);
-            assertEquals(1, ((Short) (((ClickHouseStruct) row1[0]).getAttributes()[0])).intValue());
-            assertEquals("3", ((ClickHouseStruct) row1[0]).getAttributes()[1]);
+            assertEquals(1, ((Short) (((ByteHouseStruct) row1[0]).getAttributes()[0])).intValue());
+            assertEquals("3", ((ByteHouseStruct) row1[0]).getAttributes()[1]);
 
-            assertEquals(2, ((Short) (((ClickHouseStruct) row1[1]).getAttributes()[0])).intValue());
-            assertEquals("4", ((ClickHouseStruct) row1[1]).getAttributes()[1]);
+            assertEquals(2, ((Short) (((ByteHouseStruct) row1[1]).getAttributes()[0])).intValue());
+            assertEquals("4", ((ByteHouseStruct) row1[1]).getAttributes()[1]);
 
             assertTrue(rs.next());
             Array array2 = rs.getArray(1);
             Object[] row2 = (Object[]) array2.getArray();
             assertEquals(1, row2.length);
-            assertEquals(3, ((Short) (((ClickHouseStruct) row2[0]).getAttributes()[0])).intValue());
-            assertEquals("5", (((ClickHouseStruct) row2[0]).getAttributes()[1]));
+            assertEquals(3, ((Short) (((ByteHouseStruct) row2[0]).getAttributes()[0])).intValue());
+            assertEquals("5", (((ByteHouseStruct) row2[0]).getAttributes()[1]));
 
             assertFalse(rs.next());
         });
@@ -183,9 +183,9 @@ public class QueryComplexTypeITest extends AbstractITest {
                 Double[][] res = new Double[][]{{1.1, 1.2}, {2.1, 2.2}, {3.1, 3.2}};
 
                 Object[] arr = (Object[]) (rs.getArray(1).getArray());
-                assertArrayEquals(res[0], (Object[]) ((ClickHouseArray) (arr[0])).getArray());
-                assertArrayEquals(res[1], (Object[]) ((ClickHouseArray) (arr[1])).getArray());
-                assertArrayEquals(res[2], (Object[]) ((ClickHouseArray) (arr[2])).getArray());
+                assertArrayEquals(res[0], (Object[]) ((ByteHouseArray) (arr[0])).getArray());
+                assertArrayEquals(res[1], (Object[]) ((ByteHouseArray) (arr[1])).getArray());
+                assertArrayEquals(res[2], (Object[]) ((ByteHouseArray) (arr[2])).getArray());
                 assertEquals("Array(Array(Float64))", rs.getString(2));
 
                 arr = (Object[]) (rs.getArray(3).getArray());

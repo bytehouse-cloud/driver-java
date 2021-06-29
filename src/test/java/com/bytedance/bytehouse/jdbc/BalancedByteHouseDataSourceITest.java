@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,15 +26,15 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BalancedClickhouseDataSourceITest extends AbstractITest {
+public class BalancedByteHouseDataSourceITest extends AbstractITest {
 
-    private static BalancedClickhouseDataSource singleDs;
-    private static BalancedClickhouseDataSource dualDs;
+    private static BalancedByteHouseDataSource singleDs;
+    private static BalancedByteHouseDataSource dualDs;
 
     @BeforeEach
     public void reset() {
-        singleDs = new BalancedClickhouseDataSource(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s", CK_HOST, CK_PORT));
-        dualDs = new BalancedClickhouseDataSource(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s,%s:%s", CK_HOST, CK_PORT, CK_IP, CK_PORT));
+        singleDs = new BalancedByteHouseDataSource(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s", CK_HOST, CK_PORT));
+        dualDs = new BalancedByteHouseDataSource(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s,%s:%s", CK_HOST, CK_PORT, CK_IP, CK_PORT));
     }
 
     @Test
@@ -108,8 +108,8 @@ public class BalancedClickhouseDataSourceITest extends AbstractITest {
 
     @Test
     public void testDisableConnection() {
-        BalancedClickhouseDataSource badDatasource = new BalancedClickhouseDataSource(
-                "jdbc:clickhouse://not.existed.url:" + CK_PORT, new Properties());
+        BalancedByteHouseDataSource badDatasource = new BalancedByteHouseDataSource(
+                "jdbc:bytehouse://not.existed.url:" + CK_PORT, new Properties());
         badDatasource.actualize();
         try (Connection ignored = badDatasource.getConnection()) {
             fail();
@@ -120,8 +120,8 @@ public class BalancedClickhouseDataSourceITest extends AbstractITest {
 
     @Test
     public void testWorkWithEnabledUrl() throws Exception {
-        BalancedClickhouseDataSource halfDatasource = new BalancedClickhouseDataSource(
-                String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s,%s:%s", "not.existed.url", CK_PORT, CK_IP, CK_PORT), new Properties());
+        BalancedByteHouseDataSource halfDatasource = new BalancedByteHouseDataSource(
+                String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s,%s:%s", "not.existed.url", CK_PORT, CK_IP, CK_PORT), new Properties());
 
         halfDatasource.actualize();
 
@@ -172,23 +172,23 @@ public class BalancedClickhouseDataSourceITest extends AbstractITest {
         properties.setProperty("password", "888888");
 
         // without connection parameters
-        BalancedClickhouseDataSource dataSource = new BalancedClickhouseDataSource(
-                String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s,%s:%s/click", CK_HOST, CK_PORT, CK_IP, CK_PORT), properties);
-        ClickHouseConfig cfg = dataSource.getCfg();
+        BalancedByteHouseDataSource dataSource = new BalancedByteHouseDataSource(
+                String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s,%s:%s/click", CK_HOST, CK_PORT, CK_IP, CK_PORT), properties);
+        ByteHouseConfig cfg = dataSource.getCfg();
         assertEquals(Duration.ofSeconds(6789), cfg.queryTimeout());
         assertEquals("888888", cfg.password());
         assertEquals("click", cfg.database());
-        assertEquals(2, dataSource.getAllClickhouseUrls().size());
-        assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/click", CK_HOST, CK_PORT),
-                dataSource.getAllClickhouseUrls().get(0));
-        assertEquals(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s/click", CK_IP, CK_PORT),
-                dataSource.getAllClickhouseUrls().get(1));
+        assertEquals(2, dataSource.getAllByteHouseUrls().size());
+        assertEquals(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s/click", CK_HOST, CK_PORT),
+                dataSource.getAllByteHouseUrls().get(0));
+        assertEquals(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s/click", CK_IP, CK_PORT),
+                dataSource.getAllByteHouseUrls().get(1));
 
         // with connection parameters
-        dataSource = new BalancedClickhouseDataSource(
+        dataSource = new BalancedByteHouseDataSource(
                 String.format(
                         Locale.ROOT,
-                        "jdbc:clickhouse://%s:%s,%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
+                        "jdbc:bytehouse://%s:%s,%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
                         CK_HOST, CK_PORT, CK_IP, CK_PORT
                 ), properties);
         cfg = dataSource.getCfg();
@@ -198,20 +198,20 @@ public class BalancedClickhouseDataSourceITest extends AbstractITest {
         assertEquals("123::readonly", cfg.fullUsername());
         assertEquals("888888", cfg.password());
         assertEquals("click", cfg.database());
-        assertEquals(2, dataSource.getAllClickhouseUrls().size());
+        assertEquals(2, dataSource.getAllByteHouseUrls().size());
         assertEquals(
                 String.format(
-                        Locale.ROOT, "jdbc:clickhouse://%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
+                        Locale.ROOT, "jdbc:bytehouse://%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
                         CK_HOST, CK_PORT
                 ),
-                dataSource.getAllClickhouseUrls().get(0)
+                dataSource.getAllByteHouseUrls().get(0)
         );
         assertEquals(
                 String.format(
-                        Locale.ROOT, "jdbc:clickhouse://%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
+                        Locale.ROOT, "jdbc:bytehouse://%s:%s/click?query_timeout=12345&user=readonly&account_id=123",
                         CK_IP, CK_PORT
                 ),
-                dataSource.getAllClickhouseUrls().get(1)
+                dataSource.getAllByteHouseUrls().get(1)
         );
     }
 }

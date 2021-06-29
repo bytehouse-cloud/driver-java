@@ -14,8 +14,8 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
 
 import java.io.Serializable;
@@ -23,11 +23,11 @@ import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 
-public class ClickHouseDriver implements Driver {
+public class ByteHouseDriver implements Driver {
 
     static {
         try {
-            DriverManager.registerDriver(new ClickHouseDriver());
+            DriverManager.registerDriver(new ByteHouseDriver());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -35,32 +35,32 @@ public class ClickHouseDriver implements Driver {
 
     @Override
     public boolean acceptsURL(String url) throws SQLException {
-        return url.startsWith(ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFIX);
+        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX);
     }
 
     @Override
-    public ClickHouseConnection connect(String url, Properties properties) throws SQLException {
+    public ByteHouseConnection connect(String url, Properties properties) throws SQLException {
         if (!this.acceptsURL(url)) {
             return null;
         }
 
-        ClickHouseConfig cfg = ClickHouseConfig.Builder.builder()
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(url)
                 .withProperties(properties)
                 .build();
         return connect(url, cfg);
     }
 
-    ClickHouseConnection connect(String url, ClickHouseConfig cfg) throws SQLException {
+    ByteHouseConnection connect(String url, ByteHouseConfig cfg) throws SQLException {
         if (!this.acceptsURL(url)) {
             return null;
         }
-        return ClickHouseConnection.createClickHouseConnection(cfg.withJdbcUrl(url));
+        return ByteHouseConnection.createByteHouseConnection(cfg.withJdbcUrl(url));
     }
 
     @Override
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties properties) throws SQLException {
-        ClickHouseConfig cfg = ClickHouseConfig.Builder.builder()
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(url)
                 .withProperties(properties)
                 .build();
@@ -81,12 +81,12 @@ public class ClickHouseDriver implements Driver {
 
     @Override
     public int getMajorVersion() {
-        return ClickHouseDefines.MAJOR_VERSION;
+        return ByteHouseDefines.MAJOR_VERSION;
     }
 
     @Override
     public int getMinorVersion() {
-        return ClickHouseDefines.MINOR_VERSION;
+        return ByteHouseDefines.MINOR_VERSION;
     }
 
     @Override

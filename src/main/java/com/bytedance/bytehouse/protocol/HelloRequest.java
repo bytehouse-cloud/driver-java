@@ -15,7 +15,7 @@
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 
 import java.io.IOException;
 
@@ -43,9 +43,9 @@ public class HelloRequest implements Request {
 
     @Override
     public void writeImpl(BinarySerializer serializer) throws IOException {
-        serializer.writeUTF8StringBinary(ClickHouseDefines.NAME + " " + clientName);
-        serializer.writeVarInt(ClickHouseDefines.MAJOR_VERSION);
-        serializer.writeVarInt(ClickHouseDefines.MINOR_VERSION);
+        serializer.writeUTF8StringBinary(ByteHouseDefines.NAME + " " + clientName);
+        serializer.writeVarInt(ByteHouseDefines.MAJOR_VERSION);
+        serializer.writeVarInt(ByteHouseDefines.MINOR_VERSION);
         serializer.writeVarInt(clientReversion);
         serializer.writeUTF8StringBinary(defaultDatabase);
         serializer.writeUTF8StringBinary(clientUsername);
