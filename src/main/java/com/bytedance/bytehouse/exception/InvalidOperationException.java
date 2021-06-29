@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.exception;
 
-public class InvalidOperationException extends ClickHouseClientException {
+public class InvalidOperationException extends ByteHouseClientException {
 
     public InvalidOperationException(String message) {
         super(message);

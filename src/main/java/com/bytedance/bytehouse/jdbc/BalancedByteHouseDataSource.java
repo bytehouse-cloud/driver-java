@@ -20,7 +20,7 @@ import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.StrUtil;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.exception.InvalidValueException;
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -41,16 +41,16 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 /**
- * <p> Database for clickhouse jdbc connections.
+ * <p> Database for bytehouse jdbc connections.
  * <p> It has list of database urls.
  * For every {@link #getConnection() getConnection} invocation, it returns connection to random host from the list.
  * Furthermore, this class has method { #scheduleActualization(int, TimeUnit) scheduleActualization}
  * which test hosts for availability. By default, this option is turned off.
  */
-public final class BalancedClickhouseDataSource implements DataSource, SQLWrapper {
+public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BalancedClickhouseDataSource.class);
-    private static final Pattern URL_TEMPLATE = Pattern.compile(ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFIX +
+    private static final Logger LOG = LoggerFactory.getLogger(BalancedByteHouseDataSource.class);
+    private static final Pattern URL_TEMPLATE = Pattern.compile(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
             "//([a-zA-Z0-9_:,.-]+)" +
             "((/[a-zA-Z0-9_]+)?" +
             "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
@@ -63,52 +63,52 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
     private final List<String> allUrls;
     private volatile List<String> enabledUrls;
 
-    private final ClickHouseConfig cfg;
-    private final ClickHouseDriver driver = new ClickHouseDriver();
+    private final ByteHouseConfig cfg;
+    private final ByteHouseDriver driver = new ByteHouseDriver();
 
     /**
-     * create Datasource for clickhouse JDBC connections
+     * create Datasource for bytehouse JDBC connections
      *
      * @param url address for connection to the database, must have the next format
-     *            {@code jdbc:clickhouse://<first-host>:<port>,<second-host>:<port>/<database>?param1=value1&param2=value2 }
-     *            for example, {@code jdbc:clickhouse://localhost:9000,localhost:9000/database?compress=1&decompress=2 }
+     *            {@code jdbc:bytehouse://<first-host>:<port>,<second-host>:<port>/<database>?param1=value1&param2=value2 }
+     *            for example, {@code jdbc:bytehouse://localhost:9000,localhost:9000/database?compress=1&decompress=2 }
      * @throws IllegalArgumentException if param have not correct format,
      *                                  or error happens when checking host availability
      */
-    public BalancedClickhouseDataSource(String url) {
+    public BalancedByteHouseDataSource(String url) {
         this(splitUrl(url), new Properties());
     }
 
     /**
-     * create Datasource for clickhouse JDBC connections
+     * create Datasource for bytehouse JDBC connections
      *
      * @param url        address for connection to the database
      * @param properties database properties
-     * @see #BalancedClickhouseDataSource(String)
+     * @see #BalancedByteHouseDataSource(String)
      */
-    public BalancedClickhouseDataSource(String url, Properties properties) {
+    public BalancedByteHouseDataSource(String url, Properties properties) {
         this(splitUrl(url), properties);
     }
 
     /**
-     * create Datasource for clickhouse JDBC connections
+     * create Datasource for bytehouse JDBC connections
      *
      * @param url      address for connection to the database
-     * @param settings clickhouse settings
-     * @see #BalancedClickhouseDataSource(String)
+     * @param settings bytehouse settings
+     * @see #BalancedByteHouseDataSource(String)
      */
-    public BalancedClickhouseDataSource(final String url, Map<SettingKey, Serializable> settings) {
+    public BalancedByteHouseDataSource(final String url, Map<SettingKey, Serializable> settings) {
         this(splitUrl(url), settings);
     }
 
-    private BalancedClickhouseDataSource(final List<String> urls, Properties properties) {
-        this(urls, ClickhouseJdbcUrlParser.parseProperties(properties));
+    private BalancedByteHouseDataSource(final List<String> urls, Properties properties) {
+        this(urls, ByteHouseJdbcUrlParser.parseProperties(properties));
     }
 
-    private BalancedClickhouseDataSource(final List<String> urls, Map<SettingKey, Serializable> settings) {
-        Validate.ensure(!urls.isEmpty(), "Incorrect ClickHouse jdbc url list. It must be not empty");
+    private BalancedByteHouseDataSource(final List<String> urls, Map<SettingKey, Serializable> settings) {
+        Validate.ensure(!urls.isEmpty(), "Incorrect ByteHouse jdbc url list. It must be not empty");
 
-        this.cfg = ClickHouseConfig.Builder.builder()
+        this.cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(urls.get(0))
                 .withSettings(settings)
                 .host("undefined")
@@ -140,12 +140,12 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
         final String database = StrUtil.getOrDefault(m.group(2), "");
         String[] hosts = m.group(1).split(",");
         return Arrays.stream(hosts)
-                .map(host -> ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFIX + "//" + host + database)
+                .map(host -> ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX + "//" + host + database)
                 .collect(Collectors.toList());
     }
 
     private boolean ping(final String url) {
-        try (ClickHouseConnection connection = driver.connect(url, cfg)) {
+        try (ByteHouseConnection connection = driver.connect(url, cfg)) {
             return connection.ping(Duration.ofSeconds(1));
         } catch (Exception e) {
             return false;
@@ -153,9 +153,9 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
     }
 
     /**
-     * Checks if clickhouse on url is alive, if it isn't, disable url, else enable.
+     * Checks if bytehouse on url is alive, if it isn't, disable url, else enable.
      *
-     * @return number of available clickhouse urls
+     * @return number of available bytehouse urls
      */
     synchronized int actualize() {
         List<String> enabledUrls = new ArrayList<>(allUrls.size());
@@ -194,7 +194,7 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
      * {@inheritDoc}
      */
     @Override
-    public ClickHouseConnection getConnection() throws SQLException {
+    public ByteHouseConnection getConnection() throws SQLException {
         return driver.connect(getAnyUrl(), cfg);
     }
 
@@ -202,7 +202,7 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
      * {@inheritDoc}
      */
     @Override
-    public ClickHouseConnection getConnection(String user, String password) throws SQLException {
+    public ByteHouseConnection getConnection(String user, String password) throws SQLException {
         return driver.connect(getAnyUrl(), cfg.withCredentials(user, password));
     }
 
@@ -246,11 +246,11 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
         throw new SQLFeatureNotSupportedException();
     }
 
-    public List<String> getAllClickhouseUrls() {
+    public List<String> getAllByteHouseUrls() {
         return allUrls;
     }
 
-    public List<String> getEnabledClickHouseUrls() {
+    public List<String> getEnabledByteHouseUrls() {
         return enabledUrls;
     }
 
@@ -268,7 +268,7 @@ public final class BalancedClickhouseDataSource implements DataSource, SQLWrappe
         return allUrls.size() != enabledUrls.size();
     }
 
-    public ClickHouseConfig getCfg() {
+    public ByteHouseConfig getCfg() {
         return cfg;
     }
 }

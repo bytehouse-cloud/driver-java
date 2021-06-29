@@ -21,8 +21,8 @@ import io.airlift.compress.Decompressor;
 import io.airlift.compress.lz4.Lz4Decompressor;
 import io.airlift.compress.zstd.ZstdDecompressor;
 
-import static com.bytedance.bytehouse.settings.ClickHouseDefines.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.ClickHouseDefines.COMPRESSION_HEADER_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
 public class CompressedBuffedReader implements BuffedReader, BytesHelper {
 

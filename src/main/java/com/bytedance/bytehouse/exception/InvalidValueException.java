@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.exception;
 
-public class InvalidValueException extends ClickHouseClientException {
+public class InvalidValueException extends ByteHouseClientException {
 
     public InvalidValueException(String message) {
         super(message);

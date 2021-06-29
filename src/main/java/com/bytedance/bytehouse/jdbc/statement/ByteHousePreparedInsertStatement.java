@@ -19,13 +19,13 @@ import com.bytedance.bytehouse.data.IColumn;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.data.type.*;
 import com.bytedance.bytehouse.data.type.complex.*;
-import com.bytedance.bytehouse.jdbc.ClickHouseArray;
+import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.client.NativeContext;
-import com.bytedance.bytehouse.exception.ClickHouseSQLException;
-import com.bytedance.bytehouse.jdbc.ClickHouseConnection;
-import com.bytedance.bytehouse.jdbc.ClickHouseStruct;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
+import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
@@ -46,9 +46,9 @@ import java.util.UUID;
 
 import static com.bytedance.bytehouse.misc.ExceptionUtil.unchecked;
 
-public class ClickHousePreparedInsertStatement extends AbstractPreparedStatement {
+public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHousePreparedInsertStatement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHousePreparedInsertStatement.class);
 
     private static int computeQuestionMarkSize(String query, int start) throws SQLException {
         int param = 0;
@@ -74,10 +74,10 @@ public class ClickHousePreparedInsertStatement extends AbstractPreparedStatement
     private final String insertQuery;
     private boolean blockInit;
 
-    public ClickHousePreparedInsertStatement(int posOfData,
-                                             String fullQuery,
-                                             ClickHouseConnection conn,
-                                             NativeContext nativeContext) throws SQLException {
+    public ByteHousePreparedInsertStatement(int posOfData,
+                                            String fullQuery,
+                                            ByteHouseConnection conn,
+                                            NativeContext nativeContext) throws SQLException {
         super(conn, nativeContext, null);
         this.blockInit = false;
         this.posOfData = posOfData;
@@ -191,11 +191,11 @@ public class ClickHousePreparedInsertStatement extends AbstractPreparedStatement
     }
 
     // TODO we actually need a type cast system rather than put all type cast stuffs here
-    private Object convertToCkDataType(IDataType<?, ?> type, Object obj) throws ClickHouseSQLException {
+    private Object convertToCkDataType(IDataType<?, ?> type, Object obj) throws ByteHouseSQLException {
         if (obj == null) {
             if (type.nullable() || type instanceof DataTypeNothing)
                 return null;
-            throw new ClickHouseSQLException(-1, "type[" + type.name() + "] doesn't support null value");
+            throw new ByteHouseSQLException(-1, "type[" + type.name() + "] doesn't support null value");
         }
         // put the most common cast at first to avoid `instanceof` test overhead
         if (type instanceof DataTypeString || type instanceof DataTypeFixedString) {
@@ -279,16 +279,16 @@ public class ClickHousePreparedInsertStatement extends AbstractPreparedStatement
             return convertToCkDataType(((DataTypeNullable) type).getNestedDataType(), obj);
         }
         if (type instanceof DataTypeArray) {
-            if (!(obj instanceof ClickHouseArray)) {
-                throw new ClickHouseSQLException(-1, "require ClickHouseArray for column: " + type.name() + ", but found " + obj.getClass());
+            if (!(obj instanceof ByteHouseArray)) {
+                throw new ByteHouseSQLException(-1, "require ByteHouseArray for column: " + type.name() + ", but found " + obj.getClass());
             }
-            return ((ClickHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
+            return ((ByteHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
         }
         if (type instanceof DataTypeTuple) {
-            if (!(obj instanceof ClickHouseStruct)) {
-                throw new ClickHouseSQLException(-1, "require ClickHouseStruct for column: " + type.name() + ", but found " + obj.getClass());
+            if (!(obj instanceof ByteHouseStruct)) {
+                throw new ByteHouseSQLException(-1, "require ByteHouseStruct for column: " + type.name() + ", but found " + obj.getClass());
             }
-            return ((ClickHouseStruct) obj).mapAttributes(((DataTypeTuple) type).getNestedTypes(), unchecked(this::convertToCkDataType));
+            return ((ByteHouseStruct) obj).mapAttributes(((DataTypeTuple) type).getNestedTypes(), unchecked(this::convertToCkDataType));
         }
         LOG.debug("unhandled type: {}[{}]", type.name(), obj.getClass());
         return obj;

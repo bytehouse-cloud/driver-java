@@ -26,15 +26,15 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ClickhouseJdbcUrlParser {
+public class ByteHouseJdbcUrlParser {
     public static final String JDBC_PREFIX = "jdbc:";
-    public static final String CLICKHOUSE_PREFIX = "clickhouse:";
-    public static final String JDBC_CLICKHOUSE_PREFIX = JDBC_PREFIX + CLICKHOUSE_PREFIX;
+    public static final String BYTEHOUSE_PREFIX = "bytehouse:";
+    public static final String JDBC_BYTEHOUSE_PREFIX = JDBC_PREFIX + BYTEHOUSE_PREFIX;
 
     public static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_]+)");
     public static final Pattern HOST_PORT_PATH_PATTERN = Pattern.compile("//(?<host>[^/:\\s]+)(:(?<port>\\d+))?");
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickhouseJdbcUrlParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseJdbcUrlParser.class);
 
     public static Map<SettingKey, Serializable> parseJdbcUrl(String jdbcUrl) {
         try {
@@ -126,7 +126,7 @@ public class ClickhouseJdbcUrlParser {
         while (tokenizer.hasMoreTokens()) {
             String[] queryParameter = tokenizer.nextToken().split("=", 2);
             Validate.ensure(queryParameter.length == 2,
-                    "ClickHouse JDBC URL Parameter '" + queryParameters + "' Error, Expected '='.");
+                    "ByteHouse JDBC URL Parameter '" + queryParameters + "' Error, Expected '='.");
 
             String name = queryParameter[0];
             String value = queryParameter[1];

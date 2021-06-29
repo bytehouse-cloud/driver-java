@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class ConnectionParamITest extends AbstractITest {
     public void successfullyMaxRowsToRead() {
         assertThrows(SQLException.class, () -> {
             try (Connection connection = DriverManager
-                    .getConnection(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s?max_rows_to_read=1&connect_timeout=10", CK_HOST, CK_PORT))) {
+                    .getConnection(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s?max_rows_to_read=1&connect_timeout=10", CK_HOST, CK_PORT))) {
                 withStatement(connection, stmt -> {
                     ResultSet rs = stmt.executeQuery("SELECT arrayJoin([1,2,3,4]) from numbers(100)");
                     int rowsRead = 0;
@@ -56,7 +56,7 @@ public class ConnectionParamITest extends AbstractITest {
     @Test
     public void successfullyMaxResultRows() throws Exception {
         try (Connection connection = DriverManager
-                .getConnection(String.format(Locale.ROOT, "jdbc:clickhouse://%s:%s?max_result_rows=1&connect_timeout=10", CK_HOST, CK_PORT))
+                .getConnection(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s?max_result_rows=1&connect_timeout=10", CK_HOST, CK_PORT))
         ) {
             withStatement(connection, stmt -> {
                 stmt.setMaxRows(400);
@@ -72,8 +72,8 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyUrlParser() {
-        String url = "jdbc:clickhouse://127.0.0.1/system?min_insert_block_size_rows=1000&connect_timeout=50";
-        ClickHouseConfig config = ClickHouseConfig.Builder.builder().withJdbcUrl(url).build();
+        String url = "jdbc:bytehouse://127.0.0.1/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));
 
@@ -82,9 +82,9 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyHostNameOnly() {
-        String url = "jdbc:clickhouse://my_clickhouse_sever_host_name/system?min_insert_block_size_rows=1000&connect_timeout=50";
-        ClickHouseConfig config = ClickHouseConfig.Builder.builder().withJdbcUrl(url).build();
-        assertEquals("my_clickhouse_sever_host_name", config.host());
+        String url = "jdbc:bytehouse://my_bytehouse_sever_host_name/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
+        assertEquals("my_bytehouse_sever_host_name", config.host());
         assertEquals(9000, config.port());
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));
@@ -93,9 +93,9 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyHostNameWithDefaultPort() {
-        String url = "jdbc:clickhouse://my_clickhouse_sever_host_name:9000/system?min_insert_block_size_rows=1000&connect_timeout=50";
-        ClickHouseConfig config = ClickHouseConfig.Builder.builder().withJdbcUrl(url).build();
-        assertEquals("my_clickhouse_sever_host_name", config.host());
+        String url = "jdbc:bytehouse://my_bytehouse_sever_host_name:9000/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
+        assertEquals("my_bytehouse_sever_host_name", config.host());
         assertEquals(9000, config.port());
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));
@@ -104,9 +104,9 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyHostNameWithCustomPort() {
-        String url = "jdbc:clickhouse://my_clickhouse_sever_host_name:1940/system?min_insert_block_size_rows=1000&connect_timeout=50";
-        ClickHouseConfig config = ClickHouseConfig.Builder.builder().withJdbcUrl(url).build();
-        assertEquals("my_clickhouse_sever_host_name", config.host());
+        String url = "jdbc:bytehouse://my_bytehouse_sever_host_name:1940/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
+        assertEquals("my_bytehouse_sever_host_name", config.host());
         assertEquals(1940, config.port());
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));

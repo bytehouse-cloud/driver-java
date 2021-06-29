@@ -24,11 +24,11 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClickHouseConfigTest {
+class ByteHouseConfigTest {
 
     @Test
-    public void testDefaultClickHouseConfig() {
-        ClickHouseConfig cfg = ClickHouseConfig.Builder.builder().build();
+    public void testDefaultByteHouseConfig() {
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder().build();
         assertEquals("127.0.0.1", cfg.host());
         assertEquals(9000, cfg.port());
         assertEquals("", cfg.accountId());
@@ -40,15 +40,15 @@ class ClickHouseConfigTest {
         assertEquals(StandardCharsets.UTF_8, cfg.charset());
         assertFalse(cfg.tcpKeepAlive());
         assertEquals("default", cfg.database());
-        assertEquals("jdbc:clickhouse://127.0.0.1:9000/default?query_timeout=0&connect_timeout=0" +
+        assertEquals("jdbc:bytehouse://127.0.0.1:9000/default?query_timeout=0&connect_timeout=0" +
                         "&charset=UTF-8&tcp_keep_alive=false&tcp_no_delay=true&secure=false&skip_verification=false",
                 cfg.jdbcUrl());
     }
 
     @Test
-    public void testClickHouseConfig() {
-        ClickHouseConfig cfg = ClickHouseConfig.Builder.builder()
-                .withJdbcUrl("jdbc:clickhouse://1.2.3.4:8123/db2")
+    public void testByteHouseConfig() {
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
+                .withJdbcUrl("jdbc:bytehouse://1.2.3.4:8123/db2")
                 .charset("GBK")
                 .withSetting(SettingKey.allow_distributed_ddl, true)
                 .build()
@@ -65,7 +65,7 @@ class ClickHouseConfigTest {
         assertEquals(Charset.forName("GBK"), cfg.charset());
         assertFalse(cfg.tcpKeepAlive());
         assertEquals("db2", cfg.database());
-        assertEquals("jdbc:clickhouse://1.2.3.4:8123/db2?query_timeout=0&connect_timeout=0&charset=GBK" +
+        assertEquals("jdbc:bytehouse://1.2.3.4:8123/db2?query_timeout=0&connect_timeout=0&charset=GBK" +
                         "&tcp_keep_alive=false&tcp_no_delay=true&secure=false" +
                         "&skip_verification=false&allow_distributed_ddl=true",
                 cfg.jdbcUrl());
@@ -75,7 +75,7 @@ class ClickHouseConfigTest {
     public void testUndefinedSettings() {
         Properties props = new Properties();
         props.setProperty("unknown", "unknown");
-        ClickHouseConfig cfg = ClickHouseConfig.Builder.builder()
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
                 .withProperties(props)
                 .build();
         assertTrue(cfg.settings()
@@ -94,7 +94,7 @@ class ClickHouseConfigTest {
         Properties props = new Properties();
         props.setProperty("user_defined", "haha");
 
-        ClickHouseConfig cfg = ClickHouseConfig.Builder.builder()
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
                 .withProperties(props)
                 .build();
         assertEquals("haha", cfg.settings().get(userDefined));

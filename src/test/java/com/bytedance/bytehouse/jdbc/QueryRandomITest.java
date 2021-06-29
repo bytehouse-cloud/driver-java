@@ -46,7 +46,7 @@ public class QueryRandomITest extends AbstractITest {
 
                 assertEquals(String.class, name.getClass());
                 assertEquals(Long.class, value.getClass());
-                assertEquals(ClickHouseArray.class, arr.getClass());
+                assertEquals(ByteHouseArray.class, arr.getClass());
                 assertEquals(Date.class, day.getClass());
                 assertEquals(Timestamp.class, time.getClass());
                 assertEquals(BigDecimal.class, dc.getClass());

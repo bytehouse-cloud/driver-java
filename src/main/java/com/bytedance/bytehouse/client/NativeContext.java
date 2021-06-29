@@ -15,8 +15,8 @@
 package com.bytedance.bytehouse.client;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 
 import java.io.IOException;
 import java.time.ZoneId;
@@ -73,11 +73,11 @@ public class NativeContext {
             serializer.writeUTF8StringBinary("");
             serializer.writeUTF8StringBinary(clientHostname);
             serializer.writeUTF8StringBinary(clientName);
-            serializer.writeVarInt(ClickHouseDefines.MAJOR_VERSION);
-            serializer.writeVarInt(ClickHouseDefines.MINOR_VERSION);
-            serializer.writeVarInt(ClickHouseDefines.CLIENT_REVISION);
+            serializer.writeVarInt(ByteHouseDefines.MAJOR_VERSION);
+            serializer.writeVarInt(ByteHouseDefines.MINOR_VERSION);
+            serializer.writeVarInt(ByteHouseDefines.CLIENT_REVISION);
             serializer.writeUTF8StringBinary("");
-            serializer.writeVarInt(ClickHouseDefines.CLIENT_REVISION); // might be versionPatch instead
+            serializer.writeVarInt(ByteHouseDefines.CLIENT_REVISION); // might be versionPatch instead
         }
     }
 
@@ -88,10 +88,10 @@ public class NativeContext {
         private final ZoneId timeZone;
         private final String displayName;
         private final long versionPatch;
-        private final ClickHouseConfig configure;
+        private final ByteHouseConfig configure;
 
         public ServerContext(long majorVersion, long minorVersion, long reversion,
-                             ClickHouseConfig configure,
+                             ByteHouseConfig configure,
                              ZoneId timeZone, String displayName, long versionPatch) {
             this.majorVersion = majorVersion;
             this.minorVersion = minorVersion;
@@ -130,7 +130,7 @@ public class NativeContext {
             return versionPatch;
         }
 
-        public ClickHouseConfig getConfigure() {
+        public ByteHouseConfig getConfigure() {
             return configure;
         }
     }

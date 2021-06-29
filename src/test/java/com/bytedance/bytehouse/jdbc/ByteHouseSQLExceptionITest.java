@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.exception.ClickHouseSQLException;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class ClickHouseSQLExceptionITest extends AbstractITest {
+public class ByteHouseSQLExceptionITest extends AbstractITest {
 
     @Test
     public void errorCodeShouldBeAssigned() throws Exception {
@@ -29,7 +29,7 @@ public class ClickHouseSQLExceptionITest extends AbstractITest {
             try {
                 statement.executeQuery("DROP TABLE test");
             } catch (SQLException e) {
-                assertTrue(e instanceof ClickHouseSQLException);
+                assertTrue(e instanceof ByteHouseSQLException);
                 assertNotEquals(0, e.getErrorCode());
                 assertEquals(e.getErrorCode(), e.getErrorCode());
             }

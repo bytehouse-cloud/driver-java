@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ClickHouseConnectionITest extends AbstractITest {
+public class ByteHouseConnectionITest extends AbstractITest {
 
     @Test
     public void testCatalog() throws Exception {

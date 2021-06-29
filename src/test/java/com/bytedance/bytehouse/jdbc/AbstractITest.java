@@ -33,7 +33,6 @@ public abstract class AbstractITest implements Serializable {
 
     protected static final ZoneId CLIENT_TZ = ZoneId.systemDefault();
     protected static final ZoneId SERVER_TZ = ZoneId.of("UTC");
-    protected static final String DRIVER_CLASS_NAME = "com.bytedance.bytehouse.jdbc.ClickHouseDriver";
 
     // ClickHouse support gRPC from v21.1.2.15-stable 2021-01-18
     // link: https://github.com/ClickHouse/ClickHouse/blob/master/CHANGELOG.md#clickhouse-release-v211215-stable-2021-01-18
@@ -77,7 +76,7 @@ public abstract class AbstractITest implements Serializable {
     protected String getJdbcUrl(Object... params) {
         StringBuilder sb = new StringBuilder();
         int port = container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
-        sb.append("jdbc:clickhouse://").append(container.getHost()).append(":").append(port);
+        sb.append("jdbc:bytehouse://").append(container.getHost()).append(":").append(port);
         if (StrUtil.isNotEmpty(CLICKHOUSE_DB)) {
             sb.append("/").append(container.getDatabaseName());
         }
@@ -106,7 +105,7 @@ public abstract class AbstractITest implements Serializable {
         while (drivers.hasMoreElements()) {
             DriverManager.deregisterDriver(drivers.nextElement());
         }
-        DriverManager.registerDriver(new ClickHouseDriver());
+        DriverManager.registerDriver(new ByteHouseDriver());
     }
 
     protected void withNewConnection(WithConnection withConnection, Object... args) throws Exception {

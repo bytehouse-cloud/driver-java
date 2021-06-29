@@ -35,7 +35,7 @@ public class InsertComplexTypeITest extends AbstractITest {
             assertTrue(rs.next());
             assertArrayEquals(new Short[]{1, 2, 3, 4}, (Object[]) rs.getArray(1).getArray());
             Object[] objects = (Object[]) rs.getArray(2).getArray();
-            ClickHouseArray array = (ClickHouseArray) objects[0];
+            ByteHouseArray array = (ByteHouseArray) objects[0];
             assertArrayEquals(new Object[]{"1", "2"}, array.getArray());
 
             objects = (Object[]) rs.getArray(3).getArray();
@@ -179,14 +179,14 @@ public class InsertComplexTypeITest extends AbstractITest {
 
             Object []objs = ((Struct) rs.getObject(2)).getAttributes();
 
-            ClickHouseArray arr = (ClickHouseArray) (objs[0]);
+            ByteHouseArray arr = (ByteHouseArray) (objs[0]);
             assertArrayEquals(new Object[]{"1"}, (Object[]) arr.getArray());
             assertEquals((short) 32, objs[1]);
 
-            arr = (ClickHouseArray) rs.getObject(3);
+            arr = (ByteHouseArray) rs.getObject(3);
 
-            ClickHouseStruct t1 = (ClickHouseStruct) ((Object[]) arr.getArray())[0];
-            ClickHouseStruct t2 = (ClickHouseStruct) ((Object[]) arr.getArray())[1];
+            ByteHouseStruct t1 = (ByteHouseStruct) ((Object[]) arr.getArray())[0];
+            ByteHouseStruct t2 = (ByteHouseStruct) ((Object[]) arr.getArray())[1];
             assertArrayEquals(new Object[]{(long) 32, "1"}, t1.getAttributes());
             assertArrayEquals(new Object[]{(long) 22, null}, t2.getAttributes());
 

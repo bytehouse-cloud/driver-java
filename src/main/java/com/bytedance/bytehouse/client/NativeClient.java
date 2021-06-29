@@ -23,10 +23,10 @@ import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.protocol.*;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-import com.bytedance.bytehouse.stream.ClickHouseQueryResult;
+import com.bytedance.bytehouse.stream.ByteHouseQueryResult;
 import com.bytedance.bytehouse.stream.QueryResult;
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
 
 import javax.net.ssl.*;
@@ -53,14 +53,14 @@ public class NativeClient {
      * Equivalent code in driver-go can be found in dial() function of:
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/conn/connect.go">connect.go</a>
      */
-    public static NativeClient connect(ClickHouseConfig configure) throws SQLException {
+    public static NativeClient connect(ByteHouseConfig configure) throws SQLException {
         try {
             SocketAddress endpoint = new InetSocketAddress(configure.host(), configure.port());
 
             Socket socket = obtainSocket(configure);
             socket.setTcpNoDelay(configure.tcpNoDelay());
-            socket.setSendBufferSize(ClickHouseDefines.SOCKET_SEND_BUFFER_BYTES);
-            socket.setReceiveBufferSize(ClickHouseDefines.SOCKET_RECV_BUFFER_BYTES);
+            socket.setSendBufferSize(ByteHouseDefines.SOCKET_SEND_BUFFER_BYTES);
+            socket.setReceiveBufferSize(ByteHouseDefines.SOCKET_RECV_BUFFER_BYTES);
             socket.setKeepAlive(configure.tcpKeepAlive());
             socket.connect(endpoint, (int) configure.connectTimeout().toMillis());
 
@@ -73,7 +73,7 @@ public class NativeClient {
     }
 
     private static Socket obtainSocket(
-            ClickHouseConfig configure
+            ByteHouseConfig configure
     ) throws NoSuchAlgorithmException, KeyManagementException, IOException {
         if (!configure.secure()) {
             // non-secure connection
@@ -193,7 +193,7 @@ public class NativeClient {
     }
 
     public QueryResult receiveQuery(Duration soTimeout, NativeContext.ServerContext info) {
-        return new ClickHouseQueryResult(() -> receiveResponse(soTimeout, info));
+        return new ByteHouseQueryResult(() -> receiveResponse(soTimeout, info));
     }
 
     public void silentDisconnect() {

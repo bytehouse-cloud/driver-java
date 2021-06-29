@@ -15,7 +15,7 @@
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
-import com.bytedance.bytehouse.exception.ClickHouseSQLException;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -28,11 +28,11 @@ public class ExceptionResponse implements Response {
         String stackTrace = deserializer.readUTF8StringBinary();
 
         if (deserializer.readBoolean()) {
-            return new ClickHouseSQLException(
+            return new ByteHouseSQLException(
                     code, name + message + ". Stack trace:\n\n" + stackTrace, readExceptionFrom(deserializer));
         }
 
-        return new ClickHouseSQLException(code, name + message + ". Stack trace:\n\n" + stackTrace);
+        return new ByteHouseSQLException(code, name + message + ". Stack trace:\n\n" + stackTrace);
     }
 
     @Override

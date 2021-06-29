@@ -14,7 +14,7 @@
 
 package com.bytedance.bytehouse.buffer;
 
-import com.bytedance.bytehouse.settings.ClickHouseDefines;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class SocketBuffedReader implements BuffedReader {
     private int position;
 
     public SocketBuffedReader(Socket socket) throws IOException {
-        this(socket.getInputStream(), ClickHouseDefines.SOCKET_RECV_BUFFER_BYTES);
+        this(socket.getInputStream(), ByteHouseDefines.SOCKET_RECV_BUFFER_BYTES);
     }
 
     SocketBuffedReader(InputStream in, int capacity) {

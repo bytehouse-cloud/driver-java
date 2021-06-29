@@ -14,15 +14,19 @@
 
 package com.bytedance.bytehouse.exception;
 
-import java.sql.SQLException;
+import com.bytedance.bytehouse.settings.ByteHouseErrCode;
 
-public class ClickHouseSQLException extends SQLException {
+public class ByteHouseClientException extends ByteHouseException {
 
-    public ClickHouseSQLException(int code, String message) {
-        this(code, message, null);
+    public ByteHouseClientException(String message) {
+        super(ByteHouseErrCode.CLIENT_ERROR.code(), message);
     }
 
-    public ClickHouseSQLException(int code, String message, Throwable cause) {
-        super(message, null, code, cause);
+    public ByteHouseClientException(String message, Throwable cause) {
+        super(ByteHouseErrCode.CLIENT_ERROR.code(), message, cause);
+    }
+
+    public ByteHouseClientException(Throwable cause) {
+        super(ByteHouseErrCode.CLIENT_ERROR.code(), cause);
     }
 }

@@ -19,13 +19,13 @@ import com.bytedance.bytehouse.data.IColumn;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSet;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.exception.ClickHouseSQLException;
-import com.bytedance.bytehouse.jdbc.statement.ClickHouseStatement;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.misc.CheckedIterator;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.protocol.DataResponse;
-import com.bytedance.bytehouse.settings.ClickHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
 
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
@@ -35,9 +35,9 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 
-public class ClickHouseResultSet implements SQLResultSet {
+public class ByteHouseResultSet implements SQLResultSet {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseResultSet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSet.class);
 
     private int currentRowNum = -1;
     private Block currentBlock = new Block();
@@ -46,8 +46,8 @@ public class ClickHouseResultSet implements SQLResultSet {
     private int lastFetchColumnIdx = -1;
     private Block lastFetchBlock = null;
 
-    private final ClickHouseStatement statement;
-    private final ClickHouseConfig cfg;
+    private final ByteHouseStatement statement;
+    private final ByteHouseConfig cfg;
     private final String db;
     private final String table;
     private final Block header;
@@ -57,12 +57,12 @@ public class ClickHouseResultSet implements SQLResultSet {
     private boolean isAfterLast = false;
     private boolean isClosed = false;
 
-    public ClickHouseResultSet(ClickHouseStatement statement,
-                               ClickHouseConfig cfg,
-                               String db,
-                               String table,
-                               Block header,
-                               CheckedIterator<DataResponse, SQLException> dataResponses) {
+    public ByteHouseResultSet(ByteHouseStatement statement,
+                              ByteHouseConfig cfg,
+                              String db,
+                              String table,
+                              Block header,
+                              CheckedIterator<DataResponse, SQLException> dataResponses) {
         this.statement = statement;
         this.cfg = cfg;
         this.db = db;
@@ -274,7 +274,7 @@ public class ClickHouseResultSet implements SQLResultSet {
         if (data instanceof String) {
             return ((String) data).getBytes(cfg.charset());
         }
-        throw new ClickHouseSQLException(-1, "Currently not support getBytes from class: " + data.getClass());
+        throw new ByteHouseSQLException(-1, "Currently not support getBytes from class: " + data.getClass());
     }
 
     @Override
@@ -374,7 +374,7 @@ public class ClickHouseResultSet implements SQLResultSet {
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        return new ClickHouseResultSetMetaData(header, db, table);
+        return new ByteHouseResultSetMetaData(header, db, table);
     }
 
     @Override
@@ -431,7 +431,7 @@ public class ClickHouseResultSet implements SQLResultSet {
 
     @Override
     public Logger logger() {
-        return ClickHouseResultSet.LOG;
+        return ByteHouseResultSet.LOG;
     }
 
     private Block fetchBlock() throws SQLException {

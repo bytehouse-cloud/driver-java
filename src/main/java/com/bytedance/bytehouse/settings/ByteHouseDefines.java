@@ -14,8 +14,8 @@
 
 package com.bytedance.bytehouse.settings;
 
-public class ClickHouseDefines {
-    public static final String NAME = "ClickHouse";
+public class ByteHouseDefines {
+    public static final String NAME = "ByteHouse";
     public static final String DEFAULT_CATALOG = "default";
     public static final String DEFAULT_DATABASE = "default";
 
