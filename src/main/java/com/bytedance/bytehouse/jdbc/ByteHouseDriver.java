@@ -35,6 +35,9 @@ public class ByteHouseDriver implements Driver {
 
     @Override
     public boolean acceptsURL(String url) throws SQLException {
+        if (url == null) {
+            throw new SQLException("url is null");
+        }
         return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX);
     }
 

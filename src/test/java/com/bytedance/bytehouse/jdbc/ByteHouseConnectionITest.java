@@ -15,9 +15,13 @@
 package com.bytedance.bytehouse.jdbc;
 
 import org.junit.jupiter.api.Test;
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ByteHouseConnectionITest extends AbstractITest {
 
@@ -36,6 +40,57 @@ public class ByteHouseConnectionITest extends AbstractITest {
             assertEquals("default", connection.getSchema());
             connection.setSchema("abc");
             assertEquals("abc", connection.getSchema());
+        });
+    }
+
+    @Test
+    public void testTransactionNotSupported() throws Exception {
+        withNewConnection(connection -> {
+            assertTrue(connection.getAutoCommit());
+            assertThrows(SQLFeatureNotSupportedException.class, () -> connection.setAutoCommit(false));
+            connection.setAutoCommit(true);
+            assertThrows(SQLException.class, connection::commit);
+            assertThrows(SQLException.class, connection::rollback);
+            assertThrows(SQLException.class,
+                    () -> connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED));
+            assertEquals(connection.getTransactionIsolation(), Connection.TRANSACTION_NONE);
+        });
+    }
+
+    @Test
+    public void testReadOnlyNotSupported() throws Exception {
+        withNewConnection(connection -> {
+            assertFalse(connection.isReadOnly());
+            connection.setReadOnly(false);
+            assertThrows(SQLFeatureNotSupportedException.class, () -> connection.setReadOnly(true));
+        });
+    }
+
+    @Test
+    public void testHoldability() throws Exception {
+        withNewConnection(connection -> {
+            assertEquals(connection.getHoldability(), ResultSet.CLOSE_CURSORS_AT_COMMIT);
+            assertThrows(SQLFeatureNotSupportedException.class,
+                    () -> connection.setHoldability(ResultSet.CONCUR_READ_ONLY));
+        });
+    }
+
+    @Test
+    public void testSetClientInfo() throws Exception {
+        withNewConnection(connection -> {
+            assertThrows(SQLClientInfoException.class,
+                    () -> connection.setClientInfo("ApplicationName", "BH"));
+        });
+    }
+
+    @Test
+    public void testIsValidAndClose() throws Exception {
+        withNewConnection(connection -> {
+            assertFalse(connection.isClosed());
+            assertTrue(connection.isValid(1));
+            connection.close();
+            assertTrue(connection.isClosed());
+            assertFalse(connection.isValid(1));
         });
     }
 }

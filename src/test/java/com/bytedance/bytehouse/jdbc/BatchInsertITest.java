@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -195,6 +196,21 @@ public class BatchInsertITest extends AbstractITest {
                 assertEquals(selectTime * 1000, rs.getTimestamp(1).getTime());
                 selectTime += 3600;
             }
+        });
+
+    }
+
+    @Test
+    public void batchInsert_withoutAllParameters_throwSqlException() throws Exception {
+        withStatement(statement -> {
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("CREATE TABLE test(id Int8, age UInt8, name String, name2 String)ENGINE=Log");
+
+            withPreparedStatement(statement.getConnection(), "INSERT INTO test VALUES(?, 1, ?, ?)", pstmt -> {
+                pstmt.setByte(1, (byte) 1);
+                pstmt.setString(2, "Zhang San" + 1);
+                assertThrows(SQLException.class, () -> pstmt.addBatch());
+            });
         });
 
     }

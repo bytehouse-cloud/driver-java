@@ -64,6 +64,10 @@ public class ByteHouseStatement implements SQLStatement {
         this.db = cfg.database();
     }
 
+    /**
+     * Doesn't support returning multiple result set as documented in Statement interface.
+     * Only tracks the one and only ResultSet / updateCount returned by query.
+     */
     @Override
     public boolean execute(String query) throws SQLException {
         return executeQuery(query) != null;
@@ -159,8 +163,15 @@ public class ByteHouseStatement implements SQLStatement {
         this.cfg = cfg.withQueryTimeout(Duration.ofSeconds(seconds));
     }
 
+    /**
+     * direction cannot be changed from FETCH_FORWARD, as other directions are
+     * currently not supported in ResultSet.
+     */
     @Override
     public void setFetchDirection(int direction) throws SQLException {
+        if (direction != ResultSet.FETCH_FORWARD) {
+            throw new SQLException("direction is not supported. FETCH_FORWARD only.");
+        }
     }
 
     @Override
@@ -169,16 +180,18 @@ public class ByteHouseStatement implements SQLStatement {
     }
 
     @Override
-    public void setFetchSize(int rows) throws SQLException {
-    }
-
-    @Override
     public int getFetchSize() throws SQLException {
         return 0;
     }
 
+    /**
+     * Statement pooling is not supported, so it cannot be set to true.
+     */
     @Override
     public void setPoolable(boolean poolable) throws SQLException {
+        if (poolable) {
+            throw new SQLException("statement not poolable.");
+        }
     }
 
     @Override
@@ -197,17 +210,8 @@ public class ByteHouseStatement implements SQLStatement {
     }
 
     @Override
-    public ResultSet getGeneratedKeys() throws SQLException {
-        return null;
-    }
-
-    @Override
     public Connection getConnection() {
         return connection;
-    }
-
-    @Override
-    public void setEscapeProcessing(boolean enable) throws SQLException {
     }
 
     @Override
@@ -217,10 +221,6 @@ public class ByteHouseStatement implements SQLStatement {
 
     @Override
     public void clearWarnings() throws SQLException {
-    }
-
-    @Override
-    public void setCursorName(String name) throws SQLException {
     }
 
     @Override

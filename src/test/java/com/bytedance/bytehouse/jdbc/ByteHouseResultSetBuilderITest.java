@@ -47,7 +47,9 @@ class ByteHouseResultSetBuilderITest extends AbstractITest {
                     .addRow("B")
                     .build();
             assertTrue(rs.next());
+            assertEquals(rs.getString("some"), "A");
             assertTrue(rs.next());
+            assertEquals(rs.getString("some"), "B");
             assertFalse(rs.next());
         });
     }

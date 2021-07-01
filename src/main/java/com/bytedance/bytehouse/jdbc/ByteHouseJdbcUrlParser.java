@@ -119,7 +119,7 @@ public class ByteHouseJdbcUrlParser {
         return port;
     }
 
-    public static Map<SettingKey, Serializable> extractQueryParameters(String queryParameters) {
+    private static Map<SettingKey, Serializable> extractQueryParameters(String queryParameters) {
         Map<SettingKey, Serializable> parameters = new HashMap<>();
         StringTokenizer tokenizer = new StringTokenizer(queryParameters == null ? "" : queryParameters, "&");
 

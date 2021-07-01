@@ -93,7 +93,7 @@ public class Block {
                 columns[i].write(rowData[i]);
             }
             rowCnt++;
-        } catch (IOException | ClassCastException e) {
+        } catch (IOException | ClassCastException | NullPointerException e) {
             throw new SQLException("Exception processing value " + rowData[i] + " for column: " + columns[i].name(), e);
         }
     }

@@ -74,8 +74,14 @@ public class ByteHouseConnection implements SQLConnection {
         return nativeCtx.clientCtx();
     }
 
+    /**
+     * autoCommit is always true as transactions are not supported in ByteHouse.
+     */
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
+        if (!autoCommit) {
+            throw new SQLFeatureNotSupportedException("Transactions are not supported");
+        }
     }
 
     @Override
@@ -83,16 +89,30 @@ public class ByteHouseConnection implements SQLConnection {
         return true;
     }
 
+    /**
+     * autoCommit is always true, so commit will always throw SQLException.
+     */
     @Override
     public void commit() throws SQLException {
+        throw new SQLException("commit cannot be called while connection is in auto-commit mode.");
     }
 
+    /**
+     * autoCommit is always true, so rollback will always throw SQLException.
+     */
     @Override
     public void rollback() throws SQLException {
+        throw new SQLException("rollback cannot be called while connection is in auto-commit mode.");
     }
 
+    /**
+     * read-only mode is not supported.
+     */
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
+        if (readOnly) {
+            throw new SQLFeatureNotSupportedException("read-only mode is not supported");
+        }
     }
 
     @Override
@@ -100,31 +120,20 @@ public class ByteHouseConnection implements SQLConnection {
         return false;
     }
 
-    @Override
-    public Map<String, Class<?>> getTypeMap() throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-    }
-
+    /**
+     * holdability cannot be changed from ResultSet.CLOSE_CURSORS_AT_COMMIT.
+     * Transactions are not supported, so holdability has no effect.
+     */
     @Override
     public void setHoldability(int holdability) throws SQLException {
+        if (holdability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+            throw new SQLFeatureNotSupportedException("given holdability is not supported");
+        }
     }
 
     @Override
     public int getHoldability() throws SQLException {
         return ResultSet.CLOSE_CURSORS_AT_COMMIT;
-    }
-
-    @Override
-    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-    }
-
-    @Override
-    public int getNetworkTimeout() throws SQLException {
-        return 0;
     }
 
     @Override
@@ -159,22 +168,17 @@ public class ByteHouseConnection implements SQLConnection {
                 new ByteHousePreparedQueryStatement(this, nativeCtx, query);
     }
 
-    @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return this.prepareStatement(sql);
-    }
-
+    /**
+     * Use DatabaseMetaData.getClientInfoProperties() to retrieve client info properties supported.
+     * Currently no properties are supported.
+     */
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        try {
-            cfg.set(ByteHouseConfig.Builder.builder(cfg.get()).withProperties(properties).build());
-        } catch (Exception ex) {
-            Map<String, ClientInfoStatus> failed = new HashMap<>();
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                failed.put((String) entry.getKey(), ClientInfoStatus.REASON_UNKNOWN);
-            }
-            throw new SQLClientInfoException(failed, ex);
+        Map<String, ClientInfoStatus> failed = new HashMap<>();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            failed.put((String) entry.getKey(), ClientInfoStatus.REASON_UNKNOWN_PROPERTY);
         }
+        throw new SQLClientInfoException(failed);
     }
 
     @Override
@@ -223,8 +227,12 @@ public class ByteHouseConnection implements SQLConnection {
         return null;
     }
 
+    /**
+     * Transactions are not supported in ByteHouse.
+     */
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
+        throw new SQLException("Transactions are not supported");
     }
 
     @Override
