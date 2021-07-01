@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ByteHouseResultSetMetaDataITest extends AbstractITest {
 
     @Test
-    void getDriverMinorVersion() throws Exception {
+    void testColumnMethods() throws Exception {
         withNewConnection(connection -> {
             ByteHouseResultSet rs = ByteHouseResultSetBuilder
                                          .builder(8, ((ByteHouseConnection) connection).serverContext())

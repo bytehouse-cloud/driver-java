@@ -56,9 +56,6 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
             "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
             ")?");
 
-    private PrintWriter printWriter;
-    private int loginTimeoutSeconds = 0;
-
     private final ThreadLocal<Random> randomThreadLocal = new ThreadLocal<>();
     private final List<String> allUrls;
     private volatile List<String> enabledUrls;
@@ -207,35 +204,35 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
     }
 
     /**
-     * {@inheritDoc}
+     * Logging for data source is disabled.
      */
     @Override
     public PrintWriter getLogWriter() throws SQLException {
-        return printWriter;
+        return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Not supported as logging cannot be enabled.
      */
     @Override
     public void setLogWriter(PrintWriter printWriter) throws SQLException {
-        this.printWriter = printWriter;
+        throw new SQLFeatureNotSupportedException();
     }
 
     /**
-     * {@inheritDoc}
+     * Not supported. Consider using connectTimeout instead.
      */
     @Override
     public void setLoginTimeout(int seconds) throws SQLException {
-        loginTimeoutSeconds = seconds;
+        throw new SQLFeatureNotSupportedException();
     }
 
     /**
-     * {@inheritDoc}
+     * Not supported. Consider using connectTimeout instead.
      */
     @Override
     public int getLoginTimeout() throws SQLException {
-        return loginTimeoutSeconds;
+        throw new SQLFeatureNotSupportedException();
     }
 
     /**

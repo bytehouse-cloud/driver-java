@@ -80,7 +80,7 @@ public abstract class AbstractITest implements Serializable {
         if (StrUtil.isNotEmpty(CLICKHOUSE_DB)) {
             sb.append("/").append(container.getDatabaseName());
         }
-        for (int i = 0; i + 1 < params.length; i++) {
+        for (int i = 0; i + 1 < params.length; i = i + 2) {
             sb.append(i == 0 ? "?" : "&");
             sb.append(params[i]).append("=").append(params[i + 1]);
         }
