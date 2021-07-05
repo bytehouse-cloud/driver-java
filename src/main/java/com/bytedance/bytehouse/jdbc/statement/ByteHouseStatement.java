@@ -75,6 +75,10 @@ public class ByteHouseStatement implements SQLStatement {
 
     @Override
     public int executeUpdate(String query) throws SQLException {
+        // closes current ResultSet if it exists before running another query.
+        if (lastResultSet != null) {
+            lastResultSet.close();
+        }
 
         return ExceptionUtil.rethrowSQLException(() -> {
             extractDBAndTableName(query);
@@ -122,9 +126,15 @@ public class ByteHouseStatement implements SQLStatement {
         return false;
     }
 
+    /**
+     * Releases all resources. If current ResultSet exists, it is also closed.
+     */
     @Override
     public void close() throws SQLException {
         LOG.debug("close Statement");
+        if (lastResultSet != null) {
+            lastResultSet.close();
+        }
         this.isClosed = true;
     }
 
@@ -179,6 +189,10 @@ public class ByteHouseStatement implements SQLStatement {
         return ResultSet.FETCH_FORWARD;
     }
 
+    /**
+     * Returns 0 to indicate that the driver will decide what the fetchSize should be.
+     * User should set max_block_size in query settings to alter fetchSize instead.
+     */
     @Override
     public int getFetchSize() throws SQLException {
         return 0;

@@ -85,8 +85,16 @@ public class ByteHouseQueryResult implements QueryResult {
     }
 
     private DataResponse consumeDataResponse() throws SQLException {
-        while (!atEnd) {
-            Response response = responseSupplier.get();
+        while (!atEnd && !Thread.currentThread().isInterrupted()) {
+            Response response;
+            try {
+                response = responseSupplier.get();
+            } catch (SQLException e) {
+                // happens when ExceptionResponse is received from server. In this case,
+                // no more responses can be expected.
+                atEnd = true;
+                throw e;
+            }
             if (response instanceof DataResponse) {
                 return (DataResponse) response;
             } else if (response instanceof EOFStreamResponse || response == null) {
