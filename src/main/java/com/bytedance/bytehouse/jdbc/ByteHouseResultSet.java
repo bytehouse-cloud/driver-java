@@ -349,8 +349,15 @@ public class ByteHouseResultSet implements SQLResultSet {
         return isAfterLast;
     }
 
+    /**
+     * direction cannot be changed from FETCH_FORWARD, as other directions are
+     * currently not supported.
+     */
     @Override
     public void setFetchDirection(int direction) throws SQLException {
+        if (direction != ResultSet.FETCH_FORWARD) {
+            throw new SQLException("direction is not supported. FETCH_FORWARD only.");
+        }
     }
 
     @Override
@@ -358,18 +365,23 @@ public class ByteHouseResultSet implements SQLResultSet {
         return ResultSet.FETCH_FORWARD;
     }
 
-    @Override
-    public void setFetchSize(int rows) throws SQLException {
-    }
-
+    /**
+     * Returns 0 to indicate that the driver will decide what the fetchSize should be.
+     * User should set max_block_size in query settings to alter fetchSize instead.
+     */
     @Override
     public int getFetchSize() throws SQLException {
-        return Integer.MAX_VALUE;
+        return 0;
     }
 
     @Override
     public int getType() throws SQLException {
         return ResultSet.TYPE_FORWARD_ONLY;
+    }
+
+    @Override
+    public int getConcurrency() throws SQLException {
+        return ResultSet.CONCUR_READ_ONLY;
     }
 
     @Override
@@ -415,12 +427,23 @@ public class ByteHouseResultSet implements SQLResultSet {
         return hasNext;
     }
 
+    /**
+     * Consumes remaining server responses and set the ResultSet as closed.
+     *
+     * ByteHouse sends the full query response to the socket, so this method has to consume all the data from the
+     * socket to free the socket up upon closing for receiving other queries' responses.
+     */
     @Override
     public void close() throws SQLException {
-        // TODO check if query responses are completed
-        //  1. if completed, just set isClosed = true
-        //  2. if not, cancel query and consume the rest responses
-        LOG.debug("close ResultSet");
+        // consume remaining responses
+        while (dataResponses.hasNext()) {
+            dataResponses.next();
+        }
+        // reset variables
+        currentBlock = new Block();
+        currentRowNum = 0;
+        isFirst = false;
+        isAfterLast = true;
         this.isClosed = true;
     }
 
