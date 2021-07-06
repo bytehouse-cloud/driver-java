@@ -24,9 +24,13 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
-public class DataTypeNothing implements IDataType<Object, Object> {
+/**
+ * Nothing data type represents cases where a value is not expected from the server's response.
+ * You can't create/write a Nothing type value.
+ */
+public class DataTypeNothing implements IDataType<Byte, Object> {
 
-    public static DataTypeCreator<Object, Object> CREATOR =
+    public static DataTypeCreator<Byte, Object> CREATOR =
             (lexer, serverContext) -> new DataTypeNothing(serverContext);
 
     public DataTypeNothing(NativeContext.ServerContext serverContext) {
@@ -43,13 +47,13 @@ public class DataTypeNothing implements IDataType<Object, Object> {
     }
 
     @Override
-    public Object defaultValue() {
+    public Byte defaultValue() {
         return null;
     }
 
     @Override
-    public Class<Object> javaType() {
-        return Object.class;
+    public Class<Byte> javaType() {
+        return Byte.class;
     }
 
     @Override
@@ -62,13 +66,20 @@ public class DataTypeNothing implements IDataType<Object, Object> {
         return 0;
     }
 
+    /**
+     * Should not be able to write a Nothing type value.
+     */
     @Override
-    public void serializeBinary(Object data, BinarySerializer serializer) throws SQLException, IOException {
+    public void serializeBinary(Byte data, BinarySerializer serializer) throws SQLException, IOException {
+        throw new SQLException("serializeBinary should not be called for Nothing type.");
     }
 
+    /**
+     * Nothing data type still has to read one byte when deserializing the response from server.
+     */
     @Override
-    public Object deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
-        return new Object();
+    public Byte deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
+        return deserializer.readByte();
     }
 
     @Override
@@ -76,8 +87,11 @@ public class DataTypeNothing implements IDataType<Object, Object> {
         return new String[]{"NULL"};
     }
 
+    /**
+     * Should not be able to create a Nothing type value from SQL statements.
+     */
     @Override
-    public Object deserializeText(SQLLexer lexer) throws SQLException {
-        return lexer.stringView();
+    public Byte deserializeText(SQLLexer lexer) throws SQLException {
+        throw new SQLException("deserializeText should not be called for Nothing type.");
     }
 }
