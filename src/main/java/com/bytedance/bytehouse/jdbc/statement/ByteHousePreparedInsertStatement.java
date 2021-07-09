@@ -34,6 +34,8 @@ import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.UnknownHostException;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -191,6 +193,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
     }
 
     // TODO we actually need a type cast system rather than put all type cast stuffs here
+    // TODO create type cast system between Java type (internal representation of CNCH type) and JDBC type
     private Object convertToCkDataType(IDataType<?, ?> type, Object obj) throws ByteHouseSQLException {
         if (obj == null) {
             if (type.nullable() || type instanceof DataTypeNothing)
@@ -271,6 +274,18 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
                 return UUID.fromString((String) obj);
             }
         }
+        if (type instanceof DataTypeIPv6) {
+            if (obj instanceof Inet6Address) {
+                return obj;
+            }
+            if (obj instanceof String) {
+                try {
+                    return ((Inet6Address) Inet6Address.getByName((String) obj));
+                } catch (UnknownHostException | ClassCastException e) {
+                    throw new ByteHouseSQLException(-1, obj + " is not a valid IPv6 address");
+                }
+            }
+        }
         if (type instanceof DataTypeNothing) {
             return null;
         }
@@ -290,6 +305,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
             }
             return ((ByteHouseStruct) obj).mapAttributes(((DataTypeTuple) type).getNestedTypes(), unchecked(this::convertToCkDataType));
         }
+        // TODO: 8/7/21 Throw an error here instead of letting it go downstream (do this in the new type cast system)
         LOG.debug("unhandled type: {}[{}]", type.name(), obj.getClass());
         return obj;
     }
