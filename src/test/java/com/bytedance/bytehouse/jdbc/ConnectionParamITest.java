@@ -26,8 +26,7 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConnectionParamITest extends AbstractITest {
 
@@ -113,4 +112,61 @@ public class ConnectionParamITest extends AbstractITest {
         assertEquals(Duration.ofSeconds(50), config.connectTimeout());
     }
 
+    @Test
+    public void successfullyCompressedInsert() throws Exception {
+        withStatement(statement -> {
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("CREATE TABLE test(x Int32) ENGINE=Log");
+
+            for (int i = 0; i < 30; i++) {
+                assertEquals(1, statement.executeUpdate(String.format("INSERT INTO test VALUES(%d)", i)));
+            }
+
+            ResultSet rs = statement.executeQuery("SELECT x FROM test ORDER BY x");
+            for (int i = 0; i < 30; i++) {
+                assertTrue(rs.next());
+                assertEquals(i, rs.getInt(1));
+            }
+            assertFalse(rs.next());
+
+            statement.execute("DROP TABLE IF EXISTS test");
+        }, "enable_compression", "true");
+    }
+
+    @Test
+    public void successfullyCompressedInsertBatch() throws Exception {
+        withStatement(statement -> {
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("CREATE TABLE test(x Int32) ENGINE=Log");
+
+            withPreparedStatement(statement.getConnection(), "INSERT INTO test(x) VALUES(?)", pstmt -> {
+                for (int i = 0; i < 30; i++) {
+                    pstmt.setInt(1, i);
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            });
+
+            ResultSet rs = statement.executeQuery("SELECT x FROM test ORDER BY x");
+            for (int i = 0; i < 30; i++) {
+                assertTrue(rs.next());
+                assertEquals(i, rs.getInt(1));
+            }
+            assertFalse(rs.next());
+
+            statement.execute("DROP TABLE IF EXISTS test");
+        }, "enable_compression", "true");
+    }
+
+    @Test
+    public void successfullyCompressedQuery() throws Exception {
+        withStatement(statement -> {
+            ResultSet rs = statement.executeQuery("SELECT * FROM numbers(30)");
+            for (int i = 0; i < 30; i++) {
+                assertTrue(rs.next());
+                assertEquals(i, rs.getInt(1));
+            }
+            assertFalse(rs.next());
+        }, "enable_compression", "true");
+    }
 }

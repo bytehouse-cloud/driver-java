@@ -64,9 +64,14 @@ public class NativeClient {
             socket.setKeepAlive(configure.tcpKeepAlive());
             socket.connect(endpoint, (int) configure.connectTimeout().toMillis());
 
+            // this sets the data compression boolean for the entire connection. If enableCompression = true, all Blocks
+            // exchanged during the connection should be compressed. enableCompression can be changed via method
+            // setEnableCompression()
+            boolean enableCompression = configure.enableCompression();
+
             return new NativeClient(socket,
-                    new BinarySerializer(new SocketBuffedWriter(socket), true),
-                    new BinaryDeserializer(new SocketBuffedReader(socket), true));
+                    new BinarySerializer(new SocketBuffedWriter(socket), enableCompression),
+                    new BinaryDeserializer(new SocketBuffedReader(socket), enableCompression));
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -135,6 +140,14 @@ public class NativeClient {
         this.deserializer = deserializer;
     }
 
+    /**
+     * Set enableCompression boolean on this NativeClient.
+     */
+    public void setEnableCompression(boolean enableCompression) {
+        serializer.setEnableCompression(enableCompression);
+        deserializer.setEnableCompression(enableCompression);
+    }
+
     public SocketAddress address() {
         return address;
     }
@@ -172,8 +185,11 @@ public class NativeClient {
         sendRequest(new HelloRequest(client, reversion, db, user, password));
     }
 
-    public void sendQuery(String query, NativeContext.ClientContext info, Map<SettingKey, Serializable> settings) throws SQLException {
-        sendQuery(UUID.randomUUID().toString(), QueryRequest.STAGE_COMPLETE, info, query, settings);
+    public void sendQuery(
+            String query, NativeContext.ClientContext info,
+            Map<SettingKey, Serializable> settings, boolean enableCompression
+    ) throws SQLException {
+        sendQuery(UUID.randomUUID().toString(), QueryRequest.STAGE_COMPLETE, info, query, settings, enableCompression);
     }
 
     public void sendData(Block data) throws SQLException {
@@ -218,9 +234,11 @@ public class NativeClient {
         }
     }
 
-    private void sendQuery(String id, int stage, NativeContext.ClientContext info, String query,
-                           Map<SettingKey, Serializable> settings) throws SQLException {
-        sendRequest(new QueryRequest(id, info, stage, true, query, settings));
+    private void sendQuery(
+            String id, int stage, NativeContext.ClientContext info, String query,
+            Map<SettingKey, Serializable> settings, boolean enableCompression
+    ) throws SQLException {
+        sendRequest(new QueryRequest(id, info, stage, enableCompression, query, settings));
     }
 
     private void sendRequest(Request request) throws SQLException {

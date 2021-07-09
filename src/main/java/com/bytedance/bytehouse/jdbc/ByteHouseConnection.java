@@ -25,12 +25,14 @@ import com.bytedance.bytehouse.client.NativeClient;
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.protocol.HelloResponse;
+import com.bytedance.bytehouse.settings.SettingKey;
 import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLConnection;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.sql.*;
 import java.time.Duration;
@@ -259,24 +261,45 @@ public class ByteHouseConnection implements SQLConnection {
         return ByteHouseConnection.LOG;
     }
 
+    @Override
+    public void setEnableCompression(boolean enableCompression) throws SQLException {
+        getNativeClient().setEnableCompression(enableCompression);
+        this.cfg.set(this.cfg().withEnableCompression(enableCompression));
+    }
+
+    @Override
+    public boolean getEnableCompression() throws SQLException {
+        return this.cfg().enableCompression();
+    }
+
     public boolean ping(Duration timeout) throws SQLException {
         return nativeCtx.nativeClient().ping(timeout, nativeCtx.serverCtx());
     }
 
     public Block getSampleBlock(final String insertQuery) throws SQLException {
         NativeClient nativeClient = getHealthyNativeClient();
-        nativeClient.sendQuery(insertQuery, nativeCtx.clientCtx(), cfg.get().settings());
+        nativeClient.sendQuery(insertQuery, nativeCtx.clientCtx(), cfg.get().settings(), cfg.get().enableCompression());
         Validate.isTrue(this.state.compareAndSet(SessionState.IDLE, SessionState.WAITING_INSERT),
                 "Connection is currently waiting for an insert operation, check your previous InsertStatement.");
         return nativeClient.receiveSampleBlock(cfg.get().queryTimeout(), nativeCtx.serverCtx());
     }
 
+    /**
+     * Used by Statement objects to send and receive queries using this connection.
+     */
     public QueryResult sendQueryRequest(final String query, ByteHouseConfig cfg) throws SQLException {
         Validate.isTrue(this.state.get() == SessionState.IDLE,
                 "Connection is currently waiting for an insert operation, check your previous InsertStatement.");
         NativeClient nativeClient = getHealthyNativeClient();
-        nativeClient.sendQuery(query, nativeCtx.clientCtx(), cfg.settings());
-        return nativeClient.receiveQuery(cfg.queryTimeout(), nativeCtx.serverCtx());
+
+        // enableCompression is a Connection level parameter, so it is obtained from this.cfg
+        boolean enableCompression = this.cfg.get().enableCompression();
+        // query settings and queryTimeout can be altered by Statement objects, so they are obtained from cfg parameter
+        Map<SettingKey, Serializable> settings = cfg.settings();
+        Duration queryTimeout = cfg.queryTimeout();
+
+        nativeClient.sendQuery(query, nativeCtx.clientCtx(), settings, enableCompression);
+        return nativeClient.receiveQuery(queryTimeout, nativeCtx.serverCtx());
     }
     // when sendInsertRequest we must ensure the connection is healthy
     // the #getSampleBlock() must be called before this method

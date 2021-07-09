@@ -40,12 +40,13 @@ public class ByteHouseConfig implements Serializable {
     private final boolean tcpNoDelay;
     private final boolean secure;
     private final boolean skipVerification;
+    private final boolean enableCompression;
     private final String charset; // use String because Charset is not serializable
     private final Map<SettingKey, Serializable> settings;
 
     private ByteHouseConfig(String host, int port, String database, String accountId, String user, String password,
                             Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive, boolean tcpNoDelay,
-                            boolean secure, boolean skipVerification, String charset,
+                            boolean secure, boolean skipVerification, boolean enableCompression, String charset,
                             Map<SettingKey, Serializable> settings) {
         this.host = host;
         this.port = port;
@@ -59,6 +60,7 @@ public class ByteHouseConfig implements Serializable {
         this.tcpNoDelay = tcpNoDelay;
         this.secure = secure;
         this.skipVerification = skipVerification;
+        this.enableCompression = enableCompression;
         this.charset = charset;
         this.settings = settings;
     }
@@ -111,6 +113,10 @@ public class ByteHouseConfig implements Serializable {
         return skipVerification;
     }
 
+    public boolean enableCompression() {
+        return enableCompression;
+    }
+
     public Charset charset() {
         return Charset.forName(charset);
     }
@@ -135,7 +141,8 @@ public class ByteHouseConfig implements Serializable {
                 .append("&").append(SettingKey.tcp_keep_alive.name()).append("=").append(tcpKeepAlive)
                 .append("&").append(SettingKey.tcp_no_delay.name()).append("=").append(tcpNoDelay)
                 .append("&").append(SettingKey.secure.name()).append("=").append(secure)
-                .append("&").append(SettingKey.skip_verification.name()).append("=").append(skipVerification);
+                .append("&").append(SettingKey.skip_verification.name()).append("=").append(skipVerification)
+                .append("&").append(SettingKey.enableCompression.name()).append("=").append(enableCompression);
 
         for (Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
             builder.append("&").append(entry.getKey().name()).append("=").append(entry.getValue());
@@ -205,6 +212,12 @@ public class ByteHouseConfig implements Serializable {
                 .build();
     }
 
+    public ByteHouseConfig withEnableCompression(boolean enableCompression) {
+        return Builder.builder(this)
+                .enableCompression(enableCompression)
+                .build();
+    }
+
     public ByteHouseConfig withCharset(Charset charset) {
         return Builder.builder(this)
                 .charset(charset)
@@ -249,6 +262,7 @@ public class ByteHouseConfig implements Serializable {
         private boolean tcpNoDelay;
         private boolean secure;
         private boolean skipVerification;
+        private boolean enableCompression;
         private Charset charset;
         private Map<SettingKey, Serializable> settings = new HashMap<>();
 
@@ -273,6 +287,7 @@ public class ByteHouseConfig implements Serializable {
                     .tcpNoDelay(cfg.tcpNoDelay())
                     .secure(cfg.secure())
                     .skipVerification(cfg.skipVerification())
+                    .enableCompression(cfg.enableCompression())
                     .charset(cfg.charset())
                     .withSettings(cfg.settings());
         }
@@ -347,6 +362,11 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
+        public Builder enableCompression(boolean enableCompression) {
+            this.withSetting(SettingKey.enableCompression, enableCompression);
+            return this;
+        }
+
         public Builder charset(String charset) {
             this.withSetting(SettingKey.charset, charset);
             return this;
@@ -388,6 +408,7 @@ public class ByteHouseConfig implements Serializable {
             this.tcpNoDelay = (boolean) this.settings.getOrDefault(SettingKey.tcp_no_delay, true);
             this.secure = (boolean) this.settings.getOrDefault(SettingKey.secure, false);
             this.skipVerification = (boolean) this.settings.getOrDefault(SettingKey.skip_verification, false);
+            this.enableCompression = (boolean) this.settings.getOrDefault(SettingKey.enableCompression, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
 
             revisit();
@@ -395,7 +416,7 @@ public class ByteHouseConfig implements Serializable {
 
             return new ByteHouseConfig(
                     host, port, database, accountId, user, password, queryTimeout,
-                    connectTimeout, tcpKeepAlive, tcpNoDelay, secure, skipVerification,
+                    connectTimeout, tcpKeepAlive, tcpNoDelay, secure, skipVerification, enableCompression,
                     charset.name(), settings
             );
         }
@@ -424,6 +445,7 @@ public class ByteHouseConfig implements Serializable {
             this.settings.remove(SettingKey.tcp_no_delay);
             this.settings.remove(SettingKey.secure);
             this.settings.remove(SettingKey.skip_verification);
+            this.settings.remove(SettingKey.enableCompression);
             this.settings.remove(SettingKey.charset);
         }
     }

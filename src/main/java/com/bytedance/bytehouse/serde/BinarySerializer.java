@@ -26,15 +26,16 @@ import java.nio.charset.StandardCharsets;
 public class BinarySerializer {
 
     private final Switcher<BuffedWriter> switcher;
-    private final boolean enableCompress;
+    private boolean enableCompression;
 
-    public BinarySerializer(BuffedWriter writer, boolean enableCompress) {
-        this.enableCompress = enableCompress;
-        BuffedWriter compressWriter = null;
-        if (enableCompress) {
-            compressWriter = new CompressedBuffedWriter(ByteHouseDefines.SOCKET_SEND_BUFFER_BYTES, writer);
-        }
+    public BinarySerializer(BuffedWriter writer, boolean enableCompression) {
+        this.enableCompression = enableCompression;
+        BuffedWriter compressWriter = new CompressedBuffedWriter(ByteHouseDefines.SOCKET_SEND_BUFFER_BYTES, writer);
         switcher = new Switcher<>(compressWriter, writer);
+    }
+
+    public void setEnableCompression(boolean enableCompression) {
+        this.enableCompression = enableCompression;
     }
 
     public void writeVarInt(long x) throws IOException {
@@ -113,13 +114,13 @@ public class BinarySerializer {
     }
 
     public void maybeEnableCompressed() {
-        if (enableCompress) {
+        if (enableCompression) {
             switcher.select(false);
         }
     }
 
     public void maybeDisableCompressed() throws IOException {
-        if (enableCompress) {
+        if (enableCompression) {
             switcher.get().flushToTarget(true);
             switcher.select(true);
         }

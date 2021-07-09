@@ -49,7 +49,8 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
             DatabaseMetaData dm = connection.getMetaData();
             assertEquals(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s/default?query_timeout=0" +
                             "&connect_timeout=0&charset=UTF-8&tcp_keep_alive=false" +
-                            "&tcp_no_delay=true&secure=false&skip_verification=false", CK_HOST, CK_PORT),
+                            "&tcp_no_delay=true&secure=false&skip_verification=false" +
+                            "&enable_compression=false", CK_HOST, CK_PORT),
                     dm.getURL());
         });
     }

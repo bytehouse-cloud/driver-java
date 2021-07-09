@@ -23,15 +23,16 @@ import java.nio.charset.StandardCharsets;
 public class BinaryDeserializer {
 
     private final Switcher<BuffedReader> switcher;
-    private final boolean enableCompress;
+    private boolean enableCompression;
 
-    public BinaryDeserializer(BuffedReader buffedReader, boolean enableCompress) {
-        this.enableCompress = enableCompress;
-        BuffedReader compressedReader = null;
-        if (enableCompress) {
-            compressedReader = new CompressedBuffedReader(buffedReader);
-        }
+    public BinaryDeserializer(BuffedReader buffedReader, boolean enableCompression) {
+        this.enableCompression = enableCompression;
+        BuffedReader compressedReader = new CompressedBuffedReader(buffedReader);
         switcher = new Switcher<>(compressedReader, buffedReader);
+    }
+
+    public void setEnableCompression(boolean enableCompression) {
+        this.enableCompression = enableCompression;
     }
 
     public long readVarInt() throws IOException {
@@ -100,13 +101,13 @@ public class BinaryDeserializer {
     }
 
     public void maybeEnableCompressed() {
-        if (enableCompress) {
+        if (enableCompression) {
             switcher.select(false);
         }
     }
 
     public void maybeDisableCompressed() {
-        if (enableCompress) {
+        if (enableCompression) {
             switcher.select(true);
         }
     }

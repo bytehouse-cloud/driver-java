@@ -41,22 +41,33 @@ public class QueryRequest implements Request {
     private final int stage;
     private final String queryId;
     private final String queryString;
-    private final boolean compression;
+    /**
+     * this enableCompression boolean should be equal to the enableCompression boolean for the entire connection,
+     * set in the ByteHouseConfig object. If set to true, query DataResponse sent by server will be compressed and
+     * insert DataRequest sent by driver should be compressed too.
+     */
+    private final boolean enableCompression;
     private final NativeContext.ClientContext clientContext;
     private final Map<SettingKey, Serializable> settings;
 
-    public QueryRequest(String queryId, NativeContext.ClientContext clientContext, int stage, boolean compression, String queryString) {
-        this(queryId, clientContext, stage, compression, queryString, new HashMap<>());
+    public QueryRequest(String queryId, NativeContext.ClientContext clientContext, int stage, boolean enableCompression, String queryString) {
+        this(queryId, clientContext, stage, enableCompression, queryString, new HashMap<>());
     }
 
-    public QueryRequest(String queryId, NativeContext.ClientContext clientContext, int stage, boolean compression, String queryString,
-                        Map<SettingKey, Serializable> settings) {
+    public QueryRequest(
+            final String queryId,
+            final NativeContext.ClientContext clientContext,
+            final int stage,
+            final boolean enableCompression,
+            final String queryString,
+            final Map<SettingKey, Serializable> settings
+    ) {
 
         this.stage = stage;
         this.queryId = queryId;
         this.settings = settings;
         this.clientContext = clientContext;
-        this.compression = compression;
+        this.enableCompression = enableCompression;
         this.queryString = queryString;
     }
 
@@ -79,7 +90,7 @@ public class QueryRequest implements Request {
         }
         serializer.writeUTF8StringBinary("");
         serializer.writeVarInt(stage);
-        serializer.writeBoolean(compression);
+        serializer.writeBoolean(enableCompression);
         serializer.writeUTF8StringBinary(queryString);
         // empty data to server
         DataRequest.EMPTY.writeTo(serializer);

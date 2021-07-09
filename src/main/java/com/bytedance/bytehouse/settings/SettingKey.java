@@ -1744,6 +1744,12 @@ public class SettingKey implements Serializable {
             .withDescription("defines if skip tls verification")
             .build();
 
+    public static SettingKey enableCompression = SettingKey.builder()
+            .withName("enable_compression")
+            .withType(SettingType.Bool)
+            .withDescription("defines if compress data should be used")
+            .build();
+
     public static SettingKey charset = SettingKey.builder()
             .withName("charset")
             .withType(SettingType.UTF8)
