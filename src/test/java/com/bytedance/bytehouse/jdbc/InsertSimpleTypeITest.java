@@ -148,6 +148,55 @@ public class InsertSimpleTypeITest extends AbstractITest {
     }
 
     @Test
+    public void successfullyIPv6DataType() throws Exception {
+        withStatement(statement -> {
+            statement.executeQuery("DROP TABLE IF EXISTS test");
+            statement.executeQuery("CREATE TABLE test(ip IPv6) ENGINE=Log");
+
+            String testIp = "2001:44c8:129:2632:33:0:252:2";
+            statement.executeQuery(String.format("INSERT INTO test VALUES('%s')", testIp));
+
+            ResultSet rs = statement.executeQuery("SELECT ip FROM test");
+
+            assertTrue(rs.next());
+            assertEquals(rs.getString(1), "/" + testIp);
+
+            statement.executeQuery("DROP TABLE IF EXISTS test");
+        });
+    }
+
+    @Test
+    public void successfullyIPv6DataTypeBatch() throws Exception {
+        withStatement(statement -> {
+            statement.executeQuery("DROP TABLE IF EXISTS test");
+            statement.executeQuery("CREATE TABLE test(ip IPv6) ENGINE=Log");
+
+            String[] testIps = {"0:0:0:0:0:0:0:0", "2001:44c8:129:2632:33:0:252:2", "2a02:aa08:e000:3100::2"};
+            String[] testIpsOutput = {
+                    "/0:0:0:0:0:0:0:0", "/2001:44c8:129:2632:33:0:252:2", "/2a02:aa08:e000:3100:0:0:0:2"
+            };
+
+            withPreparedStatement(statement.getConnection(), "INSERT INTO test(ip) VALUES(?)", pstmt -> {
+                for (String testIp : testIps) {
+                    pstmt.setString(1, testIp);
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            });
+
+            ResultSet rs = statement.executeQuery("SELECT ip FROM test");
+
+            for (int i = 0; i < testIps.length; i++) {
+                assertTrue(rs.next());
+                assertEquals(rs.getString(1), testIpsOutput[i]);
+            }
+            assertFalse(rs.next());
+
+            statement.executeQuery("DROP TABLE IF EXISTS test");
+        });
+    }
+
+    @Test
     public void successfullyInt64DataType() throws Exception {
         withStatement(statement -> {
             statement.executeQuery("DROP TABLE IF EXISTS test");

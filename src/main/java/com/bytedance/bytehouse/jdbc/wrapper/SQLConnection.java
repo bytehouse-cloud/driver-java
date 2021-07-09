@@ -22,6 +22,15 @@ import java.util.concurrent.Executor;
 
 public interface SQLConnection extends Connection, SQLWrapper, Logging {
 
+    // ----------------------- ByteHouse specific methods -----------------------------
+
+    public void setEnableCompression(boolean enableCompression) throws SQLException;
+
+    public boolean getEnableCompression() throws SQLException;
+
+
+    // ----------------------- Java SQL Connection methods ----------------------------
+
     @Override
     default void setClientInfo(Properties properties) throws SQLClientInfoException {
         logger().debug("invoke unimplemented method #setClientInfo(Properties properties)");

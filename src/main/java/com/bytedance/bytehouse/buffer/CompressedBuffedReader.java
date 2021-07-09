@@ -19,11 +19,13 @@ import java.io.IOException;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import io.airlift.compress.Decompressor;
 import io.airlift.compress.lz4.Lz4Decompressor;
-import io.airlift.compress.zstd.ZstdDecompressor;
 
 import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
 import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
+/**
+ * CompressedBufferReader supporting LZ4 fast compression.
+ */
 public class CompressedBuffedReader implements BuffedReader, BytesHelper {
 
     private int position;
@@ -33,7 +35,6 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
     private final BuffedReader buf;
 
     private final Decompressor lz4Decompressor = new Lz4Decompressor();
-    private final Decompressor zstdDecompressor = new ZstdDecompressor();
 
     public CompressedBuffedReader(BuffedReader buf) {
         this.buf = buf;
@@ -72,11 +73,10 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
         return bytes.length;
     }
 
-    // @formatter:off
+    /* @formatter:off */
     private static final int NONE = 0x02;
     private static final int LZ4  = 0x82;
-    private static final int ZSTD = 0x90;
-    // @formatter:on
+    /* @formatter:on */
 
     private byte[] readCompressedData() throws IOException {
         //TODO: validate checksum
