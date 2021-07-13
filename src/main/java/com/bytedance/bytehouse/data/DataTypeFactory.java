@@ -99,6 +99,7 @@ public class DataTypeFactory {
         registerType(creators, new DataTypeIPv4());
         registerType(creators, new DataTypeIPv6());
         registerType(creators, new DataTypeUUID());
+        registerType(creators, new DataTypeBitMap64());
         registerType(creators, new DataTypeFloat32());
         registerType(creators, new DataTypeFloat64());
 
