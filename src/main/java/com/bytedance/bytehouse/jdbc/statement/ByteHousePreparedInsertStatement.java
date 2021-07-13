@@ -299,6 +299,12 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
             }
             return ((ByteHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
         }
+        if (type instanceof DataTypeBitMap64) {
+            if (!(obj instanceof ByteHouseArray)) {
+                throw new ByteHouseSQLException(-1, "require ByteHouseArray for column: " + type.name() + ", but found " + obj.getClass());
+            }
+            return ((ByteHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
+        }
         if (type instanceof DataTypeTuple) {
             if (!(obj instanceof ByteHouseStruct)) {
                 throw new ByteHouseSQLException(-1, "require ByteHouseStruct for column: " + type.name() + ", but found " + obj.getClass());

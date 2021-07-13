@@ -29,6 +29,7 @@ dependencies {
     implementation "org.slf4j:slf4j-api:1.7.30"
     implementation "org.slf4j:slf4j-simple:1.7.30"
     implementation "com.google.code.findbugs:jsr305:3.0.2"
+    implementation 'com.github.RoaringBitmap.RoaringBitmap:RoaringBitmap:0.9.15'
 
     testImplementation "ru.yandex.clickhouse:clickhouse-jdbc:0.2.5"
     testImplementation "org.mockito:mockito-core:3.6.28"
