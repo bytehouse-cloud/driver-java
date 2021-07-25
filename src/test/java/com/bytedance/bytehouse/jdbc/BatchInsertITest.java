@@ -251,6 +251,27 @@ public class BatchInsertITest extends AbstractITest {
     }
 
     @Test
+    public void successfullyBatchInsertLowCardinality() throws Exception {
+        withStatement(statement -> {
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("CREATE TABLE test(i LowCardinality(String)) ENGINE=Log");
+
+            withPreparedStatement(statement.getConnection(), "INSERT INTO test VALUES(?)", pstmt -> {
+                pstmt.setObject(1, "test");
+                pstmt.addBatch();
+
+                assertBatchInsertResult(pstmt.executeBatch(), 1);
+            });
+            ResultSet rs = statement.executeQuery("SELECT * FROM test");
+
+            assertTrue(rs.next());
+            assertEquals("test", rs.getObject(1));
+
+        });
+
+    }
+
+    @Test
     public void batchInsert_withoutAllParameters_throwSqlException() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP TABLE IF EXISTS test");

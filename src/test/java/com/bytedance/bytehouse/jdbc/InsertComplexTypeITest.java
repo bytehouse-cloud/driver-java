@@ -101,12 +101,12 @@ public class InsertComplexTypeITest extends AbstractITest {
             assertTrue(rs.next());
 
             assertEquals(
-                Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
-                rs.getTimestamp(1).getTime());
+                    Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
+                    rs.getTimestamp(1).getTime());
 
             assertEquals(
-                Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
-                rs.getTimestamp(2).getTime());
+                    Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
+                    rs.getTimestamp(2).getTime());
 
             assertFalse(rs.next());
             statement.executeQuery("DROP TABLE IF EXISTS test");
@@ -142,8 +142,8 @@ public class InsertComplexTypeITest extends AbstractITest {
             ResultSet rs = statement.executeQuery("SELECT * FROM test");
             assertTrue(rs.next());
             assertEquals(
-                Timestamp.valueOf(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)),
-                rs.getTimestamp(1));
+                    Timestamp.valueOf(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)),
+                    rs.getTimestamp(1));
             assertFalse(rs.next());
             statement.executeQuery("DROP TABLE IF EXISTS test");
         }, "use_client_time_zone", true);
@@ -159,8 +159,8 @@ public class InsertComplexTypeITest extends AbstractITest {
             assertTrue(rs.next());
 
             assertEquals(
-                Timestamp.valueOf(LocalDateTime.of(2105, 12, 31, 23, 59, 59, 999999999)),
-                rs.getTimestamp(1));
+                    Timestamp.valueOf(LocalDateTime.of(2105, 12, 31, 23, 59, 59, 999999999)),
+                    rs.getTimestamp(1));
             assertFalse(rs.next());
             statement.executeQuery("DROP TABLE IF EXISTS test");
         }, "use_client_time_zone", true);
@@ -171,17 +171,17 @@ public class InsertComplexTypeITest extends AbstractITest {
         withStatement(statement -> {
             statement.executeQuery("DROP TABLE IF EXISTS test");
             statement.executeQuery("CREATE TABLE test(test_tuple Tuple(String, UInt8),"
-                                   + " tuple_array  Tuple(Array(Nullable(String)), Nullable(UInt8)),"
-                                   + " array_tuple Array(Tuple(UInt32, Nullable(String)) )"
-                                   + " )ENGINE=Log");
+                    + " tuple_array  Tuple(Array(Nullable(String)), Nullable(UInt8)),"
+                    + " array_tuple Array(Tuple(UInt32, Nullable(String)) )"
+                    + " )ENGINE=Log");
             statement.executeQuery("INSERT INTO test VALUES( ('test_string', 1), (['1'], 32), [(32, '1'), (22, NULL) ] )");
             ResultSet rs = statement.executeQuery("SELECT * FROM test");
             assertTrue(rs.next());
             assertArrayEquals(
-                new Object[]{"test_string", (short) (1)},
-                ((Struct) rs.getObject(1)).getAttributes());
+                    new Object[]{"test_string", (short) (1)},
+                    ((Struct) rs.getObject(1)).getAttributes());
 
-            Object []objs = ((Struct) rs.getObject(2)).getAttributes();
+            Object[] objs = ((Struct) rs.getObject(2)).getAttributes();
 
             ByteHouseArray arr = (ByteHouseArray) (objs[0]);
             assertArrayEquals(new Object[]{"1"}, arr.getArray());
@@ -260,5 +260,51 @@ public class InsertComplexTypeITest extends AbstractITest {
 
             statement.execute("DROP TABLE IF EXISTS test");
         });
+    }
+
+    @Test
+    public void successfullyLowCardinalityDataType() throws Exception {
+        withStatement(statement -> {
+            statement.executeQuery("DROP TABLE IF EXISTS test");
+            statement.executeQuery(" CREATE TABLE test(" +
+                    " test_lowcardinality LowCardinality(String), " +
+                    " test_lowcardinality2 LowCardinality(FixedString(6)) " +
+                    " ) ENGINE=Log");
+            statement.executeQuery("INSERT INTO test VALUES" +
+                    " ('first', 'string'), " +
+                    " ('second', 'STRING'), " +
+                    " ('first', 'STRING') "
+            );
+            ResultSet rs = statement.executeQuery("SELECT * FROM test");
+
+            assertTrue(rs.next(), "1st row exist");
+            assertEquals(
+                    "first",
+                    rs.getObject(1));
+            assertEquals(
+                    "string",
+                    rs.getObject(2));
+
+
+            assertTrue(rs.next(), "2nd row exist");
+            assertEquals(
+                    "second",
+                    rs.getObject(1));
+            assertEquals(
+                    "STRING",
+                    rs.getObject(2));
+
+
+            assertTrue(rs.next(), "3rd row exist");
+            assertEquals(
+                    "first",
+                    rs.getObject(1));
+            assertEquals(
+                    "STRING",
+                    rs.getObject(2));
+
+            assertFalse(rs.next(), "4th row should not exist");
+            statement.executeQuery("DROP TABLE IF EXISTS test");
+        }, "use_client_time_zone", true);
     }
 }

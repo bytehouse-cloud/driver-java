@@ -10,19 +10,31 @@ public class SimpleQuery {
 
     public static void main(String[] args) throws Exception {
         // Following environment variables must be defined
-        String url = String.format("jdbc:bytehouse://%s:%s", System.getenv("HOST"), System.getenv("PORT"));
+        String url = String.format("jdbc:bytehouse://localhost:9000");
         Properties properties = new Properties();
-        properties.setProperty("account_id", System.getenv("ACCOUNT_ID"));
-        properties.setProperty("user", System.getenv("USER"));
-        properties.setProperty("password", System.getenv("PASSWORD"));
+        properties.setProperty("account_id", "");
+        properties.setProperty("user", "default");
+        properties.setProperty("password", "");
 
         DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
         Connection connection = dataSource.getConnection();
 
         Statement stmt = connection.createStatement();
 
+        stmt.executeQuery(
+                "use qifeng"
+        );
+
+//        stmt.executeQuery(
+//                "create TABLE arraytest1 (i Array(Int8)) ENGINE = MergeTree ORDER BY i"
+//        );
+
+        stmt.executeUpdate(
+                "insert into lowcardinalitytest values ('12th'),('13th'),('14th')"
+        );
+
         ResultSet rs = stmt.executeQuery(
-                "SELECT (number % 3 + 1) as n, sum(number) FROM numbers(10000000) GROUP BY n"
+                "select * from lowcardinalitytest"
         );
 
         ResultSetMetaData rsmd = rs.getMetaData();

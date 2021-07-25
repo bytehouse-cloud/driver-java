@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeArray;
+import com.bytedance.bytehouse.data.type.complex.DataTypeLowCardinality;
 import com.bytedance.bytehouse.data.type.complex.DataTypeMap;
 import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
@@ -30,6 +31,9 @@ public class ColumnFactory {
 
         if (type instanceof DataTypeTuple)
             return new ColumnTuple(name, (DataTypeTuple) type, values);
+
+        if (type instanceof DataTypeLowCardinality)
+            return new ColumnLowCardinality(name, (DataTypeLowCardinality) type, values);
 
         if (type instanceof DataTypeMap)
             return new ColumnMap(name, (DataTypeMap) type, values);

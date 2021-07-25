@@ -101,26 +101,29 @@ public interface BytesHelper {
     default long getLong(byte[] memory, int index) {
         // @formatter:off
         return ((long) memory[index]     & 0xff) << 56 |
-               ((long) memory[index + 1] & 0xff) << 48 |
-               ((long) memory[index + 2] & 0xff) << 40 |
-               ((long) memory[index + 3] & 0xff) << 32 |
-               ((long) memory[index + 4] & 0xff) << 24 |
-               ((long) memory[index + 5] & 0xff) << 16 |
-               ((long) memory[index + 6] & 0xff) <<  8 |
+                ((long) memory[index + 1] & 0xff) << 48 |
+                ((long) memory[index + 2] & 0xff) << 40 |
+                ((long) memory[index + 3] & 0xff) << 32 |
+                ((long) memory[index + 4] & 0xff) << 24 |
+                ((long) memory[index + 5] & 0xff) << 16 |
+                ((long) memory[index + 6] & 0xff) << 8 |
                 (long) memory[index + 7] & 0xff;
         // @formatter:on
     }
 
+    /**
+     * LongLE =>  Long Little Endian.
+     */
     default long getLongLE(byte[] memory, int index) {
         // @formatter:off
-        return (long) memory[index]      & 0xff       |
-              ((long) memory[index + 1] & 0xff) <<  8 |
-              ((long) memory[index + 2] & 0xff) << 16 |
-              ((long) memory[index + 3] & 0xff) << 24 |
-              ((long) memory[index + 4] & 0xff) << 32 |
-              ((long) memory[index + 5] & 0xff) << 40 |
-              ((long) memory[index + 6] & 0xff) << 48 |
-              ((long) memory[index + 7] & 0xff) << 56;
+        return (long) memory[index] & 0xff |
+                ((long) memory[index + 1] & 0xff) << 8 |
+                ((long) memory[index + 2] & 0xff) << 16 |
+                ((long) memory[index + 3] & 0xff) << 24 |
+                ((long) memory[index + 4] & 0xff) << 32 |
+                ((long) memory[index + 5] & 0xff) << 40 |
+                ((long) memory[index + 6] & 0xff) << 48 |
+                ((long) memory[index + 7] & 0xff) << 56;
         // @formatter:on
     }
 
