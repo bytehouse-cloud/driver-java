@@ -29,6 +29,7 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeDecimal;
 import com.bytedance.bytehouse.data.type.complex.DataTypeEnum16;
 import com.bytedance.bytehouse.data.type.complex.DataTypeEnum8;
 import com.bytedance.bytehouse.data.type.complex.DataTypeFixedString;
+import com.bytedance.bytehouse.data.type.complex.DataTypeMap;
 import com.bytedance.bytehouse.data.type.complex.DataTypeNothing;
 import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.data.type.complex.DataTypeString;
@@ -83,6 +84,8 @@ public class DataTypeFactory {
             return DataTypeString.CREATOR.createDataType(lexer, serverContext);
         } else if (dataTypeName.equalsIgnoreCase("Nothing")) {
             return DataTypeNothing.CREATOR.createDataType(lexer, serverContext);
+        } else if (dataTypeName.equalsIgnoreCase("Map")) {
+            return DataTypeMap.creator.createDataType(lexer, serverContext);
         } else {
             IDataType<?, ?> dataType = dataTypes.get(dataTypeName.toLowerCase(Locale.ROOT));
             Validate.isTrue(dataType != null, "Unknown data type: " + dataTypeName);

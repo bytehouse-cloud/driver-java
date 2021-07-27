@@ -16,6 +16,7 @@ package com.bytedance.bytehouse.jdbc;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.Struct;
@@ -270,6 +271,23 @@ public class QueryComplexTypeITest extends AbstractITest {
             assertEquals("a", rs.getString(1));
             assertFalse(rs.next());
             statement.executeQuery("DROP TABLE IF EXISTS test");
+        });
+    }
+
+    @Test
+    public void successfullyMap() throws Exception {
+        withStatement(statement -> {
+            ResultSet rs = statement.executeQuery(
+                    "SELECT map('key1', number, 'key2', number * 2) FROM numbers(3)"
+            );
+            for (int i = 0; i < 3; i++) {
+                assertTrue(rs.next());
+                assertEquals(
+                        BigInteger.valueOf(i * 2),
+                        ((Map<String, BigInteger>) rs.getObject(1)).get("key2")
+                );
+            }
+            assertFalse(rs.next());
         });
     }
 }

@@ -21,7 +21,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -166,6 +168,54 @@ public class BatchInsertITest extends AbstractITest {
                     assertArrayEquals(array1.toArray(), (Object[]) rs.getArray(2).getArray());
                     assertArrayEquals(array3.toArray(), (Object[]) rs.getArray(4).getArray());
                 }
+            });
+        });
+
+    }
+
+    @Test
+    public void successfullyBatchInsertMap() throws Exception {
+        withStatement(statement -> {
+            statement.execute("SET allow_experimental_map_type=1;");
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("CREATE TABLE test(a Map(Int32, Int32), b Map(String, String))ENGINE=Log");
+
+            withPreparedStatement(statement.getConnection(), "INSERT INTO test VALUES(?, ?)", pstmt -> {
+                Map<Integer, Integer> row1col1 = new HashMap<>();
+                Map<String, String> row1col2 = new HashMap<>();
+                row1col1.put(1, 1);
+                row1col1.put(2, 2);
+                row1col2.put("a", "b");
+                pstmt.setObject(1, row1col1);
+                pstmt.setObject(2, row1col2);
+                pstmt.addBatch();
+
+                Map<Integer, Integer> row2col1 = new HashMap<>();
+                Map<String, String> row2col2 = new HashMap<>();
+                row2col1.put(3, 3);
+                row2col2.put("b", "c");
+                pstmt.setObject(1, row2col1);
+                pstmt.setObject(2, row2col2);
+                pstmt.addBatch();
+
+                assertBatchInsertResult(pstmt.executeBatch(), 2);
+
+                ResultSet rs = statement.executeQuery("SELECT * FROM test");
+
+                assertTrue(rs.next());
+                Map<Integer, Integer> map1 = (Map<Integer, Integer>) rs.getObject(1);
+                assertEquals(1, map1.get(1));
+                assertEquals(2, map1.get(2));
+                Map<String, String> map2 = (Map<String, String>) rs.getObject(2);
+                assertEquals("b", map2.get("a"));
+
+                assertTrue(rs.next());
+                Map<Integer, Integer> map3 = (Map<Integer, Integer>) rs.getObject(1);
+                assertEquals(3, map3.get(3));
+                Map<String, String> map4 = (Map<String, String>) rs.getObject(2);
+                assertEquals("c", map4.get("b"));
+
+                assertFalse(rs.next());
             });
         });
 

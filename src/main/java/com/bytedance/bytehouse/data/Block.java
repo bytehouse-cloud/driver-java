@@ -25,34 +25,20 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A {@link Block} is like a mini table with all the columns and a subset of the rows.
+ * A table is split into multiple blocks (with a max size) and sent across the network
+ * <br><br>
+ * {@link Block}s are used in select query: the driver will receive blocks from server.
+ * also used in insert statements: the driver will send a block to the server representing the data to be inserted
+ */
 public class Block {
-
-    public static Block readFrom(BinaryDeserializer deserializer,
-                                 NativeContext.ServerContext serverContext) throws IOException, SQLException {
-        BlockSettings info = BlockSettings.readFrom(deserializer);
-
-        int columnCnt = (int) deserializer.readVarInt();
-        int rowCnt = (int) deserializer.readVarInt();
-
-        IColumn[] columns = new IColumn[columnCnt];
-
-        for (int i = 0; i < columnCnt; i++) {
-            String name = deserializer.readUTF8StringBinary();
-            String type = deserializer.readUTF8StringBinary();
-
-            IDataType dataType = DataTypeFactory.get(type, serverContext);
-            Object[] arr = dataType.deserializeBinaryBulk(rowCnt, deserializer);
-            columns[i] = ColumnFactory.createColumn(name, dataType, arr);
-        }
-
-        return new Block(rowCnt, columns, info);
-    }
 
     private final IColumn[] columns;
     private final BlockSettings settings;
-    // position start with 1
-    private final Map<String, Integer> nameAndPositions;
-    private final Object[] rowData;
+
+    private final Map<String, Integer> nameAndPositions; // position start with 1
+    private final Object[] rowData; // transient data transfer storage
     private final int[] placeholderIndexes;
     private int rowCnt;
 
@@ -76,6 +62,27 @@ public class Block {
             nameAndPositions.put(columns[i].name(), i + 1);
             placeholderIndexes[i] = i;
         }
+    }
+
+    public static Block readFrom(BinaryDeserializer deserializer,
+                                 NativeContext.ServerContext serverContext) throws IOException, SQLException {
+        BlockSettings info = BlockSettings.readFrom(deserializer);
+
+        int columnCnt = (int) deserializer.readVarInt();
+        int rowCnt = (int) deserializer.readVarInt();
+
+        IColumn[] columns = new IColumn[columnCnt];
+
+        for (int i = 0; i < columnCnt; i++) {
+            String name = deserializer.readUTF8StringBinary();
+            String type = deserializer.readUTF8StringBinary();
+
+            IDataType dataType = DataTypeFactory.get(type, serverContext);
+            Object[] arr = dataType.deserializeBinaryBulk(rowCnt, deserializer);
+            columns[i] = ColumnFactory.createColumn(name, dataType, arr);
+        }
+
+        return new Block(rowCnt, columns, info);
     }
 
     public int rowCnt() {

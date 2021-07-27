@@ -110,7 +110,7 @@ public class SQLLexer {
         if (isBinary) {
             String signed = hasSigned ? data.charAt(start) + "" : "";
             int begin = start + (hasSigned ? 3 : 2);
-            return Long.parseLong(signed + new StringView(data, begin, pos).toString(), 2);
+            return Long.parseLong(signed + new StringView(data, begin, pos), 2);
         } else if (isDouble || hasExponent) {
             return Double.valueOf(new StringView(data, start, pos).toString());
         } else if (isHex) {
@@ -128,7 +128,7 @@ public class SQLLexer {
 
     public StringView stringView() throws SQLException {
         skipAnyWhitespace();
-        Validate.isTrue(isCharacter('\''));
+        Validate.isTrue(isCharacter('\''), "expect string to be quoted with single quote");
         return stringLiteralWithQuoted('\'');
     }
 

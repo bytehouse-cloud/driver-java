@@ -20,8 +20,12 @@ import java.sql.ResultSet;
 import java.sql.Struct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InsertComplexTypeITest extends AbstractITest {
 
@@ -180,7 +184,7 @@ public class InsertComplexTypeITest extends AbstractITest {
             Object []objs = ((Struct) rs.getObject(2)).getAttributes();
 
             ByteHouseArray arr = (ByteHouseArray) (objs[0]);
-            assertArrayEquals(new Object[]{"1"}, (Object[]) arr.getArray());
+            assertArrayEquals(new Object[]{"1"}, arr.getArray());
             assertEquals((short) 32, objs[1]);
 
             arr = (ByteHouseArray) rs.getObject(3);
@@ -192,6 +196,69 @@ public class InsertComplexTypeITest extends AbstractITest {
 
             assertFalse(rs.next());
             statement.executeQuery("DROP TABLE IF EXISTS test");
+        });
+    }
+
+    @Test
+    public void successfullyMapDataType() throws Exception {
+        withStatement(statement -> {
+            statement.execute("SET allow_experimental_map_type=1;");
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("CREATE TABLE test(a Map(UInt32, UInt32), b Map(String, String))ENGINE=Log");
+
+            statement.executeUpdate(
+                    "INSERT INTO test VALUES ({1 : 1, 2 : 2}, {'a': 'b'}), ({},{})"
+            );
+
+
+            ResultSet rs = statement.executeQuery("SELECT * FROM test");
+
+            assertTrue(rs.next());
+            Map<Long, Long> map1 = (Map<Long, Long>) rs.getObject(1);
+            assertEquals(1L, map1.get(1L));
+            assertEquals(2L, map1.get(2L));
+            Map<String, String> map2 = (Map<String, String>) rs.getObject(2);
+            assertEquals("b", map2.get("a"));
+
+            assertTrue(rs.next());
+            Map<Integer, Integer> map3 = (Map<Integer, Integer>) rs.getObject(1);
+            assertEquals(0, map3.size());
+            Map<String, String> map4 = (Map<String, String>) rs.getObject(2);
+            assertEquals(0, map4.size());
+
+            assertFalse(rs.next());
+
+            statement.execute("DROP TABLE IF EXISTS test");
+        });
+    }
+
+    @Test
+    public void successfullyMapDataTypeNested() throws Exception {
+        withStatement(statement -> {
+            statement.execute("SET allow_experimental_map_type=1;");
+            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute(
+                    "CREATE TABLE test(a Map(Int32, Array(Int32)), b Map(String, Array(Array(String))))ENGINE=Log"
+            );
+
+            statement.executeUpdate(
+                    "INSERT INTO test VALUES ({1: [1, 2, 3]}, {'a': [['b', 'c'], ['d']]})"
+            );
+            ResultSet rs = statement.executeQuery("SELECT * FROM test");
+
+            assertTrue(rs.next());
+            Map<Integer, ByteHouseArray> map1 = (Map<Integer, ByteHouseArray>) rs.getObject(1);
+            assertArrayEquals(new Object[]{1, 2, 3}, map1.get(1).getArray());
+
+            Map<String, ByteHouseArray> map2 = (Map<String, ByteHouseArray>) rs.getObject(2);
+            ByteHouseArray map2arr1 = ((ByteHouseArray) map2.get("a").getArray()[0]);
+            assertArrayEquals(new Object[]{"b", "c"}, map2arr1.getArray());
+            ByteHouseArray map2arr2 = ((ByteHouseArray) map2.get("a").getArray()[1]);
+            assertArrayEquals(new Object[]{"d"}, map2arr2.getArray());
+
+            assertFalse(rs.next());
+
+            statement.execute("DROP TABLE IF EXISTS test");
         });
     }
 }

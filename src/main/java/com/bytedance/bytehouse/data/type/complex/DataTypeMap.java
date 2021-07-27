@@ -1,0 +1,201 @@
+package com.bytedance.bytehouse.data.type.complex;
+
+import com.bytedance.bytehouse.data.DataTypeFactory;
+import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.data.type.DataTypeUInt64;
+import com.bytedance.bytehouse.misc.SQLLexer;
+import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.serde.BinaryDeserializer;
+import com.bytedance.bytehouse.serde.BinarySerializer;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Support for Map data type.
+ * Equivalent code in driver-go can be found here
+ * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/column/map.go">
+ * map.go
+ * </a>
+ */
+public class DataTypeMap implements IDataType<Map, Object> {
+
+    private static final DataTypeUInt64 DATA_TYPE_UINT_64 = new DataTypeUInt64();
+    public static DataTypeCreator<Map, Object> creator = (lexer, serverContext) -> {
+        Validate.isTrue(lexer.character() == '(');
+        IDataType<?, ?> keyDataType = DataTypeFactory.get(lexer, serverContext);
+        Validate.isTrue(lexer.character() == ',');
+        IDataType<?, ?> valueDataType = DataTypeFactory.get(lexer, serverContext);
+        Validate.isTrue(lexer.character() == ')');
+
+        return new DataTypeMap(keyDataType, valueDataType);
+    };
+    private final IDataType<?, ?> keyDataType;
+    private final IDataType<?, ?> valueDataType;
+
+    public DataTypeMap(
+            IDataType<?, ?> keyDataType,
+            IDataType<?, ?> valueDataType
+    ) throws SQLException {
+        this.keyDataType = keyDataType;
+        this.valueDataType = valueDataType;
+    }
+
+    @Override
+    public String name() {
+        return String.format("Map(%s,%s)", keyDataType.name(), valueDataType.name());
+    }
+
+    @Override
+    public Class<Map> javaType() {
+        return Map.class;
+    }
+
+    @Override
+    public int sqlTypeId() {
+        return Types.OTHER;
+    }
+
+    @Override
+    public int getPrecision() {
+        return 0;
+    }
+
+    @Override
+    public int getScale() {
+        return 0;
+    }
+
+    /**
+     * Map data cannot be serialized for a single row. The data for the entire column is packed together.
+     */
+    @Override
+    public void serializeBinary(Map data, BinarySerializer serializer) throws SQLException, IOException {
+        throw new UnsupportedOperationException(
+                "You should not serialize a single Map value. It is always done in bulk."
+        );
+    }
+
+    /**
+     * Serialization of Map column is done by ColumnMap, which has the correct offsets.
+     */
+    @Override
+    public void serializeBinaryBulk(Map[] data, BinarySerializer serializer) throws SQLException, IOException {
+        throw new UnsupportedOperationException(
+                "This method should not be called. Bulk serialization of Map type is performed by ColumnMap."
+        );
+    }
+
+    /**
+     * Map data cannot be deserialized for a single row. The data for the entire column is packed together.
+     */
+    @Override
+    public Map deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
+        throw new UnsupportedOperationException(
+                "You should not deserialize a single Map value. It is always done in bulk."
+        );
+    }
+
+    /**
+     * Deserializes Map data for the <b>*entire column*</b>(columnar format).
+     *
+     * <br><br>
+     * The map keys for all the rows are packed into a single array (keys)<br>
+     * The map values for all the rows are packed into a single array (values) as well. <br>
+     * An offset array will stores which elements belong to which row <br>
+     *
+     * <br>
+     * example
+     * <p>
+     * Deserialized format
+     * ------------------------------------
+     * | row id |  colA      |  colB      |
+     * ------------------------------------
+     * |   1    | {1:1,2:2} | {'a':'b'}   |
+     * ------------------------------------
+     * |   2    | {3:4,5:6} | {'c':'d'}   |
+     * ------------------------------------
+     * <p>
+     * Serialized format:
+     * <p>
+     * key colA:    [1,2,3,5]
+     * val colA:    [1,2,4,6]
+     * offset colA: [2,4]  because row 1 is [0-2), row 2 is [2,4)
+     * <p>
+     * key colB:    ['a','c]
+     * val colB:    ['b','d']
+     * offset colA: [1,2]
+     */
+    @Override
+    public Map[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Map[] maps = new Map[rows];
+        if (rows == 0) {
+            return maps;
+        }
+
+        // keys[offsets[i - 1] : offsets[i]] gives the keys for row i (zero-indexed)
+        // values[offsets[i - 1] : offsets[i]] gives the values for row i (zero-indexed)
+        int[] offsets = Arrays.stream(
+                DATA_TYPE_UINT_64.deserializeBinaryBulk(rows, deserializer)
+        ).mapToInt(value -> ((BigInteger) value).intValue()).toArray();
+
+        // deserialize all keys and values for column
+        int size = offsets[rows - 1];
+        Object[] keys = keyDataType.deserializeBinaryBulk(size, deserializer);
+        Object[] values = valueDataType.deserializeBinaryBulk(size, deserializer);
+
+        // populate Map of each row i
+        for (int i = 0; i < rows; i++) {
+            int offset = offsets[i];
+            int offsetPrev = i > 0 ? offsets[i - 1] : 0;
+            Map<Object, Object> rowMap = new HashMap<>(offset - offsetPrev);
+
+            for (int j = offsetPrev; j < offset; j++) {
+                rowMap.put(keys[j], values[j]);
+            }
+
+            maps[i] = rowMap;
+        }
+
+        return maps;
+    }
+
+    /**
+     * Converts map text representation (e.g. {'key1':1, 'key2':10}) into java Map
+     */
+    @Override
+    public Map deserializeText(SQLLexer lexer) throws SQLException {
+        Validate.isTrue(lexer.character() == '{', "expect '{' character for map opening");
+        Map<Object, Object> map = new HashMap<>();
+
+        while (!lexer.eof()) {
+            if (lexer.isCharacter('}')) {
+                lexer.character();
+                break;
+            }
+            if (lexer.isCharacter(',')) {
+                lexer.character();
+            }
+            Object key = keyDataType.deserializeText(lexer);
+            Validate.isTrue(lexer.character() == ':', "expect key-value pair to be separated by ':'");
+            Object value = valueDataType.deserializeText(lexer);
+
+            map.put(key, value);
+        }
+
+        return map;
+    }
+
+    public IDataType getKeyDataType() {
+        return keyDataType;
+    }
+
+    public IDataType getValueDataType() {
+        return valueDataType;
+    }
+}
