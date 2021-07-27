@@ -3,6 +3,7 @@ package com.bytedance.bytehouse.data.type.complex;
 import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.data.type.DataTypeUInt64;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -163,6 +165,14 @@ public class DataTypeMap implements IDataType<Map, Object> {
         }
 
         return maps;
+    }
+
+    @Override
+    public Map convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Map) {
+            return (Map) obj;
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Map.class);
     }
 
     /**

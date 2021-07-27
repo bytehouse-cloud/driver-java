@@ -14,12 +14,14 @@
 
 package com.bytedance.bytehouse.data.type;
 
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZoneId;
 
 public class DataTypeUInt32 implements BaseDataTypeInt32<Long, Long> {
 
@@ -52,6 +54,14 @@ public class DataTypeUInt32 implements BaseDataTypeInt32<Long, Long> {
     public Long deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         int res = deserializer.readInt();
         return 0xffffffffL & res;
+    }
+
+    @Override
+    public Long convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Number) {
+            return ((Number) obj).longValue();
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Long.class);
     }
 
     @Override

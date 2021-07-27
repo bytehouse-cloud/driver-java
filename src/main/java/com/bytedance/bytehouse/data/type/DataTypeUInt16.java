@@ -14,12 +14,14 @@
 
 package com.bytedance.bytehouse.data.type;
 
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZoneId;
 
 public class DataTypeUInt16 implements BaseDataTypeInt16<Integer, Integer> {
 
@@ -52,6 +54,14 @@ public class DataTypeUInt16 implements BaseDataTypeInt16<Integer, Integer> {
     public Integer deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         short s = deserializer.readShort();
         return s & 0xffff;
+    }
+
+    @Override
+    public Integer convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Number) {
+            return ((Number) obj).intValue();
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Integer.class);
     }
 
     @Override

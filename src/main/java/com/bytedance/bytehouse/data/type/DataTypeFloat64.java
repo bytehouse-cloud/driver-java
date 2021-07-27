@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
@@ -22,6 +23,7 @@ import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 
 public class DataTypeFloat64 implements IDataType<Double, Double> {
 
@@ -63,6 +65,14 @@ public class DataTypeFloat64 implements IDataType<Double, Double> {
     @Override
     public Double deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         return deserializer.readDouble();
+    }
+
+    @Override
+    public Double convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Number) {
+            return ((Number) obj).doubleValue();
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Double.class);
     }
 
     @Override

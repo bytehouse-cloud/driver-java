@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
@@ -22,6 +23,7 @@ import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 import java.util.UUID;
 
 public class DataTypeUUID implements IDataType<UUID, String> {
@@ -75,5 +77,16 @@ public class DataTypeUUID implements IDataType<UUID, String> {
     @Override
     public UUID deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         return new UUID(deserializer.readLong(), deserializer.readLong());
+    }
+
+    @Override
+    public UUID convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof UUID) {
+            return (UUID) obj;
+        }
+        if (obj instanceof String) {
+            return UUID.fromString((String) obj);
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + UUID.class);
     }
 }

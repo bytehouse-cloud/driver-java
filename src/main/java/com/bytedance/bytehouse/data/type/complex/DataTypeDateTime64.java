@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 
 import com.bytedance.bytehouse.client.NativeContext.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.StringView;
@@ -150,5 +151,19 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
         int nanos = (int) (value % NANOS_IN_SECOND);
 
         return DateTimeUtil.toZonedDateTime(epochSeconds, nanos, tz);
+    }
+
+    @Override
+    public ZonedDateTime convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Timestamp) {
+            return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
+        }
+        if (obj instanceof LocalDateTime) {
+            return ((LocalDateTime) obj).atZone(tz);
+        }
+        if (obj instanceof ZonedDateTime) {
+            return (ZonedDateTime) obj;
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + ZonedDateTime.class);
     }
 }

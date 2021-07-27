@@ -14,14 +14,17 @@
 
 package com.bytedance.bytehouse.data.type;
 
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.time.ZoneId;
 
 // I see some binary protocol frameworks such as Protobuf chose an alternative way to represent UInt64 by long,
 // and use special tools to calculate it. Since currently we don't guarantee any stable APIs except JDBC APIs,
@@ -57,6 +60,20 @@ public class DataTypeUInt64 implements BaseDataTypeInt64<BigInteger, BigInteger>
     public BigInteger deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         long l = deserializer.readLong();
         return new BigInteger(1, getBytes(l));
+    }
+
+    @Override
+    public BigInteger convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof BigInteger) {
+            return (BigInteger) obj;
+        }
+        if (obj instanceof BigDecimal) {
+            return ((BigDecimal) obj).toBigInteger();
+        }
+        if (obj instanceof Number) {
+            return BigInteger.valueOf(((Number) obj).longValue());
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + BigInteger.class);
     }
 
     @Override

@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -25,6 +26,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class DataTypeDate implements IDataType<LocalDate, Date> {
 
@@ -78,6 +80,17 @@ public class DataTypeDate implements IDataType<LocalDate, Date> {
     public LocalDate deserializeBinary(BinaryDeserializer deserializer) throws IOException {
         short epochDay = deserializer.readShort();
         return LocalDate.ofEpochDay(epochDay);
+    }
+
+    @Override
+    public LocalDate convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof java.util.Date) {
+            return ((Date) obj).toLocalDate();
+        }
+        if (obj instanceof LocalDate) {
+            return (LocalDate) obj;
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + LocalDate.class);
     }
 
     @Override

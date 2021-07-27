@@ -55,6 +55,11 @@ public class DataTypeBitMap64 implements IDataType<ByteHouseArray, Array>, Bytes
     }
 
     @Override
+    public Class<Array> jdbcJavaType() {
+        return Array.class;
+    }
+
+    @Override
     public int getPrecision() {
         return 0;
     }

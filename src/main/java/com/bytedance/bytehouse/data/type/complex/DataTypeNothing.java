@@ -17,9 +17,11 @@ package com.bytedance.bytehouse.data.type.complex;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
@@ -80,6 +82,11 @@ public class DataTypeNothing implements IDataType<Byte, Object> {
     @Override
     public Byte deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         return deserializer.readByte();
+    }
+
+    @Override
+    public Byte convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        return null;
     }
 
     @Override

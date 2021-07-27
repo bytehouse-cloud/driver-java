@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
@@ -22,6 +23,7 @@ import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 
 public class DataTypeIPv4 implements IDataType<Long, Long> {
 
@@ -63,6 +65,14 @@ public class DataTypeIPv4 implements IDataType<Long, Long> {
     @Override
     public Long deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         return deserializer.readInt() & 0xffffffffL;
+    }
+
+    @Override
+    public Long convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Long) {
+            return (Long) obj;
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Long.class);
     }
 
     @Override

@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
@@ -27,6 +28,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 import java.util.Locale;
 
 public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, BytesHelper {
@@ -189,6 +191,20 @@ public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, Bytes
             }
         }
         return value;
+    }
+
+    @Override
+    public BigDecimal convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof BigDecimal) {
+            return (BigDecimal) obj;
+        }
+        if (obj instanceof BigInteger) {
+            return new BigDecimal((BigInteger) obj);
+        }
+        if (obj instanceof Number) {
+            return BigDecimal.valueOf(((Number) obj).doubleValue());
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + BigDecimal.class);
     }
 
     @Override

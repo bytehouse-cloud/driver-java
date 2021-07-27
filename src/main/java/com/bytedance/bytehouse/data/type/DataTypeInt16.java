@@ -14,12 +14,14 @@
 
 package com.bytedance.bytehouse.data.type;
 
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZoneId;
 
 public class DataTypeInt16 implements BaseDataTypeInt16<Short, Short> {
 
@@ -52,6 +54,14 @@ public class DataTypeInt16 implements BaseDataTypeInt16<Short, Short> {
     @Override
     public Short deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         return deserializer.readShort();
+    }
+
+    @Override
+    public Short convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Number) {
+            return ((Number) obj).shortValue();
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Short.class);
     }
 
     @Override

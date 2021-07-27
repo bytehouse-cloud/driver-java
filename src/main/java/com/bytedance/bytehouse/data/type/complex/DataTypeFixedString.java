@@ -16,6 +16,7 @@ package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 
 public class DataTypeFixedString implements IDataType<CharSequence, String> {
 
@@ -114,6 +116,17 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
     @Override
     public String deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         return new String(deserializer.readBytes(n), charset);
+    }
+
+    @Override
+    public CharSequence convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof CharSequence) {
+            return (CharSequence) obj;
+        }
+        if (obj instanceof byte[]) {
+            return new BytesCharSeq((byte[]) obj);
+        }
+        return obj.toString();
     }
 
     @Override

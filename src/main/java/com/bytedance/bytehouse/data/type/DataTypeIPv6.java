@@ -1,6 +1,7 @@
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.exception.NoDefaultValueException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -11,6 +12,7 @@ import java.net.Inet6Address;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 
 /**
  * CNCH IPv6 data type
@@ -49,6 +51,11 @@ public class DataTypeIPv6 implements IDataType<Inet6Address, String> {
     }
 
     @Override
+    public Class<String> jdbcJavaType() {
+        return String.class;
+    }
+
+    @Override
     public int getPrecision() {
         return 0;
     }
@@ -79,6 +86,21 @@ public class DataTypeIPv6 implements IDataType<Inet6Address, String> {
             ipv6InBytes[i] = deserializer.readByte();
         }
         return (Inet6Address) Inet6Address.getByAddress(ipv6InBytes);
+    }
+
+    @Override
+    public Inet6Address convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof Inet6Address) {
+            return (Inet6Address) obj;
+        }
+        if (obj instanceof String) {
+            try {
+                return ((Inet6Address) Inet6Address.getByName((String) obj));
+            } catch (UnknownHostException | ClassCastException e) {
+                throw new ByteHouseSQLException(-1, obj + " is not a valid IPv6 address");
+            }
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Inet6Address.class);
     }
 
     /**
