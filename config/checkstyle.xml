@@ -9,6 +9,12 @@
 
     <module name="NewlineAtEndOfFile"/>
 
+    <module name="Header">
+        <property name="headerFile" value="${checkstyle.header.file}"/>
+        <property name="ignoreLines" value="2,3,4,5,6,7"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
+
     <module name="TreeWalker">
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>

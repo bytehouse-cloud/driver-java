@@ -132,3 +132,7 @@ jdbc:bytehouse://host:port/[database]
 The driver only recognises URL with the correct sub-protocol 'jdbc:bytehouse'.
 Refer to <a href="https://bytedance.feishu.cn/wiki/wikcns7hYkiy8nqxxwN2X6LXfFh">ByteHouse JDBC Driver documentation</a>
 for the list of accepted properties.
+
+## License
+
+This project is distributed under the terms of the Apache License (Version 2.0). See [LICENSE](LICENSE) for details.

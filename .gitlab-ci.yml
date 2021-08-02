@@ -21,6 +21,7 @@
 
 stages:
   - build
+  - test
 
 #gradle build
 build:
@@ -38,3 +39,16 @@ build:
     expire_in: 1 week
   tags:
     - boei18n
+
+sonarqube:
+  stage: test
+  extends: .init
+  image: ${HUB}/openjdk:11-jdk-slim
+  script:
+    if [ $CI_COMMIT_REF_NAME = "main" ]; then
+      ./gradlew sonarqube --info;
+    else
+      ./gradlew -Dsonar.pullrequest.key=${CI_COMMIT_SHA} -Dsonar.pullrequest.branch=${CI_COMMIT_REF_NAME} sonarqube --info;
+    fi
+  tags:
+    - sg
