@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.log;
 
 public class LoggerFactory {
@@ -26,6 +25,9 @@ public class LoggerFactory {
         } catch (Throwable ignore) {
             adaptor = new JdkLoggerFactoryAdaptor();
         }
+    }
+
+    private LoggerFactory() {
     }
 
     public static Logger getLogger(Class<?> clazz) {
@@ -43,8 +45,5 @@ public class LoggerFactory {
     // for testing
     public static void setAdaptor(LoggerFactoryAdaptor adaptor) {
         LoggerFactory.adaptor = adaptor;
-    }
-
-    private LoggerFactory() {
     }
 }

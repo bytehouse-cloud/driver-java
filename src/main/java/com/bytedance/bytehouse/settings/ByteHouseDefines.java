@@ -11,35 +11,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.settings;
 
 public class ByteHouseDefines {
+
     public static final String NAME = "ByteHouse";
+
     public static final String DEFAULT_CATALOG = "default";
+
     public static final String DEFAULT_DATABASE = "default";
 
     /**
      * Client version follows
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/client_info.go">
-     *     client_info.go
+     * client_info.go
      * </a>
      */
     public static final int MAJOR_VERSION = 0;
+
     public static final int MINOR_VERSION = 1;
+
     public static final int CLIENT_REVISION = 54406;
+
     public static final int DBMS_MIN_REVISION_WITH_SERVER_TIMEZONE = 54058;
+
     public static final int DBMS_MIN_REVISION_WITH_SERVER_DISPLAY_NAME = 54372;
+
     public static final int DBMS_MIN_REVISION_WITH_VERSION_PATCH = 54401;
 
     public static final int MAX_BLOCK_BYTES = 1024 * 1024 * 10;
-    public static int SOCKET_SEND_BUFFER_BYTES = 1024 * 1024;
-    public static int SOCKET_RECV_BUFFER_BYTES = 1024 * 1024;
-
-    public static int COLUMN_BUFFER_BYTES = 1024 * 1024;
 
     public static final int DATA_TYPE_CACHE_SIZE = 1024;
 
     public static final int COMPRESSION_HEADER_LENGTH = 9;
+
     public static final int CHECKSUM_LENGTH = 16;
+
+    public static int SOCKET_SEND_BUFFER_BYTES = 1024 * 1024;
+
+    public static int SOCKET_RECV_BUFFER_BYTES = 1024 * 1024;
+
+    public static int COLUMN_BUFFER_BYTES = 1024 * 1024;
 }

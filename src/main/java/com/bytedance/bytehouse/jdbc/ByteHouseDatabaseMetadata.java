@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -20,7 +19,12 @@ import com.bytedance.bytehouse.jdbc.wrapper.SQLDatabaseMetadata;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -31,6 +35,7 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseDatabaseMetadata.class);
 
     private final String url;
+
     private final ByteHouseConnection connection;
 
     // we will not close connection
@@ -1356,7 +1361,6 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
     public Logger logger() {
         return ByteHouseDatabaseMetadata.LOG;
     }
-
 
     private ResultSet request(String sql) throws SQLException {
         Statement statement = connection.createStatement();

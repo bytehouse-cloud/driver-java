@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -20,11 +19,16 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
 public class DataTypeNullable implements IDataType {
+
+    private static final Short IS_NULL = 1;
+
+    public IDataType getNestedDataType() {
+        return nestedDataType;
+    }
 
     public static DataTypeCreator creator = (lexer, serverContext) -> {
         Validate.isTrue(lexer.character() == '(');
@@ -34,16 +38,13 @@ public class DataTypeNullable implements IDataType {
                 "Nullable(" + nestedType.name() + ")", nestedType, DataTypeFactory.get("UInt8", serverContext));
     };
 
-    private static final Short IS_NULL = 1;
     private static final Short NON_NULL = 0;
 
     private final String name;
-    private final IDataType nestedDataType;
-    private final IDataType nullMapDataType;
 
-    public IDataType getNestedDataType() {
-        return nestedDataType;
-    }
+    private final IDataType nestedDataType;
+
+    private final IDataType nullMapDataType;
 
     public DataTypeNullable(String name, IDataType nestedDataType, IDataType nullMapIDataType) {
         this.name = name;

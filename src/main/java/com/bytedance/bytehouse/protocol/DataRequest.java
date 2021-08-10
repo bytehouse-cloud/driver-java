@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.data.Block;
@@ -24,6 +23,7 @@ public class DataRequest implements Request {
     public static final DataRequest EMPTY = new DataRequest("");
 
     private final String name;
+
     private final Block block;
 
     public DataRequest(String name) {

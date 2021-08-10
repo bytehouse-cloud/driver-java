@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.client.NativeContext;
@@ -22,17 +21,18 @@ import java.sql.SQLException;
 
 public class TotalsResponse implements Response {
 
-    public static TotalsResponse readFrom(BinaryDeserializer deserializer, NativeContext.ServerContext info)
-            throws IOException, SQLException {
-        return new TotalsResponse(deserializer.readUTF8StringBinary(), Block.readFrom(deserializer, info));
-    }
-
     private final String name;
+
     private final Block block;
 
     TotalsResponse(String name, Block block) {
         this.name = name;
         this.block = block;
+    }
+
+    public static TotalsResponse readFrom(BinaryDeserializer deserializer, NativeContext.ServerContext info)
+            throws IOException, SQLException {
+        return new TotalsResponse(deserializer.readUTF8StringBinary(), Block.readFrom(deserializer, info));
     }
 
     @Override

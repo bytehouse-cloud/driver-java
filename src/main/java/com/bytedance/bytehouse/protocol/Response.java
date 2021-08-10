@@ -11,18 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.client.NativeContext;
-import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.exception.NotImplementedException;
+import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
 public interface Response {
-
-    ProtoType type();
 
     /**
      * The cases to handle follows
@@ -65,6 +62,8 @@ public interface Response {
                 throw new IllegalStateException(String.format("Unknown server response type: %d", responseType));
         }
     }
+
+    ProtoType type();
 
     enum ProtoType {
         RESPONSE_HELLO(0),

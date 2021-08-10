@@ -11,37 +11,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.settings;
 
 import com.bytedance.bytehouse.jdbc.ByteHouseJdbcUrlParser;
 import com.bytedance.bytehouse.misc.CollectionUtil;
 import com.bytedance.bytehouse.misc.StrUtil;
-import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class ByteHouseConfig implements Serializable {
 
     private final String host;
+
     private final int port;
+
     private final String database;
+
     private final String accountId;
+
     private final String user;
+
     private final String password;
+
     private final Duration queryTimeout;
+
     private final Duration connectTimeout;
+
     private final boolean tcpKeepAlive;
+
     private final boolean tcpNoDelay;
+
     private final boolean secure;
+
     private final boolean skipVerification;
+
     private final boolean enableCompression;
+
     private final String charset; // use String because Charset is not serializable
+
     private final Map<SettingKey, Serializable> settings;
 
     private ByteHouseConfig(String host, int port, String database, String accountId, String user, String password,
@@ -250,20 +263,35 @@ public class ByteHouseConfig implements Serializable {
     }
 
     public static final class Builder {
+
         private String host;
+
         private int port;
+
         private String database;
+
         private String accountId;
+
         private String user;
+
         private String password;
+
         private Duration queryTimeout;
+
         private Duration connectTimeout;
+
         private boolean tcpKeepAlive;
+
         private boolean tcpNoDelay;
+
         private boolean secure;
+
         private boolean skipVerification;
+
         private boolean enableCompression;
+
         private Charset charset;
+
         private Map<SettingKey, Serializable> settings = new HashMap<>();
 
         private Builder() {

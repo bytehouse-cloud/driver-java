@@ -11,14 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.statement;
 
-
-import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
-
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,6 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
+
+    public ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String query) {
+        this(conn, nativeContext, splitQueryByQuestionMark(query));
+    }
+
+    private ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String[] parts) {
+        super(conn, nativeContext, parts);
+    }
 
     private static String[] splitQueryByQuestionMark(String query) {
         int lastPos = 0;
@@ -47,14 +52,6 @@ public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
         }
         queryParts.add(query.substring(lastPos));
         return queryParts.toArray(new String[0]);
-    }
-
-    public ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String query) {
-        this(conn, nativeContext, splitQueryByQuestionMark(query));
-    }
-
-    private ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String[] parts) {
-        super(conn, nativeContext, parts);
     }
 
     @Override

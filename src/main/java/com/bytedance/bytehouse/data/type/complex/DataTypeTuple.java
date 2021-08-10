@@ -11,17 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
-import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Struct;
@@ -30,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataTypeTuple implements IDataType<ByteHouseStruct, Struct> {
+
+    private final String name;
 
     public static DataTypeCreator<ByteHouseStruct, Struct> creator = (lexer, serverContext) -> {
         Validate.isTrue(lexer.character() == '(');
@@ -51,7 +51,6 @@ public class DataTypeTuple implements IDataType<ByteHouseStruct, Struct> {
         }
     };
 
-    private final String name;
     private final IDataType<?, ?>[] nestedTypes;
 
     public DataTypeTuple(String name, IDataType<?, ?>[] nestedTypes) {

@@ -16,7 +16,11 @@ package com.bytedance.bytehouse.exception;
 
 import java.sql.SQLException;
 
+/**
+ * Wrapping {@link SQLException} as an internal type.
+ */
 public class ByteHouseSQLException extends SQLException {
+    private static final long serialVersionUID = 1;
 
     public ByteHouseSQLException(int code, String message) {
         this(code, message, null);
@@ -25,4 +29,5 @@ public class ByteHouseSQLException extends SQLException {
     public ByteHouseSQLException(int code, String message, Throwable cause) {
         super(message, null, code, cause);
     }
+
 }

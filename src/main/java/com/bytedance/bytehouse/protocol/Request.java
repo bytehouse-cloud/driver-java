@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
+
 import java.io.IOException;
 import java.sql.SQLException;
 

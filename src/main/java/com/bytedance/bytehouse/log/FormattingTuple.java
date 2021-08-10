@@ -36,18 +36,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-
 package com.bytedance.bytehouse.log;
 
 /**
  * Holds the results of formatting done by {@link MessageFormatter}.
- * 
+ *
  * @author Joern Huxhorn
  */
 public class FormattingTuple {
 
     private final String message;
+
     private final Throwable throwable;
+
     private final Object[] argArray;
 
     public FormattingTuple(String message) {
@@ -71,5 +72,4 @@ public class FormattingTuple {
     public Throwable getThrowable() {
         return throwable;
     }
-
 }

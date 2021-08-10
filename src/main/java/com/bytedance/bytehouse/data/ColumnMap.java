@@ -11,12 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeMap;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,9 +30,15 @@ import java.util.Map;
 public class ColumnMap extends AbstractColumn {
 
     private final List<Long> offsets;
-    /** Column for packing the keys for all the rows together for writing. */
+
+    /**
+     * Column for packing the keys for all the rows together for writing.
+     */
     private final IColumn keysColumn;
-    /** Column for packing the values for all the rows together for writing. */
+
+    /**
+     * Column for packing the values for all the rows together for writing.
+     */
     private final IColumn valuesColumn;
 
     public ColumnMap(String name, DataTypeMap type, Object[] values) {

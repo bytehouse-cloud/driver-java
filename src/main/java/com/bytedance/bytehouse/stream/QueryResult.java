@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.stream;
 
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.misc.CheckedIterator;
 import com.bytedance.bytehouse.protocol.DataResponse;
-
 import java.sql.SQLException;
 
 public interface QueryResult {

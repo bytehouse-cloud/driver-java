@@ -21,6 +21,7 @@ package com.bytedance.bytehouse.exception;
  * Please avoid using CheckedException internal. See detail at <a>https://www.artima.com/intv/handcuffs.html</a>.
  */
 public class ByteHouseException extends RuntimeException {
+    private static final long serialVersionUID = 1;
 
     protected int errCode;
 

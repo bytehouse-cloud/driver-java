@@ -11,14 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZoneId;
@@ -44,7 +42,6 @@ public class DataTypeInt16 implements BaseDataTypeInt16<Short, Short> {
     public int getPrecision() {
         return 6;
     }
-
 
     @Override
     public void serializeBinary(Short data, BinarySerializer serializer) throws SQLException, IOException {

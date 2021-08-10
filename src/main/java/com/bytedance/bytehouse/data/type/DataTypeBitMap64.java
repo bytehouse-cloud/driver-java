@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
@@ -21,8 +20,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -36,12 +33,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 
 /**
  * Support for BitMap64 data type - type specific to CNCH.<br/>
  * Equivalent code in driver-go can be found here
  * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/column/bitmap.go">
- *     bitmap.go
+ * bitmap.go
  * </a>
  */
 public class DataTypeBitMap64 implements IDataType<ByteHouseArray, Array>, BytesHelper {

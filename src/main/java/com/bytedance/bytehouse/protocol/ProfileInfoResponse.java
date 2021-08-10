@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -19,21 +18,16 @@ import java.io.IOException;
 
 public class ProfileInfoResponse implements Response {
 
-    public static ProfileInfoResponse readFrom(BinaryDeserializer deserializer) throws IOException {
-        long rows = deserializer.readVarInt();
-        long blocks = deserializer.readVarInt();
-        long bytes = deserializer.readVarInt();
-        long appliedLimit = deserializer.readVarInt();
-        long rowsBeforeLimit = deserializer.readVarInt();
-        boolean calculatedRowsBeforeLimit = deserializer.readBoolean();
-        return new ProfileInfoResponse(rows, blocks, bytes, appliedLimit, rowsBeforeLimit, calculatedRowsBeforeLimit);
-    }
-
     private final long rows;
+
     private final long blocks;
+
     private final long bytes;
+
     private final long appliedLimit;
+
     private final long rowsBeforeLimit;
+
     private final boolean calculatedRowsBeforeLimit;
 
     public ProfileInfoResponse(long rows, long blocks, long bytes,
@@ -44,6 +38,16 @@ public class ProfileInfoResponse implements Response {
         this.appliedLimit = appliedLimit;
         this.rowsBeforeLimit = rowsBeforeLimit;
         this.calculatedRowsBeforeLimit = calculatedRowsBeforeLimit;
+    }
+
+    public static ProfileInfoResponse readFrom(BinaryDeserializer deserializer) throws IOException {
+        long rows = deserializer.readVarInt();
+        long blocks = deserializer.readVarInt();
+        long bytes = deserializer.readVarInt();
+        long appliedLimit = deserializer.readVarInt();
+        long rowsBeforeLimit = deserializer.readVarInt();
+        boolean calculatedRowsBeforeLimit = deserializer.readBoolean();
+        return new ProfileInfoResponse(rows, blocks, bytes, appliedLimit, rowsBeforeLimit, calculatedRowsBeforeLimit);
     }
 
     @Override

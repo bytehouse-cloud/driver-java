@@ -11,23 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.statement;
 
+import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLStatement;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
+import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.stream.ValuesNativeInputFormat;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,19 +40,27 @@ public class ByteHouseStatement implements SQLStatement {
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStatement.class);
 
     private static final Pattern VALUES_REGEX = Pattern.compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
+
     private static final Pattern SELECT_DB_TABLE = Pattern.compile("(?i)FROM\\s+(\\S+\\.)?(\\S+)");
 
-    private ResultSet lastResultSet;
-    protected Block block;
     protected final ByteHouseConnection connection;
+
     protected final NativeContext nativeContext;
 
+    protected Block block;
+
+    private ResultSet lastResultSet;
+
     private ByteHouseConfig cfg;
+
     private long maxRows;
+
     private String db;
+
     private String table = "unknown";
 
     private int updateCount = -1;
+
     private boolean isClosed = false;
 
     public ByteHouseStatement(ByteHouseConnection connection, NativeContext nativeContext) {
@@ -173,6 +179,11 @@ public class ByteHouseStatement implements SQLStatement {
         this.cfg = cfg.withQueryTimeout(Duration.ofSeconds(seconds));
     }
 
+    @Override
+    public int getFetchDirection() throws SQLException {
+        return ResultSet.FETCH_FORWARD;
+    }
+
     /**
      * direction cannot be changed from FETCH_FORWARD, as other directions are
      * currently not supported in ResultSet.
@@ -184,11 +195,6 @@ public class ByteHouseStatement implements SQLStatement {
         }
     }
 
-    @Override
-    public int getFetchDirection() throws SQLException {
-        return ResultSet.FETCH_FORWARD;
-    }
-
     /**
      * Returns 0 to indicate that the driver will decide what the fetchSize should be.
      * User should set max_block_size in query settings to alter fetchSize instead.
@@ -196,6 +202,11 @@ public class ByteHouseStatement implements SQLStatement {
     @Override
     public int getFetchSize() throws SQLException {
         return 0;
+    }
+
+    @Override
+    public boolean isPoolable() throws SQLException {
+        return false;
     }
 
     /**
@@ -206,11 +217,6 @@ public class ByteHouseStatement implements SQLStatement {
         if (poolable) {
             throw new SQLException("statement not poolable.");
         }
-    }
-
-    @Override
-    public boolean isPoolable() throws SQLException {
-        return false;
     }
 
     @Override

@@ -11,27 +11,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.buffer;
+
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.ClickHouseCityHash;
 import io.airlift.compress.Compressor;
 import io.airlift.compress.lz4.Lz4Compressor;
 import io.airlift.compress.zstd.ZstdCompressor;
-
 import java.io.IOException;
-
-import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
 public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
 
     private final int capacity;
+
     private final byte[] writtenBuf;
+
     private final BuffedWriter writer;
 
     private final Compressor lz4Compressor = new Lz4Compressor();
+
     private final Compressor zstdCompressor = new ZstdCompressor();
 
     private int position;

@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.client.NativeContext;
@@ -19,7 +18,6 @@ import com.bytedance.bytehouse.data.BlockSettings.Setting;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -35,11 +33,15 @@ import java.util.Map;
 public class Block {
 
     private final IColumn[] columns;
+
     private final BlockSettings settings;
 
     private final Map<String, Integer> nameAndPositions; // position start with 1
+
     private final Object[] rowData; // transient data transfer storage
+
     private final int[] placeholderIndexes;
+
     private int rowCnt;
 
     public Block() {

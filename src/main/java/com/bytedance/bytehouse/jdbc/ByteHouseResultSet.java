@@ -11,26 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.IColumn;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSet;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.exception.ByteHouseSQLException;
-import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.misc.CheckedIterator;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
-
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
@@ -39,22 +43,32 @@ public class ByteHouseResultSet implements SQLResultSet {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSet.class);
 
+    private final ByteHouseStatement statement;
+
+    private final ByteHouseConfig cfg;
+
+    private final String db;
+
+    private final String table;
+
+    private final Block header;
+
+    private final CheckedIterator<DataResponse, SQLException> dataResponses;
+
     private int currentRowNum = -1;
+
     private Block currentBlock = new Block();
 
     private int lastFetchRowIdx = -1;
+
     private int lastFetchColumnIdx = -1;
+
     private Block lastFetchBlock = null;
 
-    private final ByteHouseStatement statement;
-    private final ByteHouseConfig cfg;
-    private final String db;
-    private final String table;
-    private final Block header;
-    private final CheckedIterator<DataResponse, SQLException> dataResponses;
-
     private boolean isFirst = false;
+
     private boolean isAfterLast = false;
+
     private boolean isClosed = false;
 
     public ByteHouseResultSet(ByteHouseStatement statement,
@@ -349,6 +363,11 @@ public class ByteHouseResultSet implements SQLResultSet {
         return isAfterLast;
     }
 
+    @Override
+    public int getFetchDirection() throws SQLException {
+        return ResultSet.FETCH_FORWARD;
+    }
+
     /**
      * direction cannot be changed from FETCH_FORWARD, as other directions are
      * currently not supported.
@@ -358,11 +377,6 @@ public class ByteHouseResultSet implements SQLResultSet {
         if (direction != ResultSet.FETCH_FORWARD) {
             throw new SQLException("direction is not supported. FETCH_FORWARD only.");
         }
-    }
-
-    @Override
-    public int getFetchDirection() throws SQLException {
-        return ResultSet.FETCH_FORWARD;
     }
 
     /**

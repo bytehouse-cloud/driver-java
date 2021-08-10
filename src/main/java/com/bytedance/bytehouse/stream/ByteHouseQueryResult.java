@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.stream;
 
 import com.bytedance.bytehouse.data.Block;
@@ -20,13 +19,14 @@ import com.bytedance.bytehouse.misc.CheckedSupplier;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import com.bytedance.bytehouse.protocol.EOFStreamResponse;
 import com.bytedance.bytehouse.protocol.Response;
-
 import java.sql.SQLException;
 
 public class ByteHouseQueryResult implements QueryResult {
 
     private final CheckedSupplier<Response, SQLException> responseSupplier;
+
     private Block header;
+
     private boolean atEnd;
     // Progress
     // Totals
@@ -47,7 +47,6 @@ public class ByteHouseQueryResult implements QueryResult {
     @Override
     public CheckedIterator<DataResponse, SQLException> data() {
         return new CheckedIterator<DataResponse, SQLException>() {
-
             private DataResponse current;
 
             @Override

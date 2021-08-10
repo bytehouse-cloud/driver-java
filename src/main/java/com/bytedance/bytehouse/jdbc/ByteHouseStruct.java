@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.data.IDataType;
@@ -19,7 +18,6 @@ import com.bytedance.bytehouse.jdbc.wrapper.SQLStruct;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.Validate;
-
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -28,10 +26,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ByteHouseStruct implements SQLStruct {
+
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStruct.class);
+
     private static final Pattern ATTR_INDEX_REGEX = Pattern.compile("_(\\d+)");
 
     private final String type;
+
     private final Object[] attributes;
 
     public ByteHouseStruct(String type, Object[] attributes) {

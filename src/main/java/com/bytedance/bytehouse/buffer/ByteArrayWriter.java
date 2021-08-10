@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.buffer;
 
 import java.io.IOException;
@@ -20,11 +19,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ByteArrayWriter implements BuffedWriter {
+
     private final int blockSize;
-    private ByteBuffer buffer;
 
     // TODO pooling
     private final List<ByteBuffer> byteBufferList = new LinkedList<>();
+
+    private ByteBuffer buffer;
 
     public ByteArrayWriter(int blockSize) {
         this.blockSize = blockSize;

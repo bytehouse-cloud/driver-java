@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.data.Block;
@@ -20,7 +19,6 @@ import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSetMetaData;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
@@ -29,7 +27,9 @@ public class ByteHouseResultSetMetaData implements SQLResultSetMetaData {
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSetMetaData.class);
 
     private final Block header;
+
     private final String db;
+
     private final String table;
 
     public ByteHouseResultSetMetaData(Block header, String db, String table) {
@@ -91,7 +91,7 @@ public class ByteHouseResultSetMetaData implements SQLResultSetMetaData {
     @Override
     public int isNullable(int index) throws SQLException {
         return (header.getColumn(index - 1).type() instanceof DataTypeNullable) ?
-            ResultSetMetaData.columnNullable : ResultSetMetaData.columnNoNulls;
+                ResultSetMetaData.columnNullable : ResultSetMetaData.columnNoNulls;
     }
 
     @Override

@@ -11,20 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.statement;
 
+import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.DataTypeConverter;
 import com.bytedance.bytehouse.data.IColumn;
+import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.client.NativeContext;
-import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -32,6 +30,30 @@ import java.util.Arrays;
 public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHousePreparedInsertStatement.class);
+
+    private final int posOfData;
+
+    private final String fullQuery;
+
+    private final String insertQuery;
+
+    private boolean blockInit;
+
+    private final DataTypeConverter dataTypeConverter;
+
+    public ByteHousePreparedInsertStatement(int posOfData,
+                                            String fullQuery,
+                                            ByteHouseConnection conn,
+                                            NativeContext nativeContext) throws SQLException {
+        super(conn, nativeContext, null);
+        this.blockInit = false;
+        this.posOfData = posOfData;
+        this.fullQuery = fullQuery;
+        this.insertQuery = fullQuery.substring(0, posOfData);
+        this.dataTypeConverter = new DataTypeConverter(tz);
+
+        initBlockIfPossible();
+    }
 
     private static int computeQuestionMarkSize(String query, int start) throws SQLException {
         int param = 0;
@@ -50,26 +72,6 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
             }
         }
         return param;
-    }
-
-    private final int posOfData;
-    private final String fullQuery;
-    private final String insertQuery;
-    private boolean blockInit;
-    private DataTypeConverter dataTypeConverter;
-
-    public ByteHousePreparedInsertStatement(int posOfData,
-                                            String fullQuery,
-                                            ByteHouseConnection conn,
-                                            NativeContext nativeContext) throws SQLException {
-        super(conn, nativeContext, null);
-        this.blockInit = false;
-        this.posOfData = posOfData;
-        this.fullQuery = fullQuery;
-        this.insertQuery = fullQuery.substring(0, posOfData);
-        this.dataTypeConverter = new DataTypeConverter(tz);
-
-        initBlockIfPossible();
     }
 
     // paramPosition start with 1

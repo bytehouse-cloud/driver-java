@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.exception;
 
 public class InvalidOperationException extends ByteHouseClientException {
+    private static final long serialVersionUID = 1;
 
     public InvalidOperationException(String message) {
         super(message);

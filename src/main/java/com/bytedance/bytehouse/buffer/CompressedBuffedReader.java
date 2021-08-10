@@ -11,30 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.buffer;
 
-import java.io.IOException;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
 
 import com.bytedance.bytehouse.misc.BytesHelper;
 import io.airlift.compress.Decompressor;
 import io.airlift.compress.lz4.Lz4Decompressor;
-
-import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
+import java.io.IOException;
 
 /**
  * CompressedBufferReader supporting LZ4 fast compression.
  */
 public class CompressedBuffedReader implements BuffedReader, BytesHelper {
 
-    private int position;
-    private int capacity;
-    private byte[] decompressed;
+    /* @formatter:off */
+    private static final int NONE = 0x02;
+
+    private static final int LZ4 = 0x82;
 
     private final BuffedReader buf;
 
     private final Decompressor lz4Decompressor = new Lz4Decompressor();
+
+    private int position;
+
+    private int capacity;
+
+    private byte[] decompressed;
 
     public CompressedBuffedReader(BuffedReader buf) {
         this.buf = buf;
@@ -72,10 +77,6 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
         }
         return bytes.length;
     }
-
-    /* @formatter:off */
-    private static final int NONE = 0x02;
-    private static final int LZ4  = 0x82;
     /* @formatter:on */
 
     private byte[] readCompressedData() throws IOException {

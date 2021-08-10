@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -22,7 +21,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -36,6 +34,8 @@ import java.time.ZoneId;
  */
 public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesHelper {
 
+    private final IDataType<?, ?> keys;
+
     public static DataTypeCreator<Object, Object> creator = (lexer, serverContext) -> {
         Validate.isTrue(lexer.character() == '(');
         IDataType<?, ?> elemDataType = DataTypeFactory.get(lexer, serverContext);
@@ -44,8 +44,8 @@ public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesH
         return new DataTypeLowCardinality(elemDataType);
     };
 
-    private final IDataType<?, ?> keys;
     private byte[] header;
+
     private byte[] valueIndicesRaw;
 
     public DataTypeLowCardinality(IDataType<?, ?> elemDataType) {
@@ -150,5 +150,4 @@ public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesH
     public Object convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
         return getElemDataType().convertJdbcToJavaType(obj, tz);
     }
-
 }

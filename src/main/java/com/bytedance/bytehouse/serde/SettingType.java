@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.serde;
 
 import java.io.IOException;
@@ -20,14 +19,7 @@ import java.time.Duration;
 
 public interface SettingType<T extends Serializable> {
 
-    Class<T> javaClass();
-
-    T deserializeURL(String queryParameter);
-
-    void serializeSetting(BinarySerializer serializer, T value) throws IOException;
-
     SettingType<Long> Int64 = new SettingType<Long>() {
-
         @Override
         public Class<Long> javaClass() {
             return Long.class;
@@ -43,9 +35,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeVarInt(value);
         }
     };
-
     SettingType<Integer> Int32 = new SettingType<Integer>() {
-
         @Override
         public Class<Integer> javaClass() {
             return Integer.class;
@@ -61,9 +51,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeVarInt(value);
         }
     };
-
     SettingType<Float> Float32 = new SettingType<Float>() {
-
         @Override
         public Class<Float> javaClass() {
             return Float.class;
@@ -79,9 +67,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeUTF8StringBinary(String.valueOf(value));
         }
     };
-
     SettingType<String> UTF8 = new SettingType<String>() {
-
         @Override
         public Class<String> javaClass() {
             return String.class;
@@ -97,9 +83,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeUTF8StringBinary(String.valueOf(value));
         }
     };
-
     SettingType<Boolean> Bool = new SettingType<Boolean>() {
-
         @Override
         public Class<Boolean> javaClass() {
             return Boolean.class;
@@ -115,9 +99,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeVarInt(Boolean.TRUE.equals(value) ? 1 : 0);
         }
     };
-
     SettingType<Duration> Seconds = new SettingType<Duration>() {
-
         @Override
         public Class<Duration> javaClass() {
             return Duration.class;
@@ -133,9 +115,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeVarInt(value.getSeconds());
         }
     };
-
     SettingType<Duration> Milliseconds = new SettingType<Duration>() {
-
         @Override
         public Class<Duration> javaClass() {
             return Duration.class;
@@ -151,9 +131,7 @@ public interface SettingType<T extends Serializable> {
             serializer.writeVarInt(value.toMillis());
         }
     };
-
     SettingType<Character> Char = new SettingType<Character>() {
-
         @Override
         public Class<Character> javaClass() {
             return Character.class;
@@ -169,4 +147,10 @@ public interface SettingType<T extends Serializable> {
             serializer.writeUTF8StringBinary(String.valueOf(value));
         }
     };
+
+    Class<T> javaClass();
+
+    T deserializeURL(String queryParameter);
+
+    void serializeSetting(BinarySerializer serializer, T value) throws IOException;
 }

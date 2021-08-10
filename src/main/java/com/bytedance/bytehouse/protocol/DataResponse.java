@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.client.NativeContext;
@@ -21,6 +20,15 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class DataResponse implements Response {
+
+    private final String name;
+
+    private final Block block;
+
+    public DataResponse(String name, Block block) {
+        this.name = name;
+        this.block = block;
+    }
 
     public static DataResponse readFrom(
             BinaryDeserializer deserializer, NativeContext.ServerContext info) throws IOException, SQLException {
@@ -32,15 +40,6 @@ public class DataResponse implements Response {
         deserializer.maybeDisableCompressed();
 
         return new DataResponse(name, block);
-    }
-
-    private final String name;
-
-    private final Block block;
-
-    public DataResponse(String name, Block block) {
-        this.name = name;
-        this.block = block;
     }
 
     @Override

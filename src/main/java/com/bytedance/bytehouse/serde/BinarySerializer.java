@@ -11,14 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.serde;
 
-import com.bytedance.bytehouse.misc.Switcher;
 import com.bytedance.bytehouse.buffer.BuffedWriter;
 import com.bytedance.bytehouse.buffer.CompressedBuffedWriter;
+import com.bytedance.bytehouse.misc.Switcher;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 public class BinarySerializer {
 
     private final Switcher<BuffedWriter> switcher;
+
     private boolean enableCompression;
 
     public BinarySerializer(BuffedWriter writer, boolean enableCompression) {
@@ -74,8 +73,8 @@ public class BinarySerializer {
     @SuppressWarnings("PointlessBitwiseExpression")
     public void writeInt(int i) throws IOException {
         // @formatter:off
-        switcher.get().writeBinary((byte) ((i >> 0)  & 0xFF));
-        switcher.get().writeBinary((byte) ((i >> 8)  & 0xFF));
+        switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
+        switcher.get().writeBinary((byte) ((i >> 8) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 16) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 24) & 0xFF));
         // @formatter:on
@@ -84,8 +83,8 @@ public class BinarySerializer {
     @SuppressWarnings("PointlessBitwiseExpression")
     public void writeLong(long i) throws IOException {
         // @formatter:off
-        switcher.get().writeBinary((byte) ((i >> 0)  & 0xFF));
-        switcher.get().writeBinary((byte) ((i >> 8)  & 0xFF));
+        switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
+        switcher.get().writeBinary((byte) ((i >> 8) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 16) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 24) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 32) & 0xFF));
@@ -135,8 +134,8 @@ public class BinarySerializer {
     public void writeDouble(double datum) throws IOException {
         long x = Double.doubleToLongBits(datum);
         // @formatter:off
-        switcher.get().writeBinary((byte) ((x >>> 0)  & 0xFF));
-        switcher.get().writeBinary((byte) ((x >>> 8)  & 0xFF));
+        switcher.get().writeBinary((byte) ((x >>> 0) & 0xFF));
+        switcher.get().writeBinary((byte) ((x >>> 8) & 0xFF));
         switcher.get().writeBinary((byte) ((x >>> 16) & 0xFF));
         switcher.get().writeBinary((byte) ((x >>> 24) & 0xFF));
         switcher.get().writeBinary((byte) ((x >>> 32) & 0xFF));

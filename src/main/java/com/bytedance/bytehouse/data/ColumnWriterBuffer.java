@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.buffer.ByteArrayWriter;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

@@ -11,21 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 public class ColumnNullable extends AbstractColumn {
 
     private final List<Byte> nullableSign;
+
     // data represents nested column in ColumnArray
     private final IColumn data;
 

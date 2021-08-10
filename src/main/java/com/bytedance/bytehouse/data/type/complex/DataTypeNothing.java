@@ -11,13 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.time.ZoneId;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.IDataType;
@@ -25,6 +19,10 @@ import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.ZoneId;
 
 /**
  * Nothing data type represents cases where a value is not expected from the server's response.

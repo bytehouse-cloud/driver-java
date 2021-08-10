@@ -11,16 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import com.bytedance.bytehouse.data.type.*;
 import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.data.type.DataTypeBitMap64;
+import com.bytedance.bytehouse.data.type.DataTypeDate;
+import com.bytedance.bytehouse.data.type.DataTypeFloat32;
+import com.bytedance.bytehouse.data.type.DataTypeFloat64;
+import com.bytedance.bytehouse.data.type.DataTypeIPv4;
+import com.bytedance.bytehouse.data.type.DataTypeIPv6;
+import com.bytedance.bytehouse.data.type.DataTypeInt16;
+import com.bytedance.bytehouse.data.type.DataTypeInt32;
+import com.bytedance.bytehouse.data.type.DataTypeInt64;
+import com.bytedance.bytehouse.data.type.DataTypeInt8;
+import com.bytedance.bytehouse.data.type.DataTypeUInt16;
+import com.bytedance.bytehouse.data.type.DataTypeUInt32;
+import com.bytedance.bytehouse.data.type.DataTypeUInt64;
+import com.bytedance.bytehouse.data.type.DataTypeUInt8;
+import com.bytedance.bytehouse.data.type.DataTypeUUID;
 import com.bytedance.bytehouse.data.type.complex.DataTypeArray;
 import com.bytedance.bytehouse.data.type.complex.DataTypeCreator;
 import com.bytedance.bytehouse.data.type.complex.DataTypeDateTime;
@@ -39,9 +47,16 @@ import com.bytedance.bytehouse.misc.LRUCache;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class DataTypeFactory {
+
     private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE = new LRUCache<>(ByteHouseDefines.DATA_TYPE_CACHE_SIZE);
+
+    private static final Map<String, IDataType<?, ?>> dataTypes = initialDataTypes();
 
     public static IDataType<?, ?> get(String type, NativeContext.ServerContext serverContext) throws SQLException {
         IDataType<?, ?> dataType = DATA_TYPE_CACHE.get(type);
@@ -57,8 +72,6 @@ public class DataTypeFactory {
         DATA_TYPE_CACHE.put(type, dataType);
         return dataType;
     }
-
-    private static final Map<String, IDataType<?, ?>> dataTypes = initialDataTypes();
 
     public static IDataType<?, ?> get(SQLLexer lexer, NativeContext.ServerContext serverContext) throws SQLException {
         String dataTypeName = String.valueOf(lexer.bareWord());

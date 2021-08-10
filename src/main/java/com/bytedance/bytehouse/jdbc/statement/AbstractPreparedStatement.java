@@ -11,18 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.statement;
 
+import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLPreparedStatement;
-import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.Validate;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Date;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Struct;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,10 +38,13 @@ import java.util.regex.Matcher;
 
 public abstract class AbstractPreparedStatement extends ByteHouseStatement implements SQLPreparedStatement {
 
-    private final String[] queryParts;
-    private final DateTimeFormatter dateFmt;
-    private final DateTimeFormatter timestampFmt;
     protected final ZoneId tz;
+
+    private final String[] queryParts;
+
+    private final DateTimeFormatter dateFmt;
+
+    private final DateTimeFormatter timestampFmt;
 
     protected Object[] parameters;
 

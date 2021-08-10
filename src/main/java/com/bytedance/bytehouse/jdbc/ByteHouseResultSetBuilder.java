@@ -11,16 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.stream.QueryResultBuilder;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -30,15 +28,17 @@ public class ByteHouseResultSetBuilder {
     private final QueryResultBuilder queryResultBuilder;
 
     private ByteHouseConfig cfg;
-    private String db = ByteHouseDefines.DEFAULT_DATABASE;
-    private String table = "unknown";
 
-    public static ByteHouseResultSetBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
-        return new ByteHouseResultSetBuilder(QueryResultBuilder.builder(columnsNum, serverContext));
-    }
+    private String db = ByteHouseDefines.DEFAULT_DATABASE;
+
+    private String table = "unknown";
 
     private ByteHouseResultSetBuilder(QueryResultBuilder queryResultBuilder) {
         this.queryResultBuilder = queryResultBuilder;
+    }
+
+    public static ByteHouseResultSetBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
+        return new ByteHouseResultSetBuilder(QueryResultBuilder.builder(columnsNum, serverContext));
     }
 
     public ByteHouseResultSetBuilder cfg(ByteHouseConfig cfg) {

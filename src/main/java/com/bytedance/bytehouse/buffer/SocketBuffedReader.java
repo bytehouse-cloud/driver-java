@@ -11,11 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.buffer;
 
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,10 +22,13 @@ import java.net.Socket;
 public class SocketBuffedReader implements BuffedReader {
 
     private final int capacity;
+
     private final byte[] buf;
+
     private final InputStream in;
 
     private int limit;
+
     private int position;
 
     public SocketBuffedReader(Socket socket) throws IOException {

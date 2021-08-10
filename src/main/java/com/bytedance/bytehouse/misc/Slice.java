@@ -11,23 +11,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 
 /**
  * Slice Object just like the slice of Go
  */
 public class Slice implements Iterable<Object> {
+
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
     private Object[] array;
 
     private int capacity;
-    private int offset;
+
+    private final int offset;
+
     private int pos;
 
     public Slice(int capacity) {
@@ -54,6 +58,13 @@ public class Slice implements Iterable<Object> {
         this.pos = pos;
     }
 
+    private static int hugeCapacity(int minCapacity) {
+        if (minCapacity < 0) // overflow
+            throw new OutOfMemoryError();
+        return (minCapacity > MAX_ARRAY_SIZE) ?
+                Integer.MAX_VALUE :
+                MAX_ARRAY_SIZE;
+    }
 
     public int size() {
         return pos - offset;
@@ -79,7 +90,6 @@ public class Slice implements Iterable<Object> {
         array[offset + index] = object;
     }
 
-
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = array.length;
@@ -93,18 +103,26 @@ public class Slice implements Iterable<Object> {
         capacity = newCapacity;
     }
 
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+    @Nonnull
+    @Override
+    public Iterator<Object> iterator() {
+        return new SliceIterator(this);
+    }
 
-    private static int hugeCapacity(int minCapacity) {
-        if (minCapacity < 0) // overflow
-            throw new OutOfMemoryError();
-        return (minCapacity > MAX_ARRAY_SIZE) ?
-                Integer.MAX_VALUE :
-                MAX_ARRAY_SIZE;
+    @Override
+    public void forEach(Consumer<? super Object> action) {
+
+    }
+
+    @Override
+    public Spliterator<Object> spliterator() {
+        return null;
     }
 
     public static class SliceIterator implements Iterator<Object> {
+
         int current;
+
         Slice slice;
 
         SliceIterator(Slice slice) {
@@ -131,21 +149,5 @@ public class Slice implements Iterable<Object> {
         @Override
         public void forEachRemaining(Consumer<? super Object> action) {
         }
-    }
-
-    @Nonnull
-    @Override
-    public Iterator<Object> iterator() {
-        return new SliceIterator(this);
-    }
-
-    @Override
-    public void forEach(Consumer<? super Object> action) {
-
-    }
-
-    @Override
-    public Spliterator<Object> spliterator() {
-        return null;
     }
 }

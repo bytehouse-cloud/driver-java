@@ -11,16 +11,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.io.IOException;
 import java.time.ZoneId;
 
 public class HelloResponse implements Response {
+
+    private final long majorVersion;
+
+    private final long minorVersion;
+
+    private final long reversion;
+
+    private final String serverName;
+
+    private final String serverTimeZone;
+
+    private final String serverDisplayName;
+
+    private final long serverVersionPatch;
+
+    public HelloResponse(
+            String serverName, long majorVersion, long minorVersion, long reversion,
+            String serverTimeZone,
+            String serverDisplayName,
+            long serverVersionPatch) {
+
+        this.reversion = reversion;
+        this.serverName = serverName;
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+        this.serverTimeZone = serverTimeZone;
+        this.serverDisplayName = serverDisplayName;
+        this.serverVersionPatch = serverVersionPatch;
+    }
 
     public static HelloResponse readFrom(BinaryDeserializer deserializer) throws IOException {
         String name = deserializer.readUTF8StringBinary();
@@ -48,29 +75,6 @@ public class HelloResponse implements Response {
     private static long getVersionPatch(BinaryDeserializer deserializer, long serverReversion) throws IOException {
         return serverReversion >= ByteHouseDefines.DBMS_MIN_REVISION_WITH_VERSION_PATCH ?
                 deserializer.readVarInt() : 0;
-    }
-
-    private final long majorVersion;
-    private final long minorVersion;
-    private final long reversion;
-    private final String serverName;
-    private final String serverTimeZone;
-    private final String serverDisplayName;
-    private final long serverVersionPatch;
-
-    public HelloResponse(
-            String serverName, long majorVersion, long minorVersion, long reversion,
-            String serverTimeZone,
-            String serverDisplayName,
-            long serverVersionPatch) {
-
-        this.reversion = reversion;
-        this.serverName = serverName;
-        this.majorVersion = majorVersion;
-        this.minorVersion = minorVersion;
-        this.serverTimeZone = serverTimeZone;
-        this.serverDisplayName = serverDisplayName;
-        this.serverVersionPatch = serverVersionPatch;
     }
 
     @Override

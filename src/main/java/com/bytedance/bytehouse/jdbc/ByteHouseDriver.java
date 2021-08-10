@@ -11,15 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
-
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Map;
 import java.util.Properties;
 

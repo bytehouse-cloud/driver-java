@@ -11,11 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
-import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 

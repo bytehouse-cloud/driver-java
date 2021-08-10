@@ -11,11 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
 import com.bytedance.bytehouse.log.Logging;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
 
 public interface SQLStatement extends Statement, SQLWrapper, Logging {
 
@@ -128,26 +132,26 @@ public interface SQLStatement extends Statement, SQLWrapper, Logging {
     }
 
     @Override
-    default void setFetchDirection(int direction) throws SQLException {
-        logger().debug("invoke unimplemented method #setFetchDirection(int direction)");
-        throw new SQLFeatureNotSupportedException();
-    }
-
-    @Override
     default int getFetchDirection() throws SQLException {
         logger().debug("invoke unimplemented method #getFetchDirection()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default void setFetchSize(int rows) throws SQLException {
-        logger().debug("invoke unimplemented method #setFetchSize(int rows)");
+    default void setFetchDirection(int direction) throws SQLException {
+        logger().debug("invoke unimplemented method #setFetchDirection(int direction)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
     default int getFetchSize() throws SQLException {
         logger().debug("invoke unimplemented method #getFetchSize()");
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    default void setFetchSize(int rows) throws SQLException {
+        logger().debug("invoke unimplemented method #setFetchSize(int rows)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -248,14 +252,14 @@ public interface SQLStatement extends Statement, SQLWrapper, Logging {
     }
 
     @Override
-    default void setPoolable(boolean poolable) throws SQLException {
-        logger().debug("invoke unimplemented method #setPoolable(boolean poolable)");
+    default boolean isPoolable() throws SQLException {
+        logger().debug("invoke unimplemented method #isPoolable()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default boolean isPoolable() throws SQLException {
-        logger().debug("invoke unimplemented method #isPoolable()");
+    default void setPoolable(boolean poolable) throws SQLException {
+        logger().debug("invoke unimplemented method #setPoolable(boolean poolable)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -278,14 +282,14 @@ public interface SQLStatement extends Statement, SQLWrapper, Logging {
     }
 
     @Override
-    default void setLargeMaxRows(long max) throws SQLException {
-        logger().debug("invoke unimplemented method #setLargeMaxRows(long max)");
+    default long getLargeMaxRows() throws SQLException {
+        logger().debug("invoke unimplemented method #getLargeMaxRows()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default long getLargeMaxRows() throws SQLException {
-        logger().debug("invoke unimplemented method #getLargeMaxRows()");
+    default void setLargeMaxRows(long max) throws SQLException {
+        logger().debug("invoke unimplemented method #setLargeMaxRows(long max)");
         throw new SQLFeatureNotSupportedException();
     }
 

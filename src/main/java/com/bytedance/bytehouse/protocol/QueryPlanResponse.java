@@ -11,11 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,10 +21,16 @@ import java.util.List;
 
 public class QueryPlanResponse implements Response {
 
+    private final List<String> plans;
+
+    public QueryPlanResponse(List<String> plans) {
+        this.plans = plans;
+    }
+
     /**
      * readFrom implementation follows
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/query_plan.go">
-     *     query_plan.go
+     * query_plan.go
      * </a>
      */
     public static QueryPlanResponse readFrom(
@@ -39,12 +43,6 @@ public class QueryPlanResponse implements Response {
         }
 
         return new QueryPlanResponse(plans);
-    }
-
-    private final List<String> plans;
-
-    public QueryPlanResponse(List<String> plans) {
-        this.plans = plans;
     }
 
     @Override

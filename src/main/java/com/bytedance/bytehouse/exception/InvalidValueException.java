@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.exception;
 
 public class InvalidValueException extends ByteHouseClientException {
+    private static final long serialVersionUID = 1;
 
     public InvalidValueException(String message) {
         super(message);

@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.exception;
 
 public class NoDefaultValueException extends ByteHouseClientException {
+    private static final long serialVersionUID = 1;
 
     public NoDefaultValueException(String message) {
         super(message);

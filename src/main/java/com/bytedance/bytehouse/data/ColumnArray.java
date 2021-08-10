@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeArray;
 import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,6 +24,7 @@ import java.util.List;
 public class ColumnArray extends AbstractColumn {
 
     private final List<Long> offsets;
+
     // data represents nested column in ColumnArray
     private final IColumn data;
 

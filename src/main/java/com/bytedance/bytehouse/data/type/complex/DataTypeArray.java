@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -22,7 +21,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.Array;
 import java.sql.SQLException;
@@ -34,6 +32,8 @@ import java.util.List;
 // TODO avoid using ByteHouseArray because it's a subclass of java.sql.Array
 public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
 
+    private final String name;
+
     public static DataTypeCreator<ByteHouseArray, Array> creator = (lexer, serverContext) -> {
         Validate.isTrue(lexer.character() == '(');
         IDataType<?, ?> arrayNestedType = DataTypeFactory.get(lexer, serverContext);
@@ -42,11 +42,10 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
                 arrayNestedType, (DataTypeInt64) DataTypeFactory.get("Int64", serverContext));
     };
 
-    private final String name;
     private final ByteHouseArray defaultValue;
 
-
     private final IDataType<?, ?> elemDataType;
+
     // Change from UInt64 to Int64 because we mapping UInt64 to BigInteger
     private final DataTypeInt64 offsetIDataType;
 
@@ -115,7 +114,6 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
             getElemDataType().serializeBinary(f, serializer);
         }
     }
-
 
     @Override
     public void serializeBinaryBulk(ByteHouseArray[] data, BinarySerializer serializer) throws SQLException, IOException {

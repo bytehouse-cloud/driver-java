@@ -11,30 +11,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
+import com.bytedance.bytehouse.client.NativeClient;
+import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.SessionState;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.jdbc.statement.ByteHousePreparedInsertStatement;
 import com.bytedance.bytehouse.jdbc.statement.ByteHousePreparedQueryStatement;
-import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.client.SessionState;
-import com.bytedance.bytehouse.client.NativeClient;
-import com.bytedance.bytehouse.client.NativeContext;
-import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.protocol.HelloResponse;
-import com.bytedance.bytehouse.settings.SettingKey;
-import com.bytedance.bytehouse.stream.QueryResult;
-import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLConnection;
-import javax.annotation.Nullable;
+import com.bytedance.bytehouse.log.Logger;
+import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.protocol.HelloResponse;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
+import com.bytedance.bytehouse.settings.ByteHouseDefines;
+import com.bytedance.bytehouse.settings.SettingKey;
+import com.bytedance.bytehouse.stream.QueryResult;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.ClientInfoStatus;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -46,22 +55,72 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
 public class ByteHouseConnection implements SQLConnection {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseConnection.class);
+
     private static final Pattern VALUES_REGEX = Pattern.compile("[Vv][Aa][Ll][Uu][Ee][Ss]\\s*\\(");
 
     private final AtomicBoolean isClosed;
+
     private final AtomicReference<ByteHouseConfig> cfg;
+
     // TODO move to NativeClient
     private final AtomicReference<SessionState> state = new AtomicReference<>(SessionState.IDLE);
+
     private volatile NativeContext nativeCtx;
 
     protected ByteHouseConnection(ByteHouseConfig cfg, NativeContext nativeCtx) {
         this.isClosed = new AtomicBoolean(false);
         this.cfg = new AtomicReference<>(cfg);
         this.nativeCtx = nativeCtx;
+    }
+
+    public static ByteHouseConnection createByteHouseConnection(ByteHouseConfig configure) throws SQLException {
+        return new ByteHouseConnection(configure, createNativeContext(configure));
+    }
+
+    private static NativeContext createNativeContext(ByteHouseConfig configure) throws SQLException {
+        NativeClient nativeClient = NativeClient.connect(configure);
+        return new NativeContext(clientContext(nativeClient, configure), serverContext(nativeClient, configure), nativeClient);
+    }
+
+    private static NativeContext.ClientContext clientContext(NativeClient nativeClient, ByteHouseConfig configure) throws SQLException {
+        Validate.isTrue(nativeClient.address() instanceof InetSocketAddress);
+        InetSocketAddress address = (InetSocketAddress) nativeClient.address();
+        String clientName = String.format(Locale.ROOT, "%s %s", ByteHouseDefines.NAME, "client");
+        String initialAddress = "[::ffff:127.0.0.1]:0";
+        return new NativeContext.ClientContext(initialAddress, address.getHostName(), clientName);
+    }
+
+    private static NativeContext.ServerContext serverContext(NativeClient nativeClient, ByteHouseConfig configure) throws SQLException {
+        try {
+            long revision = ByteHouseDefines.CLIENT_REVISION;
+            nativeClient.sendHello("client", revision, configure.database(),
+                    configure.fullUsername(), configure.password());
+
+            HelloResponse response = nativeClient.receiveHello(configure.queryTimeout(), null);
+            ZoneId timeZone = getZoneId(response.serverTimeZone());
+            return new NativeContext.ServerContext(
+                    response.majorVersion(), response.minorVersion(), response.reversion(),
+                    configure, timeZone, response.serverDisplayName(), response.serverVersionPatch());
+        } catch (SQLException rethrows) {
+            nativeClient.silentDisconnect();
+            throw rethrows;
+        }
+    }
+
+    /**
+     * Temporary fix for CNCH returning "Local" as a serverTimeZone.
+     */
+    private static ZoneId getZoneId(String serverTimeZone) {
+        if (serverTimeZone.equals("Local")) {
+            return ZoneId.systemDefault();
+        } else {
+            return ZoneId.of(serverTimeZone);
+        }
     }
 
     public ByteHouseConfig cfg() {
@@ -76,6 +135,11 @@ public class ByteHouseConnection implements SQLConnection {
         return nativeCtx.clientCtx();
     }
 
+    @Override
+    public boolean getAutoCommit() throws SQLException {
+        return true;
+    }
+
     /**
      * autoCommit is always true as transactions are not supported in ByteHouse.
      */
@@ -84,11 +148,6 @@ public class ByteHouseConnection implements SQLConnection {
         if (!autoCommit) {
             throw new SQLFeatureNotSupportedException("Transactions are not supported");
         }
-    }
-
-    @Override
-    public boolean getAutoCommit() throws SQLException {
-        return true;
     }
 
     /**
@@ -107,6 +166,11 @@ public class ByteHouseConnection implements SQLConnection {
         throw new SQLException("rollback cannot be called while connection is in auto-commit mode.");
     }
 
+    @Override
+    public boolean isReadOnly() throws SQLException {
+        return false;
+    }
+
     /**
      * read-only mode is not supported.
      */
@@ -118,8 +182,8 @@ public class ByteHouseConnection implements SQLConnection {
     }
 
     @Override
-    public boolean isReadOnly() throws SQLException {
-        return false;
+    public int getHoldability() throws SQLException {
+        return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
     /**
@@ -131,11 +195,6 @@ public class ByteHouseConnection implements SQLConnection {
         if (holdability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
             throw new SQLFeatureNotSupportedException("given holdability is not supported");
         }
-    }
-
-    @Override
-    public int getHoldability() throws SQLException {
-        return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
     @Override
@@ -207,6 +266,12 @@ public class ByteHouseConnection implements SQLConnection {
         return getNativeClient().ping(Duration.ofSeconds(timeout), nativeCtx.serverCtx());
     }
 
+    @Override
+    @Nullable
+    public String getSchema() throws SQLException {
+        return this.cfg().database();
+    }
+
     // ByteHouse support only `database`, we treat it as JDBC `schema`
     @Override
     public void setSchema(String schema) throws SQLException {
@@ -214,9 +279,8 @@ public class ByteHouseConnection implements SQLConnection {
     }
 
     @Override
-    @Nullable
-    public String getSchema() throws SQLException {
-        return this.cfg().database();
+    public String getCatalog() throws SQLException {
+        return null;
     }
 
     @Override
@@ -225,8 +289,8 @@ public class ByteHouseConnection implements SQLConnection {
     }
 
     @Override
-    public String getCatalog() throws SQLException {
-        return null;
+    public int getTransactionIsolation() throws SQLException {
+        return Connection.TRANSACTION_NONE;
     }
 
     /**
@@ -235,11 +299,6 @@ public class ByteHouseConnection implements SQLConnection {
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
         throw new SQLException("Transactions are not supported");
-    }
-
-    @Override
-    public int getTransactionIsolation() throws SQLException {
-        return Connection.TRANSACTION_NONE;
     }
 
     @Override
@@ -260,16 +319,18 @@ public class ByteHouseConnection implements SQLConnection {
     public Logger logger() {
         return ByteHouseConnection.LOG;
     }
+    // when sendInsertRequest we must ensure the connection is healthy
+    // the #getSampleBlock() must be called before this method
+
+    @Override
+    public boolean getEnableCompression() throws SQLException {
+        return this.cfg().enableCompression();
+    }
 
     @Override
     public void setEnableCompression(boolean enableCompression) throws SQLException {
         getNativeClient().setEnableCompression(enableCompression);
         this.cfg.set(this.cfg().withEnableCompression(enableCompression));
-    }
-
-    @Override
-    public boolean getEnableCompression() throws SQLException {
-        return this.cfg().enableCompression();
     }
 
     public boolean ping(Duration timeout) throws SQLException {
@@ -301,8 +362,6 @@ public class ByteHouseConnection implements SQLConnection {
         nativeClient.sendQuery(query, nativeCtx.clientCtx(), settings, enableCompression);
         return nativeClient.receiveQuery(queryTimeout, nativeCtx.serverCtx());
     }
-    // when sendInsertRequest we must ensure the connection is healthy
-    // the #getSampleBlock() must be called before this method
 
     public int sendInsertRequest(Block block) throws SQLException {
         Validate.isTrue(this.state.get() == SessionState.WAITING_INSERT, "Call getSampleBlock before insert.");
@@ -329,51 +388,5 @@ public class ByteHouseConnection implements SQLConnection {
 
     private NativeClient getNativeClient() {
         return nativeCtx.nativeClient();
-    }
-
-    public static ByteHouseConnection createByteHouseConnection(ByteHouseConfig configure) throws SQLException {
-        return new ByteHouseConnection(configure, createNativeContext(configure));
-    }
-
-    private static NativeContext createNativeContext(ByteHouseConfig configure) throws SQLException {
-        NativeClient nativeClient = NativeClient.connect(configure);
-        return new NativeContext(clientContext(nativeClient, configure), serverContext(nativeClient, configure), nativeClient);
-    }
-
-    private static NativeContext.ClientContext clientContext(NativeClient nativeClient, ByteHouseConfig configure) throws SQLException {
-        Validate.isTrue(nativeClient.address() instanceof InetSocketAddress);
-        InetSocketAddress address = (InetSocketAddress) nativeClient.address();
-        String clientName = String.format(Locale.ROOT, "%s %s", ByteHouseDefines.NAME, "client");
-        String initialAddress = "[::ffff:127.0.0.1]:0";
-        return new NativeContext.ClientContext(initialAddress, address.getHostName(), clientName);
-    }
-
-    private static NativeContext.ServerContext serverContext(NativeClient nativeClient, ByteHouseConfig configure) throws SQLException {
-        try {
-            long revision = ByteHouseDefines.CLIENT_REVISION;
-            nativeClient.sendHello("client", revision, configure.database(),
-                    configure.fullUsername(), configure.password());
-
-            HelloResponse response = nativeClient.receiveHello(configure.queryTimeout(), null);
-            ZoneId timeZone = getZoneId(response.serverTimeZone());
-            return new NativeContext.ServerContext(
-                    response.majorVersion(), response.minorVersion(), response.reversion(),
-                    configure, timeZone, response.serverDisplayName(), response.serverVersionPatch());
-        } catch (SQLException rethrows) {
-            nativeClient.silentDisconnect();
-            throw rethrows;
-        }
-    }
-
-    /**
-     * Temporary fix for CNCH returning "Local" as a serverTimeZone.
-     */
-    private static ZoneId getZoneId(String serverTimeZone) {
-        if (serverTimeZone.equals("Local")) {
-            return ZoneId.systemDefault();
-        } else {
-            return ZoneId.of(serverTimeZone);
-        }
-
     }
 }

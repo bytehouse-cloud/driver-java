@@ -46,6 +46,10 @@ package com.bytedance.bytehouse.log;
  */
 public final class Util {
 
+    private static ClassContextSecurityManager SECURITY_MANAGER;
+
+    private static boolean SECURITY_MANAGER_CREATION_ALREADY_ATTEMPTED = false;
+
     private Util() {
     }
 
@@ -69,20 +73,6 @@ public final class Util {
         else
             return value.equalsIgnoreCase("true");
     }
-
-    /**
-     * In order to call {@link SecurityManager#getClassContext()}, which is a
-     * protected method, we add this wrapper which allows the method to be visible
-     * inside this package.
-     */
-    private static final class ClassContextSecurityManager extends SecurityManager {
-        protected Class<?>[] getClassContext() {
-            return super.getClassContext();
-        }
-    }
-
-    private static ClassContextSecurityManager SECURITY_MANAGER;
-    private static boolean SECURITY_MANAGER_CREATION_ALREADY_ATTEMPTED = false;
 
     private static ClassContextSecurityManager getSecurityManager() {
         if (SECURITY_MANAGER != null)
@@ -139,5 +129,17 @@ public final class Util {
 
     static public void report(String msg) {
         System.err.println("LOG: " + msg);
+    }
+
+    /**
+     * In order to call {@link SecurityManager#getClassContext()}, which is a
+     * protected method, we add this wrapper which allows the method to be visible
+     * inside this package.
+     */
+    private static final class ClassContextSecurityManager extends SecurityManager {
+
+        protected Class<?>[] getClassContext() {
+            return super.getClassContext();
+        }
     }
 }

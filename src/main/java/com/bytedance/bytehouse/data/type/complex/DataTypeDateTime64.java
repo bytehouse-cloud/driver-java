@@ -11,17 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import com.bytedance.bytehouse.client.NativeContext.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
@@ -32,8 +22,30 @@ import com.bytedance.bytehouse.misc.StringView;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
+
+    public static final int NANOS_IN_SECOND = 1_000_000_000;
+
+    public static final int MILLIS_IN_SECOND = 1000;
+
+    public static final int[] POW_10 = {1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000};
+
+    public static final int MIN_SCALE = 0;
+
+    public static final int MAX_SCALA = 9;
+
+    public static final int DEFAULT_SCALE = 3;
+
+    private static final LocalDateTime EPOCH_LOCAL_DT = LocalDateTime.of(1970, 1, 1, 0, 0);
 
     public static DataTypeCreator<ZonedDateTime, Timestamp> creator = (lexer, serverContext) -> {
         if (lexer.isCharacter('(')) {
@@ -55,17 +67,12 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
         return new DataTypeDateTime64("DateTime64", DataTypeDateTime64.DEFAULT_SCALE, serverContext);
     };
 
-    private static final LocalDateTime EPOCH_LOCAL_DT = LocalDateTime.of(1970, 1, 1, 0, 0);
-    public static final int NANOS_IN_SECOND = 1_000_000_000;
-    public static final int MILLIS_IN_SECOND = 1000;
-    public static final int[] POW_10 = {1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000};
-    public static final int MIN_SCALE = 0;
-    public static final int MAX_SCALA = 9;
-    public static final int DEFAULT_SCALE = 3;
-
     private final String name;
+
     private final int scale;
+
     private final ZoneId tz;
+
     private final ZonedDateTime defaultValue;
 
     public DataTypeDateTime64(String name, int scala, ServerContext serverContext) {

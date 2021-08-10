@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -22,7 +21,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.SQLException;
@@ -42,6 +40,9 @@ import java.util.Map;
 public class DataTypeMap implements IDataType<Map, Object> {
 
     private static final DataTypeUInt64 DATA_TYPE_UINT_64 = new DataTypeUInt64();
+
+    private final IDataType<?, ?> keyDataType;
+
     public static DataTypeCreator<Map, Object> creator = (lexer, serverContext) -> {
         Validate.isTrue(lexer.character() == '(');
         IDataType<?, ?> keyDataType = DataTypeFactory.get(lexer, serverContext);
@@ -51,7 +52,7 @@ public class DataTypeMap implements IDataType<Map, Object> {
 
         return new DataTypeMap(keyDataType, valueDataType);
     };
-    private final IDataType<?, ?> keyDataType;
+
     private final IDataType<?, ?> valueDataType;
 
     public DataTypeMap(

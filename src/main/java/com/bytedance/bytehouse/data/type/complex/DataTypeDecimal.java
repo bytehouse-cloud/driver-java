@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.IDataType;
@@ -21,7 +20,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -44,9 +42,13 @@ public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, Bytes
     };
 
     private final String name;
+
     private final int precision;
+
     private final int scale;
+
     private final BigDecimal scaleFactor;
+
     private final int nobits;
 
     // see https://clickhouse.tech/docs/en/sql-reference/data-types/decimal/
@@ -164,7 +166,7 @@ public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, Bytes
             }
 
             case 128: {
-                long []array = new long[2];
+                long[] array = new long[2];
                 array[1] = deserializer.readLong();
                 array[0] = deserializer.readLong();
 
@@ -174,7 +176,7 @@ public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, Bytes
             }
 
             case 256: {
-                long []array = new long[4];
+                long[] array = new long[4];
                 array[3] = deserializer.readLong();
                 array[2] = deserializer.readLong();
                 array[1] = deserializer.readLong();

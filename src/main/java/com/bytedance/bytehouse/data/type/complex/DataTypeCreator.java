@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.misc.SQLLexer;
-
 import java.sql.SQLException;
 
 @FunctionalInterface

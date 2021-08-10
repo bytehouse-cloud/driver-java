@@ -11,18 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.settings.SettingKey;
-
-import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import javax.annotation.Nullable;
 
 public class DateTimeUtil {
 

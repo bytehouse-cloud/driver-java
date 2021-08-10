@@ -11,14 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 import java.sql.SQLException;
 
 public class SQLLexer {
-    private int pos;
+
     private final String data;
+
+    private int pos;
 
     public SQLLexer(int pos, String data) {
         this.pos = pos;
@@ -50,11 +51,11 @@ public class SQLLexer {
 
         int start = pos;
         // @formatter:off
-        boolean isHex       = false;
-        boolean isBinary    = false;
-        boolean isDouble    = false;
+        boolean isHex = false;
+        boolean isBinary = false;
+        boolean isDouble = false;
         boolean hasExponent = false;
-        boolean hasSigned   = false;
+        boolean hasSigned = false;
         // @formatter:on
 
         if (isCharacter('-') || isCharacter('+')) {
@@ -65,8 +66,8 @@ public class SQLLexer {
         if (pos + 2 < data.length()) {
             // @formatter:off
             if (data.charAt(pos) == '0' && (data.charAt(pos + 1) == 'x' || data.charAt(pos + 1) == 'X'
-                                         || data.charAt(pos + 1) == 'b' || data.charAt(pos + 1) == 'B')) {
-                isHex    = data.charAt(pos + 1) == 'x' || data.charAt(pos + 1) == 'X';
+                    || data.charAt(pos + 1) == 'b' || data.charAt(pos + 1) == 'B')) {
+                isHex = data.charAt(pos + 1) == 'x' || data.charAt(pos + 1) == 'X';
                 isBinary = data.charAt(pos + 1) == 'b' || data.charAt(pos + 1) == 'B';
                 pos += 2;
             }
@@ -90,8 +91,8 @@ public class SQLLexer {
         if (pos + 1 < data.length()
                 // @formatter:off
                 && (isHex ? (data.charAt(pos) == 'p' || data.charAt(pos) == 'P')
-                          : (data.charAt(pos) == 'e' || data.charAt(pos) == 'E'))) {
-                // @formatter:on
+                : (data.charAt(pos) == 'e' || data.charAt(pos) == 'E'))) {
+            // @formatter:on
             hasExponent = true;
             pos++;
 
@@ -149,14 +150,14 @@ public class SQLLexer {
         } else if (isCharacter('"')) {
             return stringLiteralWithQuoted('"');
         } else if (data.charAt(pos) == '_'
-               || (data.charAt(pos) >= 'a' && data.charAt(pos) <= 'z')
-               || (data.charAt(pos) >= 'A' && data.charAt(pos) <= 'Z')) {
+                || (data.charAt(pos) >= 'a' && data.charAt(pos) <= 'z')
+                || (data.charAt(pos) >= 'A' && data.charAt(pos) <= 'Z')) {
             int start = pos;
             for (pos++; pos < data.length(); pos++) {
                 if (!('_' == data.charAt(pos)
-                  || (data.charAt(pos) >= 'a' && data.charAt(pos) <= 'z')
-                  || (data.charAt(pos) >= 'A' && data.charAt(pos) <= 'Z')
-                  || (data.charAt(pos) >= '0' && data.charAt(pos) <= '9'))) {
+                        || (data.charAt(pos) >= 'a' && data.charAt(pos) <= 'z')
+                        || (data.charAt(pos) >= 'A' && data.charAt(pos) <= 'Z')
+                        || (data.charAt(pos) >= '0' && data.charAt(pos) <= '9'))) {
                     break;
                 }
             }
@@ -182,10 +183,10 @@ public class SQLLexer {
         for (; pos < data.length(); pos++) {
             // @formatter:off
             if (data.charAt(pos) != ' '
-             && data.charAt(pos) != '\t'
-             && data.charAt(pos) != '\n'
-             && data.charAt(pos) != '\r'
-             && data.charAt(pos) != '\f') {
+                    && data.charAt(pos) != '\t'
+                    && data.charAt(pos) != '\n'
+                    && data.charAt(pos) != '\r'
+                    && data.charAt(pos) != '\f') {
                 return;
             }
             // @formatter:on

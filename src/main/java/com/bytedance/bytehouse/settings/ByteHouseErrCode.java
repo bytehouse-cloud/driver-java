@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.settings;
 
 import java.util.Locale;
@@ -547,20 +546,21 @@ public enum ByteHouseErrCode {
     UNKNOWN_EXCEPTION(1002, "UNKNOWN_EXCEPTION"),
     INVALID_SHARD_ID(1003, "INVALID_SHARD_ID");
 
+    private final int code;
+
+    private final String name;
+
+    ByteHouseErrCode(int code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
     public static ByteHouseErrCode fromCode(int code) {
         for (ByteHouseErrCode value : ByteHouseErrCode.values()) {
             if (value.code == code)
                 return value;
         }
         return ByteHouseErrCode.UNKNOWN_ERROR;
-    }
-
-    private final int code;
-    private final String name;
-
-    ByteHouseErrCode(int code, String name) {
-        this.code = code;
-        this.name = name;
     }
 
     public int code() {

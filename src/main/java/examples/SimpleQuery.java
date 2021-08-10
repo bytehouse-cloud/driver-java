@@ -11,14 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package examples;
 
 import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
-
-import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.util.Properties;
+import javax.sql.DataSource;
 
 public class SimpleQuery {
 

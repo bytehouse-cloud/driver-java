@@ -11,15 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
+import com.bytedance.bytehouse.exception.InvalidValueException;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLWrapper;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.StrUtil;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.exception.InvalidValueException;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.PrintWriter;
@@ -37,7 +36,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.sql.DataSource;
 
 /**
@@ -50,6 +48,7 @@ import javax.sql.DataSource;
 public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(BalancedByteHouseDataSource.class);
+
     private static final Pattern URL_TEMPLATE = Pattern.compile(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
             "//([a-zA-Z0-9_:,.-]+)" +
             "((/[a-zA-Z0-9_]+)?" +
@@ -57,11 +56,14 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
             ")?");
 
     private final ThreadLocal<Random> randomThreadLocal = new ThreadLocal<>();
+
     private final List<String> allUrls;
-    private volatile List<String> enabledUrls;
 
     private final ByteHouseConfig cfg;
+
     private final ByteHouseDriver driver = new ByteHouseDriver();
+
+    private volatile List<String> enabledUrls;
 
     /**
      * create Datasource for bytehouse JDBC connections
@@ -171,7 +173,6 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
         return enabledUrls.size();
     }
 
-
     private String getAnyUrl() throws SQLException {
         List<String> localEnabledUrls = enabledUrls;
         if (localEnabledUrls.isEmpty()) {
@@ -223,7 +224,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * Not supported. Consider using connectTimeout instead.
      */
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
+    public int getLoginTimeout() throws SQLException {
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -231,7 +232,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * Not supported. Consider using connectTimeout instead.
      */
     @Override
-    public int getLoginTimeout() throws SQLException {
+    public void setLoginTimeout(int seconds) throws SQLException {
         throw new SQLFeatureNotSupportedException();
     }
 

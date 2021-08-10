@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
 import com.bytedance.bytehouse.log.Logging;
@@ -20,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 
 public interface SQLResultSetMetaData extends ResultSetMetaData, SQLWrapper, Logging {
+
     @Override
     default int getColumnCount() throws SQLException {
         logger().debug("invoke unimplemented method #getColumnCount()");

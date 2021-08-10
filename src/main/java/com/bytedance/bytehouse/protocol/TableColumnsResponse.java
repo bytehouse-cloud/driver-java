@@ -11,20 +11,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
 public class TableColumnsResponse implements Response {
 
+    private final String name;
+
+    private final String description;
+
+    public TableColumnsResponse(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     /**
      * readFrom implementation follows
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/table_columns.go">
-     *     table_columns.go
+     * table_columns.go
      * </a>
      */
     public static TableColumnsResponse readFrom(BinaryDeserializer deserializer)
@@ -34,15 +41,6 @@ public class TableColumnsResponse implements Response {
                 deserializer.readUTF8StringBinary(),
                 deserializer.readUTF8StringBinary()
         );
-    }
-
-    private final String name;
-
-    private final String description;
-
-    public TableColumnsResponse(String name, String description) {
-        this.name = name;
-        this.description = description;
     }
 
     @Override

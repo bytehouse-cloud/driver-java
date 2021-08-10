@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.client;
 
 import com.bytedance.bytehouse.buffer.SocketBuffedReader;
@@ -20,16 +19,23 @@ import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.protocol.*;
+import com.bytedance.bytehouse.protocol.DataRequest;
+import com.bytedance.bytehouse.protocol.DataResponse;
+import com.bytedance.bytehouse.protocol.EOFStreamResponse;
+import com.bytedance.bytehouse.protocol.HelloRequest;
+import com.bytedance.bytehouse.protocol.HelloResponse;
+import com.bytedance.bytehouse.protocol.PingRequest;
+import com.bytedance.bytehouse.protocol.PongResponse;
+import com.bytedance.bytehouse.protocol.QueryRequest;
+import com.bytedance.bytehouse.protocol.Request;
+import com.bytedance.bytehouse.protocol.Response;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-import com.bytedance.bytehouse.stream.ByteHouseQueryResult;
-import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
-
-import javax.net.ssl.*;
+import com.bytedance.bytehouse.stream.ByteHouseQueryResult;
+import com.bytedance.bytehouse.stream.QueryResult;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -43,10 +49,31 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 
 public class NativeClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(NativeClient.class);
+
+    private final Socket socket;
+
+    private final SocketAddress address;
+
+    private final BinarySerializer serializer;
+
+    private final BinaryDeserializer deserializer;
+
+    public NativeClient(Socket socket, BinarySerializer serializer, BinaryDeserializer deserializer) {
+        this.socket = socket;
+        this.address = socket.getLocalSocketAddress();
+        this.serializer = serializer;
+        this.deserializer = deserializer;
+    }
 
     /**
      * Connects to Gateway using either a secure (with TLS) or insecure TCP connection.
@@ -88,18 +115,22 @@ public class NativeClient {
             SSLSocketFactory sslSocketFactory;
             if (configure.skipVerification()) {
                 // TrustManager that trusts all certificates. Used to skip TLS verification.
-                TrustManager[] trustAllCertsManager = new TrustManager[] {new X509ExtendedTrustManager() {
+                TrustManager[] trustAllCertsManager = new TrustManager[]{new X509ExtendedTrustManager() {
                     @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) { }
+                    public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) {
+                    }
 
                     @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) { }
+                    public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) {
+                    }
 
                     @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) { }
+                    public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+                    }
 
                     @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) { }
+                    public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+                    }
 
                     @Override
                     public X509Certificate[] getAcceptedIssuers() {
@@ -107,10 +138,12 @@ public class NativeClient {
                     }
 
                     @Override
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
 
                     @Override
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
                 }};
 
                 SSLContext context = SSLContext.getInstance("TLSv1.2");
@@ -126,18 +159,6 @@ public class NativeClient {
 
             return sslSocket;
         }
-    }
-
-    private final Socket socket;
-    private final SocketAddress address;
-    private final BinarySerializer serializer;
-    private final BinaryDeserializer deserializer;
-
-    public NativeClient(Socket socket, BinarySerializer serializer, BinaryDeserializer deserializer) {
-        this.socket = socket;
-        this.address = socket.getLocalSocketAddress();
-        this.serializer = serializer;
-        this.deserializer = deserializer;
     }
 
     /**

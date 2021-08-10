@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 public interface BytesHelper {
@@ -66,41 +65,41 @@ public interface BytesHelper {
 
     default int getUnsignedMedium(byte[] memory, int index) {
         // @formatter:off
-        return (memory[index]     & 0xff) << 16 |
-               (memory[index + 1] & 0xff) <<  8 |
+        return (memory[index] & 0xff) << 16 |
+                (memory[index + 1] & 0xff) << 8 |
                 memory[index + 2] & 0xff;
         // @formatter:on
     }
 
     default int getUnsignedMediumLE(byte[] memory, int index) {
         // @formatter:off
-        return memory[index]     & 0xff        |
-              (memory[index + 1] & 0xff) <<  8 |
-              (memory[index + 2] & 0xff) << 16;
+        return memory[index] & 0xff |
+                (memory[index + 1] & 0xff) << 8 |
+                (memory[index + 2] & 0xff) << 16;
         // @formatter:on
     }
 
     default int getInt(byte[] memory, int index) {
         // @formatter:off
-        return (memory[index]     & 0xff) << 24 |
-               (memory[index + 1] & 0xff) << 16 |
-               (memory[index + 2] & 0xff) <<  8 |
+        return (memory[index] & 0xff) << 24 |
+                (memory[index + 1] & 0xff) << 16 |
+                (memory[index + 2] & 0xff) << 8 |
                 memory[index + 3] & 0xff;
         // @formatter:on
     }
 
     default int getIntLE(byte[] memory, int index) {
         // @formatter:off
-        return  memory[index]      & 0xff       |
-               (memory[index + 1] & 0xff) << 8  |
-               (memory[index + 2] & 0xff) << 16 |
-               (memory[index + 3] & 0xff) << 24;
+        return memory[index] & 0xff |
+                (memory[index + 1] & 0xff) << 8 |
+                (memory[index + 2] & 0xff) << 16 |
+                (memory[index + 3] & 0xff) << 24;
         // @formatter:on
     }
 
     default long getLong(byte[] memory, int index) {
         // @formatter:off
-        return ((long) memory[index]     & 0xff) << 56 |
+        return ((long) memory[index] & 0xff) << 56 |
                 ((long) memory[index + 1] & 0xff) << 48 |
                 ((long) memory[index + 2] & 0xff) << 40 |
                 ((long) memory[index + 3] & 0xff) << 32 |
@@ -133,21 +132,21 @@ public interface BytesHelper {
 
     default void setShort(byte[] memory, int index, int value) {
         // @formatter:off
-        memory[index]     = (byte) (value >>> 8);
+        memory[index] = (byte) (value >>> 8);
         memory[index + 1] = (byte) value;
         // @formatter:on
     }
 
     default void setShortLE(byte[] memory, int index, int value) {
         // @formatter:off
-        memory[index]     = (byte) value;
+        memory[index] = (byte) value;
         memory[index + 1] = (byte) (value >>> 8);
         // @formatter:on
     }
 
     default void setMedium(byte[] memory, int index, int value) {
         // @formatter:off
-        memory[index]     = (byte) (value >>> 16);
+        memory[index] = (byte) (value >>> 16);
         memory[index + 1] = (byte) (value >>> 8);
         memory[index + 2] = (byte) value;
         // @formatter:on
@@ -155,7 +154,7 @@ public interface BytesHelper {
 
     default void setMediumLE(byte[] memory, int index, int value) {
         // @formatter:off
-        memory[index]     = (byte) value;
+        memory[index] = (byte) value;
         memory[index + 1] = (byte) (value >>> 8);
         memory[index + 2] = (byte) (value >>> 16);
         // @formatter:on
@@ -163,7 +162,7 @@ public interface BytesHelper {
 
     default void setInt(byte[] memory, int index, int value) {
         // @formatter:off
-        memory[index]     = (byte) (value >>> 24);
+        memory[index] = (byte) (value >>> 24);
         memory[index + 1] = (byte) (value >>> 16);
         memory[index + 2] = (byte) (value >>> 8);
         memory[index + 3] = (byte) value;
@@ -172,7 +171,7 @@ public interface BytesHelper {
 
     default void setIntLE(byte[] memory, int index, int value) {
         // @formatter:off
-        memory[index]     = (byte) value;
+        memory[index] = (byte) value;
         memory[index + 1] = (byte) (value >>> 8);
         memory[index + 2] = (byte) (value >>> 16);
         memory[index + 3] = (byte) (value >>> 24);
@@ -181,7 +180,7 @@ public interface BytesHelper {
 
     default void setLong(byte[] memory, int index, long value) {
         // @formatter:off
-        memory[index]     = (byte) (value >>> 56);
+        memory[index] = (byte) (value >>> 56);
         memory[index + 1] = (byte) (value >>> 48);
         memory[index + 2] = (byte) (value >>> 40);
         memory[index + 3] = (byte) (value >>> 32);
@@ -194,7 +193,7 @@ public interface BytesHelper {
 
     default void setLongLE(byte[] memory, int index, long value) {
         // @formatter:off
-        memory[index]     = (byte) value;
+        memory[index] = (byte) value;
         memory[index + 1] = (byte) (value >>> 8);
         memory[index + 2] = (byte) (value >>> 16);
         memory[index + 3] = (byte) (value >>> 24);

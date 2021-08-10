@@ -111,9 +111,13 @@ import java.util.Map;
  * @author Joern Huxhorn
  */
 final public class MessageFormatter {
+
     static final char DELIM_START = '{';
+
     static final char DELIM_STOP = '}';
+
     static final String DELIM_STR = "{}";
+
     private static final char ESCAPE_CHAR = '\\';
 
     /**
@@ -129,18 +133,15 @@ final public class MessageFormatter {
      * will return the string "Hi there.".
      * <p>
      *
-     * @param messagePattern
-     *          The message pattern which will be parsed and formatted
-     * @param arg
-     *          The argument to be substituted in place of the formatting anchor
+     * @param messagePattern The message pattern which will be parsed and formatted
+     * @param arg            The argument to be substituted in place of the formatting anchor
      * @return The formatted message
      */
     public static FormattingTuple format(String messagePattern, Object arg) {
-        return arrayFormat(messagePattern, new Object[] { arg });
+        return arrayFormat(messagePattern, new Object[]{arg});
     }
 
     /**
-     *
      * Performs a two argument substitution for the 'messagePattern' passed as
      * parameter.
      * <p>
@@ -152,20 +153,16 @@ final public class MessageFormatter {
      *
      * will return the string "Hi Alice. My name is Bob.".
      *
-     * @param messagePattern
-     *          The message pattern which will be parsed and formatted
-     * @param arg1
-     *          The argument to be substituted in place of the first formatting
-     *          anchor
-     * @param arg2
-     *          The argument to be substituted in place of the second formatting
-     *          anchor
+     * @param messagePattern The message pattern which will be parsed and formatted
+     * @param arg1           The argument to be substituted in place of the first formatting
+     *                       anchor
+     * @param arg2           The argument to be substituted in place of the second formatting
+     *                       anchor
      * @return The formatted message
      */
     public static FormattingTuple format(final String messagePattern, Object arg1, Object arg2) {
-        return arrayFormat(messagePattern, new Object[] { arg1, arg2 });
+        return arrayFormat(messagePattern, new Object[]{arg1, arg2});
     }
-
 
     static Throwable getThrowableCandidate(Object[] argArray) {
         if (argArray == null || argArray.length == 0) {
@@ -309,7 +306,6 @@ final public class MessageFormatter {
             Util.report("LOG: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]", t);
             sbuf.append("[FAILED toString()]");
         }
-
     }
 
     private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map<Object[], Object> seenMap) {
@@ -417,5 +413,4 @@ final public class MessageFormatter {
         }
         sbuf.append(']');
     }
-
 }

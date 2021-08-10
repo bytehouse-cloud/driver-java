@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
 import com.bytedance.bytehouse.log.Logging;
@@ -19,7 +18,23 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.NClob;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLType;
+import java.sql.SQLXML;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Calendar;
 
 public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, Logging {
@@ -84,7 +99,7 @@ public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, L
         throw new SQLFeatureNotSupportedException();
     }
 
-    default void setBytes(int parameterIndex, byte x[]) throws SQLException {
+    default void setBytes(int parameterIndex, byte[] x) throws SQLException {
         logger().debug("invoke unimplemented method #setBytes(int parameterIndex, byte x[])");
         throw new SQLFeatureNotSupportedException();
     }
@@ -120,12 +135,10 @@ public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, L
         throw new SQLFeatureNotSupportedException();
     }
 
-
     default void clearParameters() throws SQLException {
         logger().debug("invoke unimplemented method #clearParameters()");
         throw new SQLFeatureNotSupportedException();
     }
-
 
     default void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
         logger().debug("invoke unimplemented method #setObject(int parameterIndex, Object x, int targetSqlType)");
@@ -136,7 +149,6 @@ public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, L
         logger().debug("invoke unimplemented method #setObject(int parameterIndex, Object x)");
         throw new SQLFeatureNotSupportedException();
     }
-
 
     default boolean execute() throws SQLException {
         logger().debug("invoke unimplemented method #execute()");
@@ -180,7 +192,6 @@ public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, L
         throw new SQLFeatureNotSupportedException();
     }
 
-
     default void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
         logger().debug("invoke unimplemented method #setDate(int parameterIndex, Date x, Calendar cal)");
         throw new SQLFeatureNotSupportedException();
@@ -190,7 +201,6 @@ public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, L
         logger().debug("invoke unimplemented method #setTime(int parameterIndex, Time x, Calendar cal)");
         throw new SQLFeatureNotSupportedException();
     }
-
 
     default void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         logger().debug("invoke unimplemented method #setTimestamp(int parameterIndex, Timestamp x, Calendar cal)");
@@ -215,7 +225,6 @@ public interface SQLPreparedStatement extends SQLStatement, PreparedStatement, L
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
-
 
     default void setRowId(int parameterIndex, RowId x) throws SQLException {
         logger().debug("invoke unimplemented method #setRowId(int parameterIndex, RowId x)");

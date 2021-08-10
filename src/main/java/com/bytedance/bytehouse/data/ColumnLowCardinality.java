@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.data.type.complex.DataTypeLowCardinality;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,11 +27,17 @@ import java.util.Map;
  * A custom Column class to be used with the Low Cardinality data type.
  */
 public class ColumnLowCardinality extends AbstractColumn implements BytesHelper {
+
     private final static int HEADER_SIZE = 24; // defined by cnch protocol
+
     private final byte[] header;
+
     private final IColumn keys;
+
     private final Map<Object, Integer> objectToIndex;
+
     private final List<Integer> valueIndicesList;
+
     private byte[] valueIndicesRaw; // stores the keys to the values
 
     public ColumnLowCardinality(String name, DataTypeLowCardinality type, Object[] values) {
@@ -84,7 +88,6 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
 
         valueIndicesList.add(objectToIndex.get(object));
     }
-
 
     /**
      * Flush data for all the rows to serializer.
@@ -153,7 +156,6 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
         setLongLE(header, 16, objectToIndex.size());
         int idxSize = minIndexSize(objectToIndex.size());
         header[8] = (byte) (idxSize - 1);
-
     }
 
     /**
@@ -186,6 +188,4 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
 
         return indexSize + 1;
     }
-
-
 }

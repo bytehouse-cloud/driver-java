@@ -11,17 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.stream;
 
-import com.bytedance.bytehouse.data.*;
+import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.data.Block;
+import com.bytedance.bytehouse.data.ColumnFactory;
+import com.bytedance.bytehouse.data.DataTypeFactory;
+import com.bytedance.bytehouse.data.IColumn;
+import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.misc.CheckedIterator;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.protocol.DataResponse;
-
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Support building QueryResult in client side, it's useful for ad-hoc building a ResultSet for JDBC interface,
@@ -32,18 +37,22 @@ import java.util.*;
 public class QueryResultBuilder {
 
     private final int columnNum;
+
     private final NativeContext.ServerContext serverContext;
-    private List<String> columnNames;
-    private List<IDataType> columnTypes;
+
     private final List<List<?>> rows = new ArrayList<>();
 
-    public static QueryResultBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
-        return new QueryResultBuilder(columnsNum, serverContext);
-    }
+    private List<String> columnNames;
+
+    private List<IDataType> columnTypes;
 
     private QueryResultBuilder(int columnNum, NativeContext.ServerContext serverContext) {
         this.columnNum = columnNum;
         this.serverContext = serverContext;
+    }
+
+    public static QueryResultBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
+        return new QueryResultBuilder(columnsNum, serverContext);
     }
 
     public QueryResultBuilder columnNames(String... names) {
@@ -103,7 +112,6 @@ public class QueryResultBuilder {
         Block dataBlock = new Block(rows.size(), dataColumns);
 
         return new QueryResult() {
-
             @Override
             public Block header() throws SQLException {
                 return headerBlock;
@@ -114,8 +122,8 @@ public class QueryResultBuilder {
                 DataResponse data = new DataResponse("client_build", dataBlock);
 
                 return new CheckedIterator<DataResponse, SQLException>() {
-
                     private final DataResponse dataResponse = data;
+
                     private boolean beforeFirst = true;
 
                     public boolean hasNext() {

@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -19,18 +18,20 @@ import java.io.IOException;
 
 public class ProgressResponse implements Response {
 
-    public static ProgressResponse readFrom(BinaryDeserializer deserializer) throws IOException {
-        return new ProgressResponse(deserializer.readVarInt(), deserializer.readVarInt(), deserializer.readVarInt());
-    }
-
     private final long newRows;
+
     private final long newBytes;
+
     private final long newTotalRows;
 
     public ProgressResponse(long newRows, long newBytes, long newTotalRows) {
         this.newRows = newRows;
         this.newBytes = newBytes;
         this.newTotalRows = newTotalRows;
+    }
+
+    public static ProgressResponse readFrom(BinaryDeserializer deserializer) throws IOException {
+        return new ProgressResponse(deserializer.readVarInt(), deserializer.readVarInt(), deserializer.readVarInt());
     }
 
     @Override

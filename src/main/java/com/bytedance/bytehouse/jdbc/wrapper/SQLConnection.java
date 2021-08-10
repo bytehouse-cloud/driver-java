@@ -11,11 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
 import com.bytedance.bytehouse.log.Logging;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
@@ -24,18 +38,11 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
 
     // ----------------------- ByteHouse specific methods -----------------------------
 
-    public void setEnableCompression(boolean enableCompression) throws SQLException;
+    boolean getEnableCompression() throws SQLException;
 
-    public boolean getEnableCompression() throws SQLException;
-
+    void setEnableCompression(boolean enableCompression) throws SQLException;
 
     // ----------------------- Java SQL Connection methods ----------------------------
-
-    @Override
-    default void setClientInfo(Properties properties) throws SQLClientInfoException {
-        logger().debug("invoke unimplemented method #setClientInfo(Properties properties)");
-        throw new SQLClientInfoException();
-    }
 
     @Override
     default void setClientInfo(String name, String value) throws SQLClientInfoException {
@@ -68,14 +75,14 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
-    default void setAutoCommit(boolean autoCommit) throws SQLException {
-        logger().debug("invoke unimplemented method #setAutoCommit(boolean autoCommit)");
+    default boolean getAutoCommit() throws SQLException {
+        logger().debug("invoke unimplemented method #getAutoCommit()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default boolean getAutoCommit() throws SQLException {
-        logger().debug("invoke unimplemented method #getAutoCommit()");
+    default void setAutoCommit(boolean autoCommit) throws SQLException {
+        logger().debug("invoke unimplemented method #setAutoCommit(boolean autoCommit)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -110,20 +117,14 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
-    default void setReadOnly(boolean readOnly) throws SQLException {
-        logger().debug("invoke unimplemented method #setReadOnly(boolean readOnly)");
-        throw new SQLFeatureNotSupportedException();
-    }
-
-    @Override
     default boolean isReadOnly() throws SQLException {
         logger().debug("invoke unimplemented method #isReadOnly()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default void setCatalog(String catalog) throws SQLException {
-        logger().debug("invoke unimplemented method #setCatalog(String catalog)");
+    default void setReadOnly(boolean readOnly) throws SQLException {
+        logger().debug("invoke unimplemented method #setReadOnly(boolean readOnly)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -134,14 +135,20 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
-    default void setTransactionIsolation(int level) throws SQLException {
-        logger().debug("invoke unimplemented method #setTransactionIsolation(int level)");
+    default void setCatalog(String catalog) throws SQLException {
+        logger().debug("invoke unimplemented method #setCatalog(String catalog)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
     default int getTransactionIsolation() throws SQLException {
         logger().debug("invoke unimplemented method #getTransactionIsolation()");
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    default void setTransactionIsolation(int level) throws SQLException {
+        logger().debug("invoke unimplemented method #setTransactionIsolation(int level)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -188,14 +195,14 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
-    default void setHoldability(int holdability) throws SQLException {
-        logger().debug("invoke unimplemented method #setHoldability(int holdability)");
+    default int getHoldability() throws SQLException {
+        logger().debug("invoke unimplemented method #getHoldability()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default int getHoldability() throws SQLException {
-        logger().debug("invoke unimplemented method #getHoldability()");
+    default void setHoldability(int holdability) throws SQLException {
+        logger().debug("invoke unimplemented method #setHoldability(int holdability)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -302,6 +309,12 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
+    default void setClientInfo(Properties properties) throws SQLClientInfoException {
+        logger().debug("invoke unimplemented method #setClientInfo(Properties properties)");
+        throw new SQLClientInfoException();
+    }
+
+    @Override
     default Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         logger().debug("invoke unimplemented method #createArrayOf(String typeName, Object[] elements)");
         throw new SQLFeatureNotSupportedException();
@@ -314,14 +327,14 @@ public interface SQLConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
-    default void setSchema(String schema) throws SQLException {
-        logger().debug("invoke unimplemented method #setSchema(String schema)");
+    default String getSchema() throws SQLException {
+        logger().debug("invoke unimplemented method #getSchema()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default String getSchema() throws SQLException {
-        logger().debug("invoke unimplemented method #getSchema()");
+    default void setSchema(String schema) throws SQLException {
+        logger().debug("invoke unimplemented method #setSchema(String schema)");
         throw new SQLFeatureNotSupportedException();
     }
 

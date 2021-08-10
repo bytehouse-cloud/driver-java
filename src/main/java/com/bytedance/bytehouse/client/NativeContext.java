@@ -11,20 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.client;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.io.IOException;
 import java.time.ZoneId;
 
 public class NativeContext {
 
     private final ClientContext clientCtx;
+
     private final ServerContext serverCtx;
+
     private final NativeClient nativeClient;
 
     public NativeContext(ClientContext clientCtx, ServerContext serverCtx, NativeClient nativeClient) {
@@ -46,14 +46,19 @@ public class NativeContext {
     }
 
     public static class ClientContext {
+
         public static final int TCP_KINE = 1;
 
         public static final byte NO_QUERY = 0;
+
         public static final byte INITIAL_QUERY = 1;
+
         public static final byte SECONDARY_QUERY = 2;
 
         private final String clientName;
+
         private final String clientHostname;
+
         private final String initialAddress;
 
         public ClientContext(String initialAddress, String clientHostname, String clientName) {
@@ -82,12 +87,19 @@ public class NativeContext {
     }
 
     public static class ServerContext {
+
         private final long majorVersion;
+
         private final long minorVersion;
+
         private final long reversion;
+
         private final ZoneId timeZone;
+
         private final String displayName;
+
         private final long versionPatch;
+
         private final ByteHouseConfig configure;
 
         public ServerContext(long majorVersion, long minorVersion, long reversion,

@@ -14,22 +14,25 @@
  * Copyright 2017 YANDEX LLC
  * Copyright (C) 2012 tamtam180
  */
-
 package com.bytedance.bytehouse.misc;
 
 /**
  * @author tamtam180 - kirscheless at gmail.com
  * @see <a href="http://google-opensource.blogspot.jp/2011/04/introducing-cityhash.html"></a>
  * @see <a href="http://code.google.com/p/cityhash"></a>
- * <p>
- * NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
+ *         <p>
+ *         NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
  */
 public class ClickHouseCityHash {
 
     private static final long k0 = 0xc3a5c85c97cb3127L;
+
     private static final long k1 = 0xb492b66fbe98f273L;
+
     private static final long k2 = 0x9ae16a3b2f90404fL;
+
     private static final long k3 = 0xc949d7c7509e6557L;
+
     private static final long kMul = 0x9ddfea08eb382d69L;
 
     private static long toLongLE(byte[] bytes, int offset) {
@@ -103,7 +106,6 @@ public class ClickHouseCityHash {
         }
         return k2;
     }
-
 
     private static long[] weakHashLen32WithSeeds(
             long w, long x, long y, long z,
@@ -256,5 +258,4 @@ public class ClickHouseCityHash {
         }
         return cityHash128WithSeed(s, pos, len, k0, k1);
     }
-
 }

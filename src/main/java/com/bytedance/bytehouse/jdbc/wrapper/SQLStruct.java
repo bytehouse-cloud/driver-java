@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
 import com.bytedance.bytehouse.log.Logging;
@@ -21,6 +20,7 @@ import java.sql.Struct;
 import java.util.Map;
 
 public interface SQLStruct extends Struct, Logging {
+
     @Override
     default String getSQLTypeName() throws SQLException {
         logger().debug("invoke unimplemented method #getSQLTypeName()");

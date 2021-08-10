@@ -11,17 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
 public class LogResponse implements Response {
+
+    private final String name;
+
+    private final Block block;
+
+    public LogResponse(String name, Block block) {
+        this.name = name;
+        this.block = block;
+    }
 
     /**
      * readFrom implementation follows
@@ -36,15 +43,6 @@ public class LogResponse implements Response {
         Block block = Block.readFrom(deserializer, info);
 
         return new LogResponse(name, block);
-    }
-
-    private final String name;
-
-    private final Block block;
-
-    public LogResponse(String name, Block block) {
-        this.name = name;
-        this.block = block;
     }
 
     @Override

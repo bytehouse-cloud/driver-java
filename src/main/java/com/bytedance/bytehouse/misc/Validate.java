@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 import com.bytedance.bytehouse.exception.InvalidValueException;
-
-import javax.annotation.Nullable;
 import java.sql.SQLException;
+import javax.annotation.Nullable;
 
 public class Validate {
 

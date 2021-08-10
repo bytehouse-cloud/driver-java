@@ -11,14 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.time.*;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.IDataType;
@@ -28,8 +21,17 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
+
+    private static final LocalDateTime EPOCH_LOCAL_DT = LocalDateTime.of(1970, 1, 1, 0, 0);
 
     public static DataTypeCreator<ZonedDateTime, Timestamp> creator = (lexer, serverContext) -> {
         if (lexer.isCharacter('(')) {
@@ -41,9 +43,10 @@ public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
         return new DataTypeDateTime("DateTime", serverContext);
     };
 
-    private static final LocalDateTime EPOCH_LOCAL_DT = LocalDateTime.of(1970, 1, 1, 0, 0);
     private final String name;
+
     private final ZoneId tz;
+
     private final ZonedDateTime defaultValue;
 
     public DataTypeDateTime(String name, NativeContext.ServerContext serverContext) {

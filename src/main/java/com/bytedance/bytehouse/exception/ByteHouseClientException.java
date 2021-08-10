@@ -18,6 +18,8 @@ import com.bytedance.bytehouse.settings.ByteHouseErrCode;
 
 public class ByteHouseClientException extends ByteHouseException {
 
+    private static final long serialVersionUID = 1;
+
     public ByteHouseClientException(String message) {
         super(ByteHouseErrCode.CLIENT_ERROR.code(), message);
     }

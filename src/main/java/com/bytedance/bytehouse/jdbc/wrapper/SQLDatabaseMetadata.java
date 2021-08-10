@@ -11,12 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
-import com.bytedance.bytehouse.log.Logging;
 import com.bytedance.bytehouse.exception.NotImplementedException;
-import java.sql.*;
+import com.bytedance.bytehouse.log.Logging;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 public interface SQLDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Logging {
 

@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.data.IDataType;
@@ -28,6 +27,7 @@ public class ByteHouseArray implements SQLArray {
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseArray.class);
 
     private final IDataType<?, ?> elementDataType;
+
     private final Object[] elements;
 
     public ByteHouseArray(IDataType<?, ?> elementDataType, Object[] elements) {

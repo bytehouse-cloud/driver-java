@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.client.NativeContext;
@@ -22,7 +21,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
@@ -39,8 +37,11 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
     };
 
     private final int n;
+
     private final String name;
+
     private final String defaultValue;
+
     private final Charset charset;
 
     public DataTypeFixedString(String name, int n, NativeContext.ServerContext serverContext) {

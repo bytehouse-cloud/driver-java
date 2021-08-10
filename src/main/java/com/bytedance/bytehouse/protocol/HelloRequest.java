@@ -11,20 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.ByteHouseDefines;
-
 import java.io.IOException;
 
 public class HelloRequest implements Request {
 
     private final String clientName;
+
     private final long clientReversion;
+
     private final String defaultDatabase;
+
     private final String clientUsername;
+
     private final String clientPassword;
 
     public HelloRequest(String clientName, long clientReversion, String defaultDatabase,

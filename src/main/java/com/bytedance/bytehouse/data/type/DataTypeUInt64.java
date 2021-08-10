@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
@@ -19,7 +18,6 @@ import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;

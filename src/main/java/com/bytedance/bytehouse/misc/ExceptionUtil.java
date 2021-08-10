@@ -11,17 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 import com.bytedance.bytehouse.exception.ByteHouseException;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.settings.ByteHouseErrCode;
-
-import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 public class ExceptionUtil {
 
@@ -98,26 +96,31 @@ public class ExceptionUtil {
 
     @FunctionalInterface
     public interface CheckedFunction<T, R> {
+
         R apply(T t) throws Exception;
     }
 
     @FunctionalInterface
     public interface CheckedBiFunction<T, U, R> {
+
         R apply(T t, U u) throws Exception;
     }
 
     @FunctionalInterface
     public interface CheckedBiConsumer<T, U> {
+
         void accept(T t, U u) throws Exception;
     }
 
     @FunctionalInterface
     public interface CheckedRunnable {
+
         void run() throws Exception;
     }
 
     @FunctionalInterface
     public interface CheckedSupplier<T> {
+
         T get() throws Exception;
     }
 }

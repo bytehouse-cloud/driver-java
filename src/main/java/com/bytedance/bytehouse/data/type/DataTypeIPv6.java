@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type;
 
 import com.bytedance.bytehouse.data.IDataType;
@@ -20,7 +19,6 @@ import com.bytedance.bytehouse.exception.NoDefaultValueException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
@@ -33,7 +31,9 @@ import java.time.ZoneId;
  */
 public class DataTypeIPv6 implements IDataType<Inet6Address, String> {
 
-    /** Length of IPv6 address in bytes */
+    /**
+     * Length of IPv6 address in bytes
+     */
     private static final int IPV6_BYTES_LEN = 16;
 
     @Override
@@ -120,7 +120,7 @@ public class DataTypeIPv6 implements IDataType<Inet6Address, String> {
     /**
      * Reads IPv6 address from SQL string
      * Warning: if address provided by user is a host name, this method will involve a network
-     *  call to resolve the host (refer to InetAddress.getByName() method)
+     * call to resolve the host (refer to InetAddress.getByName() method)
      */
     @Override
     public Inet6Address deserializeText(SQLLexer lexer) throws SQLException {

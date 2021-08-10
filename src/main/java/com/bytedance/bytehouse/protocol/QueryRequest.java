@@ -11,43 +11,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.serde.SettingType;
 import com.bytedance.bytehouse.settings.SettingKey;
-
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.io.Serializable;
 import java.util.Map;
 
 public class QueryRequest implements Request {
 
     // Only read/have been read the columns specified in the query.
     public static final int STAGE_FETCH_COLUMNS = 0;
+
     // Until the stage where the results of processing on different servers can be combined.
     public static final int STAGE_WITH_MERGEABLE_STATE = 1;
+
     // Completely.
     public static final int STAGE_COMPLETE = 2;
+
     // Until the stage where the aggregate functions were calculated and finalized.
     // It is used for auto distributed_group_by_no_merge optimization for distributed engine.
     // (See comments in StorageDistributed).
     public static final int STAGE_WITH_MERGEABLE_STATE_AFTER_AGGREGATION = 3;
 
     private final int stage;
+
     private final String queryId;
+
     private final String queryString;
+
     /**
      * this enableCompression boolean should be equal to the enableCompression boolean for the entire connection,
      * set in the ByteHouseConfig object. If set to true, query DataResponse sent by server will be compressed and
      * insert DataRequest sent by driver should be compressed too.
      */
     private final boolean enableCompression;
+
     private final NativeContext.ClientContext clientContext;
+
     private final Map<SettingKey, Serializable> settings;
 
     public QueryRequest(String queryId, NativeContext.ClientContext clientContext, int stage, boolean enableCompression, String queryString) {
@@ -94,6 +100,5 @@ public class QueryRequest implements Request {
         serializer.writeUTF8StringBinary(queryString);
         // empty data to server
         DataRequest.EMPTY.writeTo(serializer);
-
     }
 }

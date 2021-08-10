@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.IDataType;
@@ -19,7 +18,6 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -58,7 +56,9 @@ public class DataTypeEnum16 implements IDataType<String, String> {
     };
 
     private final String name;
+
     private final Short[] values;
+
     private final String[] names;
 
     public DataTypeEnum16(String name, String[] names, Short[] values) {

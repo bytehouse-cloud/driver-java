@@ -11,11 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 public class Switcher<T> {
+
     private final T left;
+
     private final T right;
 
     private boolean isRight = true;

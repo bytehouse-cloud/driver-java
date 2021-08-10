@@ -11,20 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
-import com.bytedance.bytehouse.data.type.*;
-import com.bytedance.bytehouse.data.type.complex.*;
+import static com.bytedance.bytehouse.misc.ExceptionUtil.unchecked;
+
+import com.bytedance.bytehouse.data.type.DataTypeBitMap64;
+import com.bytedance.bytehouse.data.type.complex.DataTypeArray;
+import com.bytedance.bytehouse.data.type.complex.DataTypeNothing;
+import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
+import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-
 import java.time.ZoneId;
-
-import static com.bytedance.bytehouse.misc.ExceptionUtil.unchecked;
 
 /**
  * Converter layer between internal representation of ByteHouse data type (Java type) and JDBC types.

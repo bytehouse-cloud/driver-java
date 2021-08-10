@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc.wrapper;
 
 import com.bytedance.bytehouse.log.Logging;
@@ -19,7 +18,22 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.NClob;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -374,26 +388,26 @@ public interface SQLResultSet extends ResultSet, SQLWrapper, Logging {
     }
 
     @Override
-    default void setFetchDirection(int direction) throws SQLException {
-        logger().debug("invoke unimplemented method #setFetchDirection(int direction)");
-        throw new SQLFeatureNotSupportedException();
-    }
-
-    @Override
     default int getFetchDirection() throws SQLException {
         logger().debug("invoke unimplemented method #getFetchDirection()");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default void setFetchSize(int rows) throws SQLException {
-        logger().debug("invoke unimplemented method #setFetchSize(int rows)");
+    default void setFetchDirection(int direction) throws SQLException {
+        logger().debug("invoke unimplemented method #setFetchDirection(int direction)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
     default int getFetchSize() throws SQLException {
         logger().debug("invoke unimplemented method #getFetchSize()");
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    default void setFetchSize(int rows) throws SQLException {
+        logger().debug("invoke unimplemented method #setFetchSize(int rows)");
         throw new SQLFeatureNotSupportedException();
     }
 

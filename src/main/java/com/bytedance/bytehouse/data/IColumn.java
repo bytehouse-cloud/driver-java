@@ -11,11 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -41,9 +39,9 @@ public interface IColumn {
 
     void clear();
 
-    void setColumnWriterBuffer(ColumnWriterBuffer buffer);
-
     ColumnWriterBuffer getColumnWriterBuffer();
+
+    void setColumnWriterBuffer(ColumnWriterBuffer buffer);
 }
 
 

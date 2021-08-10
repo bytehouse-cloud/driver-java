@@ -15,6 +15,7 @@
 package com.bytedance.bytehouse.exception;
 
 public class NotImplementedException extends ByteHouseClientException {
+    private static final long serialVersionUID = 1;
 
     public NotImplementedException(String message) {
         super(message);

@@ -11,16 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.data;
 
 public abstract class AbstractColumn implements IColumn {
 
     protected final String name;
+
     protected final IDataType<?, ?> type;
 
     // Note: values is only for reading
     protected Object[] values;
+
     protected ColumnWriterBuffer buffer;
 
     public AbstractColumn(String name, IDataType<?, ?> type, Object[] values) {
@@ -55,12 +56,12 @@ public abstract class AbstractColumn implements IColumn {
     }
 
     @Override
-    public void setColumnWriterBuffer(ColumnWriterBuffer buffer) {
-        this.buffer = buffer;
+    public ColumnWriterBuffer getColumnWriterBuffer() {
+        return buffer;
     }
 
     @Override
-    public ColumnWriterBuffer getColumnWriterBuffer() {
-        return buffer;
+    public void setColumnWriterBuffer(ColumnWriterBuffer buffer) {
+        this.buffer = buffer;
     }
 }

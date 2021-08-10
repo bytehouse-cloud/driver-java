@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.settings;
 
 import com.bytedance.bytehouse.misc.StrUtil;
@@ -25,6 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingKey implements Serializable {
+
     // key always is lower case
     private static final Map<String, SettingKey> DEFINED_SETTING_KEYS = new ConcurrentHashMap<>();
 
@@ -33,7 +33,7 @@ public class SettingKey implements Serializable {
      * <br/>
      * Adopted from:
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/settings/default.go">
-     *     default.go
+     * default.go
      * </a>
      */
     public static SettingKey min_compress_block_size = SettingKey.builder()
@@ -1756,19 +1756,14 @@ public class SettingKey implements Serializable {
             .withDescription("charset for converting between Bytes and String")
             .build();
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static Map<String, SettingKey> definedSettingKeys() {
-        return new HashMap<>(DEFINED_SETTING_KEYS);
-    }
-
     private final String name;
+
     private final SettingType<?> type;
+
     private final String description;
+
     private final Object defaultValue;
+
     private final boolean isSecret;
 
     private SettingKey(String name, SettingType<?> type, String description, Object defaultValue, boolean isSecret) {
@@ -1777,6 +1772,14 @@ public class SettingKey implements Serializable {
         this.description = description;
         this.defaultValue = defaultValue;
         this.isSecret = isSecret;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Map<String, SettingKey> definedSettingKeys() {
+        return new HashMap<>(DEFINED_SETTING_KEYS);
     }
 
     public String name() {
@@ -1800,10 +1803,15 @@ public class SettingKey implements Serializable {
     }
 
     public static class Builder {
+
         private String name;
+
         private SettingType<?> type;
+
         private String description;
+
         private Object defaultValue = null;
+
         private boolean isSecret = false;
 
         public Builder withName(String name) {
@@ -1845,5 +1853,4 @@ public class SettingKey implements Serializable {
             return settingKey;
         }
     }
-
 }

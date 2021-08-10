@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.misc;
 
 import java.util.LinkedHashMap;
@@ -21,9 +20,11 @@ import java.util.Map;
  * LRUCache is a simple LRUCache implementation, based on <code>LinkedHashMap</code>.
  */
 public class LRUCache<K, V> {
+
     private static final float HASH_TABLE_LOAD_FACTOR = 0.75f;
 
     private final int cacheSize;
+
     private final LinkedHashMap<K, V> map;
 
     public LRUCache(int cacheSize) {
