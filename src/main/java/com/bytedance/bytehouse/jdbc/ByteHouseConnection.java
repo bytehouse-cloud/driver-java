@@ -22,7 +22,7 @@ import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.jdbc.statement.ByteHousePreparedInsertStatement;
 import com.bytedance.bytehouse.jdbc.statement.ByteHousePreparedQueryStatement;
 import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
-import com.bytedance.bytehouse.jdbc.wrapper.ByteHouseSQLConnection;
+import com.bytedance.bytehouse.jdbc.wrapper.BHConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.Validate;
@@ -60,9 +60,9 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /**
- * Provides implementation for {@link ByteHouseSQLConnection}.
+ * Provides implementation for {@link BHConnection}.
  */
-public class ByteHouseConnection implements ByteHouseSQLConnection {
+public class ByteHouseConnection implements BHConnection {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseConnection.class);
 

@@ -38,7 +38,7 @@ import java.util.concurrent.Executor;
 /**
  * aggregated interface for ByteHouseConnection.
  */
-public interface ByteHouseSQLConnection extends Connection, SQLWrapper, Logging {
+public interface BHConnection extends Connection, SQLWrapper, Logging {
 
     // ----------------------- ByteHouse specific methods -----------------------------
 

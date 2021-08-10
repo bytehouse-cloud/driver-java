@@ -22,7 +22,10 @@ import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 
-public interface SQLDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Logging {
+/**
+ * aggregating interface for {@link DatabaseMetaData}.
+ */
+public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Logging {
 
     @Override
     default int getDriverMajorVersion() {

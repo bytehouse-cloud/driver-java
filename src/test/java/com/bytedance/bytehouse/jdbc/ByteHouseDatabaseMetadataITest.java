@@ -1153,7 +1153,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void supportsResultSetConcurrency() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertFalse(dm.supportsResultSetConcurrency(0, 0));
+            assertTrue(dm.supportsResultSetConcurrency(0, 1));
         });
     }
 
