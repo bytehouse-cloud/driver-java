@@ -30,17 +30,32 @@ import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public interface SQLConnection extends Connection, SQLWrapper, Logging {
+/**
+ * aggregated interface for ByteHouseConnection.
+ */
+public interface ByteHouseSQLConnection extends Connection, SQLWrapper, Logging {
 
     // ----------------------- ByteHouse specific methods -----------------------------
 
+    /**
+     * get compression flag.
+     */
     boolean getEnableCompression() throws SQLException;
 
+    /**
+     * enable compression.
+     */
     void setEnableCompression(boolean enableCompression) throws SQLException;
+
+    /**
+     * Ping the connection.
+     */
+    boolean ping(Duration timeout);
 
     // ----------------------- Java SQL Connection methods ----------------------------
 

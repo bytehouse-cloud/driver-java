@@ -29,7 +29,10 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ByteHouseJdbcUrlParser {
+/**
+ * This class parse JDBC url to validate if they are correct.
+ */
+public final class ByteHouseJdbcUrlParser {
 
     public static final String JDBC_PREFIX = "jdbc:";
 
@@ -39,17 +42,21 @@ public class ByteHouseJdbcUrlParser {
 
     public static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_]+)");
 
-    public static final Pattern HOST_PORT_PATH_PATTERN = Pattern.compile("//(?<host>[^/:\\s]+)(:(?<port>\\d+))?");
+    public static final Pattern HOST_PORT_PATH_PATTERN =
+            Pattern.compile("//(?<host>[^/:\\s]+)(:(?<port>\\d+))?");
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseJdbcUrlParser.class);
 
-    public static Map<SettingKey, Serializable> parseJdbcUrl(String jdbcUrl) {
+    /**
+     * Parse and extract jdbcUrl.
+     */
+    public static Map<SettingKey, Serializable> parseJdbcUrl(final String jdbcUrl) {
         try {
-            URI uri = new URI(jdbcUrl.substring(JDBC_PREFIX.length()));
-            String host = parseHost(jdbcUrl);
-            Integer port = parsePort(jdbcUrl);
-            String database = parseDatabase(jdbcUrl);
-            Map<SettingKey, Serializable> settings = new HashMap<>();
+            final URI uri = new URI(jdbcUrl.substring(JDBC_PREFIX.length()));
+            final String host = parseHost(jdbcUrl);
+            final Integer port = parsePort(jdbcUrl);
+            final String database = parseDatabase(jdbcUrl);
+            final Map<SettingKey, Serializable> settings = new HashMap<>();
             settings.put(SettingKey.host, host);
             settings.put(SettingKey.port, port);
             settings.put(SettingKey.database, database);
@@ -61,10 +68,13 @@ public class ByteHouseJdbcUrlParser {
         }
     }
 
-    public static Map<SettingKey, Serializable> parseProperties(Properties properties) {
-        Map<SettingKey, Serializable> settings = new HashMap<>();
+    /**
+     * Parse and extract jdbc properties.
+     */
+    public static Map<SettingKey, Serializable> parseProperties(final Properties properties) {
+        final Map<SettingKey, Serializable> settings = new HashMap<>();
 
-        for (String name : properties.stringPropertyNames()) {
+        for (final String name : properties.stringPropertyNames()) {
             String value = properties.getProperty(name);
 
             parseSetting(settings, name, value);
@@ -73,15 +83,18 @@ public class ByteHouseJdbcUrlParser {
         return settings;
     }
 
-    private static String parseDatabase(String jdbcUrl) throws URISyntaxException {
-        URI uri = new URI(jdbcUrl.substring(JDBC_PREFIX.length()));
+    private static String parseDatabase(final String jdbcUrl) throws URISyntaxException {
+        final URI uri = new URI(jdbcUrl.substring(JDBC_PREFIX.length()));
         String database = uri.getPath();
         if (database != null && !database.isEmpty()) {
             Matcher m = DB_PATH_PATTERN.matcher(database);
             if (m.matches()) {
                 database = m.group(1);
             } else {
-                throw new URISyntaxException("wrong database name path: '" + database + "'", jdbcUrl);
+                throw new URISyntaxException(
+                        String.format("wrong database name path: '%s'", database),
+                        jdbcUrl
+                );
             }
         }
         if (database != null && database.isEmpty()) {
@@ -90,9 +103,9 @@ public class ByteHouseJdbcUrlParser {
         return database;
     }
 
-    private static String parseHost(String jdbcUrl) throws URISyntaxException {
-        String uriStr = jdbcUrl.substring(JDBC_PREFIX.length());
-        URI uri = new URI(uriStr);
+    private static String parseHost(final String jdbcUrl) throws URISyntaxException {
+        final String uriStr = jdbcUrl.substring(JDBC_PREFIX.length());
+        final URI uri = new URI(uriStr);
         String host = uri.getHost();
         if (host == null || host.isEmpty()) {
             Matcher m = HOST_PORT_PATH_PATTERN.matcher(uriStr);
@@ -105,8 +118,8 @@ public class ByteHouseJdbcUrlParser {
         return host;
     }
 
-    private static int parsePort(String jdbcUrl) {
-        String uriStr = jdbcUrl.substring(JDBC_PREFIX.length());
+    private static int parsePort(final String jdbcUrl) {
+        final String uriStr = jdbcUrl.substring(JDBC_PREFIX.length());
         URI uri;
         try {
             uri = new URI(uriStr);
@@ -126,14 +139,20 @@ public class ByteHouseJdbcUrlParser {
         return port;
     }
 
-    private static Map<SettingKey, Serializable> extractQueryParameters(String queryParameters) {
+    private static Map<SettingKey, Serializable> extractQueryParameters(
+            final String queryParameters
+    ) {
         Map<SettingKey, Serializable> parameters = new HashMap<>();
-        StringTokenizer tokenizer = new StringTokenizer(queryParameters == null ? "" : queryParameters, "&");
+        StringTokenizer tokenizer = new StringTokenizer(
+                queryParameters == null ? "" : queryParameters, "&"
+        );
 
         while (tokenizer.hasMoreTokens()) {
             String[] queryParameter = tokenizer.nextToken().split("=", 2);
             Validate.ensure(queryParameter.length == 2,
-                    "ByteHouse JDBC URL Parameter '" + queryParameters + "' Error, Expected '='.");
+                    String.format("ByteHouse JDBC URL Parameter '%s' Error, "
+                            + "Expected '='.", queryParameters)
+            );
 
             String name = queryParameter[0];
             String value = queryParameter[1];
@@ -143,8 +162,13 @@ public class ByteHouseJdbcUrlParser {
         return parameters;
     }
 
-    private static void parseSetting(Map<SettingKey, Serializable> settings, String name, String value) {
-        SettingKey settingKey = SettingKey.definedSettingKeys().get(name.toLowerCase(Locale.ROOT));
+    private static void parseSetting(
+            final Map<SettingKey, Serializable> settings,
+            final String name,
+            final String value
+    ) {
+        final SettingKey settingKey = SettingKey.definedSettingKeys()
+                .get(name.toLowerCase(Locale.ROOT));
         if (settingKey != null) {
             settings.put(settingKey, settingKey.type().deserializeURL(value));
         } else {
