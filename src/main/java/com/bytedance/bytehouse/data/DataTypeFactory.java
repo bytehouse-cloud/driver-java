@@ -46,7 +46,7 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
 import com.bytedance.bytehouse.misc.LRUCache;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
+import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -54,7 +54,7 @@ import java.util.Map;
 
 public class DataTypeFactory {
 
-    private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE = new LRUCache<>(ByteHouseDefines.DATA_TYPE_CACHE_SIZE);
+    private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE = new LRUCache<>(BHConstants.DATA_TYPE_CACHE_SIZE);
 
     private static final Map<String, IDataType<?, ?>> dataTypes = initialDataTypes();
 

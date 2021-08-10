@@ -26,8 +26,8 @@ import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.protocol.HelloResponse;
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
 import com.bytedance.bytehouse.stream.QueryResult;
 import java.io.Serializable;
@@ -90,14 +90,14 @@ public class ByteHouseConnection implements SQLConnection {
     private static NativeContext.ClientContext clientContext(NativeClient nativeClient, ByteHouseConfig configure) throws SQLException {
         Validate.isTrue(nativeClient.address() instanceof InetSocketAddress);
         InetSocketAddress address = (InetSocketAddress) nativeClient.address();
-        String clientName = String.format(Locale.ROOT, "%s %s", ByteHouseDefines.NAME, "client");
+        String clientName = String.format(Locale.ROOT, "%s %s", BHConstants.NAME, "client");
         String initialAddress = "[::ffff:127.0.0.1]:0";
         return new NativeContext.ClientContext(initialAddress, address.getHostName(), clientName);
     }
 
     private static NativeContext.ServerContext serverContext(NativeClient nativeClient, ByteHouseConfig configure) throws SQLException {
         try {
-            long revision = ByteHouseDefines.CLIENT_REVISION;
+            long revision = BHConstants.CLIENT_REVISION;
             nativeClient.sendHello("client", revision, configure.database(),
                     configure.fullUsername(), configure.password());
 

@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.settings;
 
-public class ByteHouseDefines {
+public final class BHConstants {
 
     public static final String NAME = "ByteHouse";
 
@@ -47,9 +47,9 @@ public class ByteHouseDefines {
 
     public static final int CHECKSUM_LENGTH = 16;
 
-    public static int SOCKET_SEND_BUFFER_BYTES = 1024 * 1024;
+    public static final int SOCKET_SEND_BUFFER_BYTES = 1024 * 1024;
 
-    public static int SOCKET_RECV_BUFFER_BYTES = 1024 * 1024;
+    public static final int SOCKET_RECV_BUFFER_BYTES = 1024 * 1024;
 
-    public static int COLUMN_BUFFER_BYTES = 1024 * 1024;
+    public static final int COLUMN_BUFFER_BYTES = 1024 * 1024;
 }

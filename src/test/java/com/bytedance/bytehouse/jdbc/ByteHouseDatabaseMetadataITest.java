@@ -14,16 +14,18 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.util.Locale;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ByteHouseDatabaseMetadataITest extends AbstractITest {
 
@@ -131,7 +133,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(String.valueOf(ByteHouseDefines.CLIENT_REVISION), dm.getDriverVersion());
+            assertEquals(String.valueOf(BHConstants.CLIENT_REVISION), dm.getDriverVersion());
         });
     }
 
@@ -139,7 +141,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverMajorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ByteHouseDefines.MAJOR_VERSION, dm.getDriverMajorVersion());
+            assertEquals(BHConstants.MAJOR_VERSION, dm.getDriverMajorVersion());
         });
     }
 
@@ -147,7 +149,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getDriverMinorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ByteHouseDefines.MINOR_VERSION, dm.getDriverMinorVersion());
+            assertEquals(BHConstants.MINOR_VERSION, dm.getDriverMinorVersion());
         });
     }
 
@@ -1358,7 +1360,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getJDBCMajorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ByteHouseDefines.MAJOR_VERSION, dm.getJDBCMajorVersion());
+            assertEquals(BHConstants.MAJOR_VERSION, dm.getJDBCMajorVersion());
         });
     }
 
@@ -1366,7 +1368,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getJDBCMinorVersion() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(ByteHouseDefines.MINOR_VERSION, dm.getJDBCMinorVersion());
+            assertEquals(BHConstants.MINOR_VERSION, dm.getJDBCMinorVersion());
         });
     }
 

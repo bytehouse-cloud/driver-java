@@ -15,7 +15,7 @@ package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.buffer.ByteArrayWriter;
 import com.bytedance.bytehouse.serde.BinarySerializer;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
+import com.bytedance.bytehouse.settings.BHConstants;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -27,7 +27,7 @@ public class ColumnWriterBuffer {
     public BinarySerializer column;
 
     public ColumnWriterBuffer() {
-        this.columnWriter = new ByteArrayWriter(ByteHouseDefines.COLUMN_BUFFER_BYTES);
+        this.columnWriter = new ByteArrayWriter(BHConstants.COLUMN_BUFFER_BYTES);
         this.column = new BinarySerializer(columnWriter, false);
     }
 

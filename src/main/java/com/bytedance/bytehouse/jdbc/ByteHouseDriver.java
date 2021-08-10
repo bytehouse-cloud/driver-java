@@ -13,8 +13,8 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.Serializable;
 import java.sql.Driver;
@@ -86,12 +86,12 @@ public class ByteHouseDriver implements Driver {
 
     @Override
     public int getMajorVersion() {
-        return ByteHouseDefines.MAJOR_VERSION;
+        return BHConstants.MAJOR_VERSION;
     }
 
     @Override
     public int getMinorVersion() {
-        return ByteHouseDefines.MINOR_VERSION;
+        return BHConstants.MINOR_VERSION;
     }
 
     @Override

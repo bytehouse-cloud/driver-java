@@ -13,8 +13,8 @@
  */
 package com.bytedance.bytehouse.buffer;
 
-import static com.bytedance.bytehouse.settings.ByteHouseDefines.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.ByteHouseDefines.COMPRESSION_HEADER_LENGTH;
+import static com.bytedance.bytehouse.settings.BHConstants.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.BHConstants.COMPRESSION_HEADER_LENGTH;
 
 import com.bytedance.bytehouse.misc.BytesHelper;
 import io.airlift.compress.Decompressor;

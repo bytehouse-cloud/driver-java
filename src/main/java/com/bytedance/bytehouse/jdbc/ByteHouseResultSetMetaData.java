@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSetMetaData;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
+import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
@@ -116,7 +116,7 @@ public class ByteHouseResultSetMetaData implements SQLResultSetMetaData {
 
     @Override
     public String getCatalogName(int column) throws SQLException {
-        return ByteHouseDefines.DEFAULT_CATALOG;
+        return BHConstants.DEFAULT_CATALOG;
     }
 
     @Override

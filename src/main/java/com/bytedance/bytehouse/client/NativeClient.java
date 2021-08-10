@@ -31,8 +31,8 @@ import com.bytedance.bytehouse.protocol.Request;
 import com.bytedance.bytehouse.protocol.Response;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.settings.SettingKey;
 import com.bytedance.bytehouse.stream.ByteHouseQueryResult;
 import com.bytedance.bytehouse.stream.QueryResult;
@@ -86,8 +86,8 @@ public class NativeClient {
 
             Socket socket = obtainSocket(configure);
             socket.setTcpNoDelay(configure.tcpNoDelay());
-            socket.setSendBufferSize(ByteHouseDefines.SOCKET_SEND_BUFFER_BYTES);
-            socket.setReceiveBufferSize(ByteHouseDefines.SOCKET_RECV_BUFFER_BYTES);
+            socket.setSendBufferSize(BHConstants.SOCKET_SEND_BUFFER_BYTES);
+            socket.setReceiveBufferSize(BHConstants.SOCKET_RECV_BUFFER_BYTES);
             socket.setKeepAlive(configure.tcpKeepAlive());
             socket.connect(endpoint, (int) configure.connectTimeout().toMillis());
 

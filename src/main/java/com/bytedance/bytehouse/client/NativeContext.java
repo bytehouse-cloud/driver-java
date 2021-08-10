@@ -14,8 +14,8 @@
 package com.bytedance.bytehouse.client;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import java.io.IOException;
 import java.time.ZoneId;
 
@@ -78,11 +78,11 @@ public class NativeContext {
             serializer.writeUTF8StringBinary("");
             serializer.writeUTF8StringBinary(clientHostname);
             serializer.writeUTF8StringBinary(clientName);
-            serializer.writeVarInt(ByteHouseDefines.MAJOR_VERSION);
-            serializer.writeVarInt(ByteHouseDefines.MINOR_VERSION);
-            serializer.writeVarInt(ByteHouseDefines.CLIENT_REVISION);
+            serializer.writeVarInt(BHConstants.MAJOR_VERSION);
+            serializer.writeVarInt(BHConstants.MINOR_VERSION);
+            serializer.writeVarInt(BHConstants.CLIENT_REVISION);
             serializer.writeUTF8StringBinary("");
-            serializer.writeVarInt(ByteHouseDefines.CLIENT_REVISION); // might be versionPatch instead
+            serializer.writeVarInt(BHConstants.CLIENT_REVISION); // might be versionPatch instead
         }
     }
 

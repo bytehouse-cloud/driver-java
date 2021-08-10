@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLDatabaseMetadata;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
+import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
@@ -106,17 +106,17 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public String getDriverVersion() throws SQLException {
-        return String.valueOf(ByteHouseDefines.CLIENT_REVISION);
+        return String.valueOf(BHConstants.CLIENT_REVISION);
     }
 
     @Override
     public int getDriverMajorVersion() {
-        return ByteHouseDefines.MAJOR_VERSION;
+        return BHConstants.MAJOR_VERSION;
     }
 
     @Override
     public int getDriverMinorVersion() {
-        return ByteHouseDefines.MINOR_VERSION;
+        return BHConstants.MINOR_VERSION;
     }
 
     @Override
@@ -744,7 +744,7 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
         List<String> typeList = types != null ? Arrays.asList(types) : null;
         while (result.next()) {
             List<String> row = new ArrayList<>();
-            row.add(ByteHouseDefines.DEFAULT_CATALOG);
+            row.add(BHConstants.DEFAULT_CATALOG);
             row.add(result.getString(1));
             row.add(result.getString(2));
             String type, e = result.getString(3).intern();
@@ -784,7 +784,7 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
-        String sql = "select name as TABLE_SCHEM, '" + ByteHouseDefines.DEFAULT_CATALOG + "' as TABLE_CATALOG from system.databases";
+        String sql = "select name as TABLE_SCHEM, '" + BHConstants.DEFAULT_CATALOG + "' as TABLE_CATALOG from system.databases";
         if (catalog != null) {
             sql += " where TABLE_CATALOG = '" + catalog + '\'';
         }
@@ -806,7 +806,7 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
                 .cfg(connection.cfg())
                 .columnNames("TABLE_CAT")
                 .columnTypes("String")
-                .addRow(ByteHouseDefines.DEFAULT_CATALOG).build();
+                .addRow(BHConstants.DEFAULT_CATALOG).build();
     }
 
     @Override
@@ -907,7 +907,7 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
         while (descTable.next()) {
             List<Object> row = new ArrayList<>();
             //catalog name
-            row.add(ByteHouseDefines.DEFAULT_CATALOG);
+            row.add(BHConstants.DEFAULT_CATALOG);
             //database name
             row.add(descTable.getString("database"));
             //table name
@@ -1286,12 +1286,12 @@ public final class ByteHouseDatabaseMetadata implements SQLDatabaseMetadata {
 
     @Override
     public int getJDBCMajorVersion() throws SQLException {
-        return ByteHouseDefines.MAJOR_VERSION;
+        return BHConstants.MAJOR_VERSION;
     }
 
     @Override
     public int getJDBCMinorVersion() throws SQLException {
-        return ByteHouseDefines.MINOR_VERSION;
+        return BHConstants.MINOR_VERSION;
     }
 
     @Override

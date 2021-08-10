@@ -15,8 +15,8 @@ package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import com.bytedance.bytehouse.settings.ByteHouseDefines;
 import com.bytedance.bytehouse.stream.QueryResult;
 import com.bytedance.bytehouse.stream.QueryResultBuilder;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public class ByteHouseResultSetBuilder {
 
     private ByteHouseConfig cfg;
 
-    private String db = ByteHouseDefines.DEFAULT_DATABASE;
+    private String db = BHConstants.DEFAULT_DATABASE;
 
     private String table = "unknown";
 

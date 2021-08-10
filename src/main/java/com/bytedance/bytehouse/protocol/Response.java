@@ -19,13 +19,22 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * {@link Response} contains all the details about different types of supported responses
+ * we expect from SQL Gateway.
+ */
 public interface Response {
 
     /**
-     * The cases to handle follows
+     * List of all the possible {@link Response}s.
+     * <br><br>
+     * The cases to handle follow
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/response.go">response.go</a>
      */
-    static Response readFrom(BinaryDeserializer deserializer, NativeContext.ServerContext info) throws IOException, SQLException {
+    static Response readFrom(
+            final BinaryDeserializer deserializer,
+            final NativeContext.ServerContext info
+    ) throws IOException, SQLException {
         int responseType = (int) deserializer.readVarInt();
         switch (responseType) {
             case 0:
