@@ -66,25 +66,37 @@ public class Block {
         }
     }
 
-    public static Block readFrom(BinaryDeserializer deserializer,
-                                 NativeContext.ServerContext serverContext) throws IOException, SQLException {
-        BlockSettings info = BlockSettings.readFrom(deserializer);
+    /**
+     * factory method to create a {@link Block} from {@link BinaryDeserializer}.
+     */
+    public static Block readFrom(
+            final BinaryDeserializer deserializer,
+            final NativeContext.ServerContext serverContext
+    ) throws IOException, SQLException {
+        final BlockSettings info = BlockSettings.readFrom(deserializer);
 
-        int columnCnt = (int) deserializer.readVarInt();
-        int rowCnt = (int) deserializer.readVarInt();
+        final int columnCnt = (int) deserializer.readVarInt();
+        final int rowCnt = (int) deserializer.readVarInt();
 
-        IColumn[] columns = new IColumn[columnCnt];
+        final IColumn[] columns = new IColumn[columnCnt];
 
         for (int i = 0; i < columnCnt; i++) {
-            String name = deserializer.readUTF8StringBinary();
-            String type = deserializer.readUTF8StringBinary();
+            final String name = deserializer.readUTF8StringBinary();
+            final String type = deserializer.readUTF8StringBinary();
 
-            IDataType dataType = DataTypeFactory.get(type, serverContext);
-            Object[] arr = dataType.deserializeBinaryBulk(rowCnt, deserializer);
+            final IDataType dataType = DataTypeFactory.get(type, serverContext);
+            final Object[] arr = dataType.deserializeBinaryBulk(rowCnt, deserializer);
             columns[i] = ColumnFactory.createColumn(name, dataType, arr);
         }
 
         return new Block(rowCnt, columns, info);
+    }
+
+    /**
+     * Factory method to create an empty {@link Block}.
+     */
+    public static Block empty() {
+        return new Block();
     }
 
     public int rowCnt() {
@@ -103,58 +115,76 @@ public class Block {
             }
             rowCnt++;
         } catch (IOException | ClassCastException | NullPointerException e) {
-            throw new SQLException("Exception processing value " + rowData[i] + " for column: " + columns[i].name(), e);
+            throw new SQLException(
+                    String.format("Exception processing value %s for column: %s",
+                            rowData[i],
+                            columns[i].name()
+                    ), e);
         }
     }
 
-    public void setObject(int columnIdx, Object object) {
+    public void setObject(
+            final int columnIdx,
+            final Object object
+    ) {
         rowData[columnIdx] = object;
     }
 
-    public int paramIdx2ColumnIdx(int paramIdx) {
+    public int paramIdx2ColumnIdx(final int paramIdx) {
         return placeholderIndexes[paramIdx];
     }
 
-    public void incPlaceholderIndexes(int columnIdx) {
+    public void incPlaceholderIndexes(final int columnIdx) {
         for (int i = columnIdx; i < placeholderIndexes.length; i++) {
             placeholderIndexes[i] += 1;
         }
     }
 
-    public void writeTo(BinarySerializer serializer) throws IOException, SQLException {
+    /**
+     * Initiate to write data cached in JVM memory(which is under this instance of {@link Block}
+     * into the serializer(which is connected to {@link java.net.SocketOutputStream}.
+     */
+    public void writeTo(final BinarySerializer serializer) throws IOException, SQLException {
         settings.writeTo(serializer);
 
         serializer.writeVarInt(columns.length);
         serializer.writeVarInt(rowCnt);
 
-        for (IColumn column : columns) {
+        for (final IColumn column : columns) {
             column.flushToSerializer(serializer, true);
         }
     }
 
     // idx start with 0
-    public IColumn getColumn(int columnIdx) throws SQLException {
+    public IColumn getColumn(final int columnIdx) throws SQLException {
         Validate.isTrue(columnIdx < columns.length,
                 "Position " + columnIdx +
-                        " is out of bound in Block.getByPosition, max position = " + (columns.length - 1));
+                        " is out of bound in Block.getByPosition, max position = "
+                        + (columns.length - 1)
+        );
         return columns[columnIdx];
     }
 
     // position start with 1
-    public int getPositionByName(String columnName) throws SQLException {
-        Validate.isTrue(nameAndPositions.containsKey(columnName), "Column '" + columnName + "' does not exist");
+    public int getPositionByName(final String columnName) throws SQLException {
+        Validate.isTrue(
+                nameAndPositions.containsKey(columnName),
+                "Column '" + columnName + "' does not exist"
+        );
         return nameAndPositions.get(columnName);
     }
 
-    public Object getObject(int columnIdx) throws SQLException {
+    public Object getObject(final int columnIdx) throws SQLException {
         Validate.isTrue(columnIdx < columns.length,
                 "Position " + columnIdx +
-                        " is out of bound in Block.getByPosition, max position = " + (columns.length - 1));
+                        " is out of bound in Block.getByPosition, max position = "
+                        + (columns.length - 1)
+        );
         return rowData[columnIdx];
     }
 
     public void initWriteBuffer() {
-        for (IColumn column : columns) {
+        for (final IColumn column : columns) {
             column.setColumnWriterBuffer(new ColumnWriterBuffer());
         }
     }

@@ -21,19 +21,27 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Serializer JVM objects into bytes and stored them int {@link java.nio.ByteBuffer}.
+ */
 public class BinarySerializer {
 
     private final Switcher<BuffedWriter> switcher;
 
-    private boolean enableCompression;
+    private volatile boolean enableCompression;
 
-    public BinarySerializer(BuffedWriter writer, boolean enableCompression) {
+    public BinarySerializer(
+            final BuffedWriter writer,
+            final boolean enableCompression) {
         this.enableCompression = enableCompression;
-        BuffedWriter compressWriter = new CompressedBuffedWriter(BHConstants.SOCKET_SEND_BUFFER_BYTES, writer);
+        final BuffedWriter compressWriter = new CompressedBuffedWriter(
+                BHConstants.SOCKET_SEND_BUFFER_BYTES,
+                writer
+        );
         switcher = new Switcher<>(compressWriter, writer);
     }
 
-    public void setEnableCompression(boolean enableCompression) {
+    public void setEnableCompression(final boolean enableCompression) {
         this.enableCompression = enableCompression;
     }
 
@@ -54,16 +62,16 @@ public class BinarySerializer {
         }
     }
 
-    public void writeByte(byte x) throws IOException {
+    public void writeByte(final byte x) throws IOException {
         switcher.get().writeBinary(x);
     }
 
-    public void writeBoolean(boolean x) throws IOException {
+    public void writeBoolean(final boolean x) throws IOException {
         writeVarInt((byte) (x ? 1 : 0));
     }
 
     @SuppressWarnings("PointlessBitwiseExpression")
-    public void writeShort(short i) throws IOException {
+    public void writeShort(final short i) throws IOException {
         // @formatter:off
         switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 8) & 0xFF));
@@ -71,7 +79,7 @@ public class BinarySerializer {
     }
 
     @SuppressWarnings("PointlessBitwiseExpression")
-    public void writeInt(int i) throws IOException {
+    public void writeInt(final int i) throws IOException {
         // @formatter:off
         switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 8) & 0xFF));
@@ -81,7 +89,7 @@ public class BinarySerializer {
     }
 
     @SuppressWarnings("PointlessBitwiseExpression")
-    public void writeLong(long i) throws IOException {
+    public void writeLong(final long i) throws IOException {
         // @formatter:off
         switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
         switcher.get().writeBinary((byte) ((i >> 8) & 0xFF));
@@ -94,30 +102,36 @@ public class BinarySerializer {
         // @formatter:on
     }
 
-    public void writeUTF8StringBinary(String utf8) throws IOException {
+    public void writeUTF8StringBinary(final String utf8) throws IOException {
         writeStringBinary(utf8, StandardCharsets.UTF_8);
     }
 
-    public void writeStringBinary(String data, Charset charset) throws IOException {
+    public void writeStringBinary(final String data, Charset charset) throws IOException {
         byte[] bs = data.getBytes(charset);
         writeBytesBinary(bs);
     }
 
-    public void writeBytesBinary(byte[] bs) throws IOException {
+    public void writeBytesBinary(final byte[] bs) throws IOException {
         writeVarInt(bs.length);
         switcher.get().writeBinary(bs);
     }
 
-    public void flushToTarget(boolean force) throws IOException {
+    public void flushToTarget(final boolean force) throws IOException {
         switcher.get().flushToTarget(force);
     }
 
+    /**
+     * enable compression if default is on.
+     */
     public void maybeEnableCompressed() {
         if (enableCompression) {
             switcher.select(false);
         }
     }
 
+    /**
+     * disable compression if default is off.
+     */
     public void maybeDisableCompressed() throws IOException {
         if (enableCompression) {
             switcher.get().flushToTarget(true);
@@ -125,13 +139,13 @@ public class BinarySerializer {
         }
     }
 
-    public void writeFloat(float datum) throws IOException {
+    public void writeFloat(final float datum) throws IOException {
         int x = Float.floatToIntBits(datum);
         writeInt(x);
     }
 
     @SuppressWarnings("PointlessBitwiseExpression")
-    public void writeDouble(double datum) throws IOException {
+    public void writeDouble(final double datum) throws IOException {
         long x = Double.doubleToLongBits(datum);
         // @formatter:off
         switcher.get().writeBinary((byte) ((x >>> 0) & 0xFF));
@@ -145,7 +159,7 @@ public class BinarySerializer {
         // @formatter:on
     }
 
-    public void writeBytes(byte[] bytes) throws IOException {
+    public void writeBytes(final byte[] bytes) throws IOException {
         switcher.get().writeBinary(bytes);
     }
 }

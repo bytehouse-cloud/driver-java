@@ -16,6 +16,9 @@ package com.bytedance.bytehouse.protocol;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 
+/**
+ * Progress information from the server.
+ */
 public class ProgressResponse implements Response {
 
     private final long newRows;
@@ -24,14 +27,24 @@ public class ProgressResponse implements Response {
 
     private final long newTotalRows;
 
-    public ProgressResponse(long newRows, long newBytes, long newTotalRows) {
+    public ProgressResponse(
+            final long newRows,
+            final long newBytes,
+            final long newTotalRows
+    ) {
         this.newRows = newRows;
         this.newBytes = newBytes;
         this.newTotalRows = newTotalRows;
     }
 
-    public static ProgressResponse readFrom(BinaryDeserializer deserializer) throws IOException {
-        return new ProgressResponse(deserializer.readVarInt(), deserializer.readVarInt(), deserializer.readVarInt());
+    public static ProgressResponse readFrom(
+            final BinaryDeserializer deserializer
+    ) throws IOException {
+        return new ProgressResponse(
+                deserializer.readVarInt(),
+                deserializer.readVarInt(),
+                deserializer.readVarInt()
+        );
     }
 
     @Override

@@ -16,11 +16,14 @@ package com.bytedance.bytehouse.protocol;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 
+/**
+ * Query Metadata from the server.
+ */
 public class QueryMetadataResponse implements Response {
 
     private final String queryId;
 
-    public QueryMetadataResponse(String queryId) {
+    public QueryMetadataResponse(final String queryId) {
         this.queryId = queryId;
     }
 
@@ -30,7 +33,9 @@ public class QueryMetadataResponse implements Response {
      * query_metadata.go
      * </a>
      */
-    public static QueryMetadataResponse readFrom(BinaryDeserializer deserializer) throws IOException {
+    public static QueryMetadataResponse readFrom(
+            final BinaryDeserializer deserializer
+    ) throws IOException {
         return new QueryMetadataResponse(deserializer.readUTF8StringBinary());
     }
 

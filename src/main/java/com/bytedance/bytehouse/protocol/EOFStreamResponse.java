@@ -15,11 +15,14 @@ package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 
+/**
+ * Represents EOF response from the server.
+ */
 public class EOFStreamResponse implements Response {
 
     public static final EOFStreamResponse INSTANCE = new EOFStreamResponse();
 
-    public static Response readFrom(BinaryDeserializer deserializer) {
+    public static Response readFrom(final BinaryDeserializer deserializer) {
         return INSTANCE;
     }
 

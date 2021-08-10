@@ -17,11 +17,16 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Ping Response
+ */
 public class PongResponse implements Response {
 
     public static final PongResponse INSTANCE = new PongResponse();
 
-    public static PongResponse readFrom(BinaryDeserializer deserializer) throws IOException, SQLException {
+    public static PongResponse readFrom(
+            final BinaryDeserializer deserializer
+    ) throws IOException, SQLException {
         return INSTANCE;
     }
 

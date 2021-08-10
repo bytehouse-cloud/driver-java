@@ -20,9 +20,11 @@ import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Query request to the server
+ */
 public class QueryRequest implements Request {
 
     // Only read/have been read the columns specified in the query.
@@ -56,10 +58,6 @@ public class QueryRequest implements Request {
 
     private final Map<SettingKey, Serializable> settings;
 
-    public QueryRequest(String queryId, NativeContext.ClientContext clientContext, int stage, boolean enableCompression, String queryString) {
-        this(queryId, clientContext, stage, enableCompression, queryString, new HashMap<>());
-    }
-
     public QueryRequest(
             final String queryId,
             final NativeContext.ClientContext clientContext,
@@ -68,7 +66,6 @@ public class QueryRequest implements Request {
             final String queryString,
             final Map<SettingKey, Serializable> settings
     ) {
-
         this.stage = stage;
         this.queryId = queryId;
         this.settings = settings;
@@ -83,11 +80,11 @@ public class QueryRequest implements Request {
     }
 
     @Override
-    public void writeImpl(BinarySerializer serializer) throws IOException, SQLException {
+    public void writeImpl(final BinarySerializer serializer) throws IOException, SQLException {
         serializer.writeUTF8StringBinary(queryId);
         clientContext.writeTo(serializer);
 
-        for (Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
+        for (final Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
             serializer.writeUTF8StringBinary(entry.getKey().name());
             @SuppressWarnings("rawtypes")
             SettingType type = entry.getKey().type();

@@ -18,6 +18,9 @@ import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * represents a {@link Block} to be sent to the server.
+ */
 public class DataRequest implements Request {
 
     public static final DataRequest EMPTY = new DataRequest("");
@@ -26,11 +29,11 @@ public class DataRequest implements Request {
 
     private final Block block;
 
-    public DataRequest(String name) {
+    public DataRequest(final String name) {
         this(name, new Block());
     }
 
-    public DataRequest(String name, Block block) {
+    public DataRequest(final String name, final Block block) {
         this.name = name;
         this.block = block;
     }
@@ -41,7 +44,7 @@ public class DataRequest implements Request {
     }
 
     @Override
-    public void writeImpl(BinarySerializer serializer) throws IOException, SQLException {
+    public void writeImpl(final BinarySerializer serializer) throws IOException, SQLException {
         serializer.writeUTF8StringBinary(name);
 
         serializer.maybeEnableCompressed();

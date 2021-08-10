@@ -13,13 +13,16 @@
  */
 package com.bytedance.bytehouse.misc;
 
+/**
+ * alternative implementation for {@link Either} where left and right are the same type.
+ */
 public class Switcher<T> {
 
     private final T left;
 
     private final T right;
 
-    private boolean isRight = true;
+    private volatile boolean isRight = true;
 
     public Switcher(T left, T right) {
         this.left = left;

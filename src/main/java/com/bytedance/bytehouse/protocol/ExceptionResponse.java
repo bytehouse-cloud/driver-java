@@ -18,19 +18,25 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * represents Exceptions from the server.
+ */
 public class ExceptionResponse implements Response {
 
     public static SQLException readExceptionFrom(BinaryDeserializer deserializer) throws IOException {
-        int code = deserializer.readInt();
-        String name = deserializer.readUTF8StringBinary();
-        String message = deserializer.readUTF8StringBinary();
-        String stackTrace = deserializer.readUTF8StringBinary();
+        final int code = deserializer.readInt();
+        final String name = deserializer.readUTF8StringBinary();
+        final String message = deserializer.readUTF8StringBinary();
+        final String stackTrace = deserializer.readUTF8StringBinary();
 
         if (deserializer.readBoolean()) {
             return new ByteHouseSQLException(
-                    code, name + message + ". Stack trace:\n\n" + stackTrace, readExceptionFrom(deserializer));
+                    code, name + message + ". Stack trace:\n\n" + stackTrace,
+                    readExceptionFrom(deserializer)
+            );
         }
 
+        // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3114
         return new ByteHouseSQLException(code, name + message + ". Stack trace:\n\n" + stackTrace);
     }
 

@@ -17,13 +17,17 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Query Plan from the server.
+ */
 public class QueryPlanResponse implements Response {
 
     private final List<String> plans;
 
-    public QueryPlanResponse(List<String> plans) {
+    public QueryPlanResponse(final List<String> plans) {
         this.plans = plans;
     }
 
@@ -34,15 +38,16 @@ public class QueryPlanResponse implements Response {
      * </a>
      */
     public static QueryPlanResponse readFrom(
-            BinaryDeserializer deserializer) throws IOException, SQLException {
-        List<String> plans = new ArrayList<>();
-        long count = deserializer.readVarInt();
+            final BinaryDeserializer deserializer
+    ) throws IOException, SQLException {
+        final List<String> plans = new ArrayList<>();
+        final long count = deserializer.readVarInt();
 
         for (int i = 0; i < count; i++) {
             plans.add(deserializer.readUTF8StringBinary());
         }
 
-        return new QueryPlanResponse(plans);
+        return new QueryPlanResponse(Collections.unmodifiableList(plans));
     }
 
     @Override

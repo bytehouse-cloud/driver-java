@@ -16,6 +16,9 @@ package com.bytedance.bytehouse.protocol;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
 
+/**
+ * Ping request
+ */
 public class PingRequest implements Request {
 
     public static final PingRequest INSTANCE = new PingRequest();

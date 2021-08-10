@@ -19,20 +19,31 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Identical to {@link DataResponse}.
+ */
 public class ExtremesResponse implements Response {
 
     private final String name;
 
     private final Block block;
 
-    public ExtremesResponse(String name, Block block) {
+    public ExtremesResponse(final String name, final Block block) {
         this.name = name;
         this.block = block;
     }
 
     public static ExtremesResponse readFrom(
-            BinaryDeserializer deserializer, NativeContext.ServerContext info) throws IOException, SQLException {
-        return new ExtremesResponse(deserializer.readUTF8StringBinary(), Block.readFrom(deserializer, info));
+            final BinaryDeserializer deserializer,
+            final NativeContext.ServerContext info
+    ) throws IOException, SQLException {
+        final String name = deserializer.readUTF8StringBinary();
+
+        deserializer.maybeEnableCompressed();
+        final Block block = Block.readFrom(deserializer, info);
+        deserializer.maybeDisableCompressed();
+
+        return new ExtremesResponse(name, block);
     }
 
     @Override

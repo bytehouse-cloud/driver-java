@@ -123,8 +123,13 @@ public class ByteHouseConnection implements BHConnection {
     ) throws SQLException {
         try {
             final long revision = BHConstants.CLIENT_REVISION;
-            nativeClient.sendHello("client", revision, configure.database(),
-                    configure.fullUsername(), configure.password());
+            nativeClient.sendHello(
+                    "client",
+                    revision,
+                    configure.database(),
+                    configure.fullUsername(),
+                    configure.password()
+            );
 
             final HelloResponse response = nativeClient.receiveHello(
                     configure.queryTimeout(), null
@@ -406,9 +411,15 @@ public class ByteHouseConnection implements BHConnection {
      */
     public Block getSampleBlock(final String insertQuery) throws SQLException {
         NativeClient nativeClient = getHealthyNativeClient();
-        nativeClient.sendQuery(insertQuery, nativeCtx.clientCtx(), cfg.get().settings(), cfg.get().enableCompression());
+        nativeClient.sendQuery(
+                insertQuery,
+                nativeCtx.clientCtx(),
+                cfg.get().settings(),
+                cfg.get().enableCompression()
+        );
         Validate.isTrue(this.state.compareAndSet(SessionState.IDLE, SessionState.WAITING_INSERT),
-                "Connection is currently waiting for an insert operation, check your previous InsertStatement.");
+                "Connection is currently waiting for an insert operation, "
+                        + "check your previous InsertStatement.");
         return nativeClient.receiveSampleBlock(cfg.get().queryTimeout(), nativeCtx.serverCtx());
     }
 

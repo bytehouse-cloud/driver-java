@@ -17,13 +17,16 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Table column response.
+ */
 public class TableColumnsResponse implements Response {
 
     private final String name;
 
     private final String description;
 
-    public TableColumnsResponse(String name, String description) {
+    public TableColumnsResponse(final String name, final String description) {
         this.name = name;
         this.description = description;
     }
@@ -34,7 +37,7 @@ public class TableColumnsResponse implements Response {
      * table_columns.go
      * </a>
      */
-    public static TableColumnsResponse readFrom(BinaryDeserializer deserializer)
+    public static TableColumnsResponse readFrom(final BinaryDeserializer deserializer)
             throws IOException, SQLException {
 
         return new TableColumnsResponse(

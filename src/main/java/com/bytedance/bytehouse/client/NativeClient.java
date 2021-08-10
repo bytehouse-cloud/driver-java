@@ -56,7 +56,13 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
-public class NativeClient {
+/**
+ * the client that handles low level connection details with the server, over TCP.
+ * <br><br>
+ * This class owns the {@link Socket} as well as the underlying {@link java.io.InputStream}
+ * and {@link java.io.OutputStream}. Hence it needs to close them.
+ */
+public class NativeClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NativeClient.class);
 
@@ -68,7 +74,11 @@ public class NativeClient {
 
     private final BinaryDeserializer deserializer;
 
-    public NativeClient(Socket socket, BinarySerializer serializer, BinaryDeserializer deserializer) {
+    public NativeClient(
+            final Socket socket,
+            final BinarySerializer serializer,
+            final BinaryDeserializer deserializer
+    ) {
         this.socket = socket;
         this.address = socket.getLocalSocketAddress();
         this.serializer = serializer;
@@ -80,11 +90,13 @@ public class NativeClient {
      * Equivalent code in driver-go can be found in dial() function of:
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/conn/connect.go">connect.go</a>
      */
-    public static NativeClient connect(ByteHouseConfig configure) throws SQLException {
+    public static NativeClient connect(final ByteHouseConfig configure) throws SQLException {
         try {
-            SocketAddress endpoint = new InetSocketAddress(configure.host(), configure.port());
+            final SocketAddress endpoint = new InetSocketAddress(
+                    configure.host(), configure.port()
+            );
 
-            Socket socket = obtainSocket(configure);
+            final Socket socket = obtainSocket(configure);
             socket.setTcpNoDelay(configure.tcpNoDelay());
             socket.setSendBufferSize(BHConstants.SOCKET_SEND_BUFFER_BYTES);
             socket.setReceiveBufferSize(BHConstants.SOCKET_RECV_BUFFER_BYTES);
@@ -94,25 +106,27 @@ public class NativeClient {
             // this sets the data compression boolean for the entire connection. If enableCompression = true, all Blocks
             // exchanged during the connection should be compressed. enableCompression can be changed via method
             // setEnableCompression()
-            boolean enableCompression = configure.enableCompression();
+            final boolean enableCompression = configure.enableCompression();
 
-            return new NativeClient(socket,
+            return new NativeClient(
+                    socket,
                     new BinarySerializer(new SocketBuffedWriter(socket), enableCompression),
-                    new BinaryDeserializer(new SocketBuffedReader(socket), enableCompression));
+                    new BinaryDeserializer(new SocketBuffedReader(socket), enableCompression)
+            );
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
 
     private static Socket obtainSocket(
-            ByteHouseConfig configure
+            final ByteHouseConfig configure
     ) throws NoSuchAlgorithmException, KeyManagementException, IOException {
         if (!configure.secure()) {
             // non-secure connection
             return new Socket();
         } else {
             // secure connection
-            SSLSocketFactory sslSocketFactory;
+            final SSLSocketFactory sslSocketFactory;
             if (configure.skipVerification()) {
                 // TrustManager that trusts all certificates. Used to skip TLS verification.
                 TrustManager[] trustAllCertsManager = new TrustManager[]{new X509ExtendedTrustManager() {
@@ -146,14 +160,14 @@ public class NativeClient {
                     }
                 }};
 
-                SSLContext context = SSLContext.getInstance("TLSv1.2");
+                final SSLContext context = SSLContext.getInstance("TLSv1.2");
                 context.init(null, trustAllCertsManager, new SecureRandom());
                 sslSocketFactory = context.getSocketFactory();
             } else {
                 sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             }
 
-            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
+            final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
             // Java 8 uses only TLS 1.2 by default. This line enables all supported protocols, including TLS 1.3
             sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
 
@@ -164,7 +178,7 @@ public class NativeClient {
     /**
      * Set enableCompression boolean on this NativeClient.
      */
-    public void setEnableCompression(boolean enableCompression) {
+    public void setEnableCompression(final boolean enableCompression) {
         serializer.setEnableCompression(enableCompression);
         deserializer.setEnableCompression(enableCompression);
     }
@@ -173,10 +187,13 @@ public class NativeClient {
         return address;
     }
 
-    public boolean ping(Duration soTimeout, NativeContext.ServerContext info) {
+    public boolean ping(
+            final Duration soTimeout,
+            final NativeContext.ServerContext info
+    ) {
         try {
             sendRequest(PingRequest.INSTANCE);
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 Response response = receiveResponse(soTimeout, info);
 
                 if (response instanceof PongResponse)
@@ -189,47 +206,79 @@ public class NativeClient {
             LOG.warn(e.getMessage());
             return false;
         }
+        return false;
     }
 
-    public Block receiveSampleBlock(Duration soTimeout, NativeContext.ServerContext info) throws SQLException {
-        while (true) {
-            Response response = receiveResponse(soTimeout, info);
+    public Block receiveSampleBlock(
+            final Duration soTimeout,
+            final NativeContext.ServerContext info
+    ) throws SQLException {
+        while (!Thread.currentThread().isInterrupted()) {
+            final Response response = receiveResponse(soTimeout, info);
             if (response instanceof DataResponse) {
                 return ((DataResponse) response).block();
             }
             // TODO there are some previous response we haven't consumed
             LOG.debug("expect sample block, skip response: {}", response.type());
         }
+        return Block.empty();
     }
 
-    public void sendHello(String client, long reversion, String db, String user, String password) throws SQLException {
+    public void sendHello(
+            final String client,
+            final long reversion,
+            final String db,
+            final String user,
+            final String password
+    ) throws SQLException {
         sendRequest(new HelloRequest(client, reversion, db, user, password));
     }
 
     public void sendQuery(
-            String query, NativeContext.ClientContext info,
-            Map<SettingKey, Serializable> settings, boolean enableCompression
+            final String query,
+            final NativeContext.ClientContext info,
+            final Map<SettingKey, Serializable> settings,
+            final boolean enableCompression
     ) throws SQLException {
-        sendQuery(UUID.randomUUID().toString(), QueryRequest.STAGE_COMPLETE, info, query, settings, enableCompression);
+        sendQuery(
+                UUID.randomUUID().toString(),
+                QueryRequest.STAGE_COMPLETE,
+                info,
+                query,
+                settings,
+                enableCompression
+        );
     }
 
-    public void sendData(Block data) throws SQLException {
+    public void sendData(final Block data) throws SQLException {
         sendRequest(new DataRequest("", data));
     }
 
-    public HelloResponse receiveHello(Duration soTimeout, NativeContext.ServerContext info) throws SQLException {
+    public HelloResponse receiveHello(
+            final Duration soTimeout,
+            final NativeContext.ServerContext info
+    ) throws SQLException {
         Response response = receiveResponse(soTimeout, info);
         Validate.isTrue(response instanceof HelloResponse, "Expect Hello Response.");
         return (HelloResponse) response;
     }
 
-    public EOFStreamResponse receiveEndOfStream(Duration soTimeout, NativeContext.ServerContext info) throws SQLException {
-        Response response = receiveResponse(soTimeout, info);
-        Validate.isTrue(response instanceof EOFStreamResponse, "Expect EOFStream Response.");
+    public EOFStreamResponse receiveEndOfStream(
+            final Duration soTimeout,
+            final NativeContext.ServerContext info
+    ) throws SQLException {
+        final Response response = receiveResponse(soTimeout, info);
+        Validate.isTrue(
+                response instanceof EOFStreamResponse,
+                "Expect EOFStream Response."
+        );
         return (EOFStreamResponse) response;
     }
 
-    public QueryResult receiveQuery(Duration soTimeout, NativeContext.ServerContext info) {
+    public QueryResult receiveQuery(
+            final Duration soTimeout,
+            final NativeContext.ServerContext info
+    ) {
         return new ByteHouseQueryResult(() -> receiveResponse(soTimeout, info));
     }
 
@@ -251,35 +300,47 @@ public class NativeClient {
             serializer.flushToTarget(true);
             socket.close();
         } catch (IOException ex) {
-            throw new SQLException(ex.getMessage(), ex);
+            throw new SQLException(ex);
         }
     }
 
     private void sendQuery(
-            String id, int stage, NativeContext.ClientContext info, String query,
-            Map<SettingKey, Serializable> settings, boolean enableCompression
+            final String id,
+            final int stage,
+            final NativeContext.ClientContext info,
+            final String query,
+            final Map<SettingKey, Serializable> settings,
+            final boolean enableCompression
     ) throws SQLException {
         sendRequest(new QueryRequest(id, info, stage, enableCompression, query, settings));
     }
 
-    private void sendRequest(Request request) throws SQLException {
+    private void sendRequest(final Request request) throws SQLException {
         try {
             LOG.trace("send request: {}", request.type());
             request.writeTo(serializer);
             serializer.flushToTarget(true);
         } catch (IOException ex) {
-            throw new SQLException(ex.getMessage(), ex);
+            throw new SQLException(ex);
         }
     }
 
-    private Response receiveResponse(Duration soTimeout, NativeContext.ServerContext info) throws SQLException {
+    private Response receiveResponse(
+            final Duration soTimeout,
+            final NativeContext.ServerContext info
+    ) throws SQLException {
         try {
             socket.setSoTimeout(((int) soTimeout.toMillis()));
             Response response = Response.readFrom(deserializer, info);
             LOG.trace("recv response: {}", response.type());
             return response;
         } catch (IOException ex) {
-            throw new SQLException(ex.getMessage(), ex);
+            throw new SQLException(ex);
         }
+    }
+
+    @Override
+    public void close() throws SQLException {
+        disconnect();
     }
 }

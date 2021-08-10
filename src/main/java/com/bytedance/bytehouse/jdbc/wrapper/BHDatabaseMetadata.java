@@ -707,13 +707,15 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
 
     @Override
     default boolean supportsTransactionIsolationLevel(int level) throws SQLException {
-        logger().debug("invoke unimplemented method #supportsTransactionIsolationLevel(int level)");
+        logger().debug("invoke unimplemented method "
+                + "#supportsTransactionIsolationLevel(int level)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
     default boolean supportsDataDefinitionAndDataManipulationTransactions() throws SQLException {
-        logger().debug("invoke unimplemented method #supportsDataDefinitionAndDataManipulationTransactions()");
+        logger().debug("invoke unimplemented method "
+                + "#supportsDataDefinitionAndDataManipulationTransactions()");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -736,20 +738,37 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
     }
 
     @Override
-    default ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getProcedures(String catalog, String schemaPattern, String procedureNamePattern)");
+    default ResultSet getProcedures(
+            String catalog,
+            String schemaPattern,
+            String procedureNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getProcedures(String catalog, "
+                + "String schemaPattern, String procedureNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern)");
+    default ResultSet getProcedureColumns(
+            String catalog,
+            String schemaPattern,
+            String procedureNamePattern,
+            String columnNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getProcedureColumns(String catalog, "
+                + "String schemaPattern, String procedureNamePattern, String columnNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
-        logger().debug("invoke unimplemented method #getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)");
+    default ResultSet getTables(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String[] types
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getTables(String catalog, "
+                + "String schemaPattern, String tableNamePattern, String[] types)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -772,56 +791,109 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
     }
 
     @Override
-    default ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)");
+    default ResultSet getColumns(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String columnNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getColumns(String catalog, "
+                + "String schemaPattern, String tableNamePattern, String columnNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern)");
+    default ResultSet getColumnPrivileges(
+            String catalog,
+            String schema,
+            String table,
+            String columnNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getColumnPrivileges(String catalog, "
+                + "String schema, String table, String columnNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern)");
+    default ResultSet getTablePrivileges(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getTablePrivileges(String catalog, "
+                + "String schemaPattern, String tableNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable) throws SQLException {
-        logger().debug("invoke unimplemented method #getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable)");
+    default ResultSet getBestRowIdentifier(
+            String catalog,
+            String schema,
+            String table,
+            int scope,
+            boolean nullable
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getBestRowIdentifier(String catalog, "
+                + "String schema, String table, int scope, boolean nullable)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getVersionColumns(String catalog, String schema, String table) throws SQLException {
-        logger().debug("invoke unimplemented method #getVersionColumns(String catalog, String schema, String table)");
+    default ResultSet getVersionColumns(
+            String catalog,
+            String schema,
+            String table
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getVersionColumns(String catalog, "
+                + "String schema, String table)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
-        logger().debug("invoke unimplemented method #getPrimaryKeys(String catalog, String schema, String table)");
+    default ResultSet getPrimaryKeys(
+            String catalog,
+            String schema,
+            String table
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getPrimaryKeys(String catalog,"
+                + " String schema, String table)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
-        logger().debug("invoke unimplemented method #getImportedKeys(String catalog, String schema, String table)");
+    default ResultSet getImportedKeys(
+            String catalog,
+            String schema,
+            String table
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getImportedKeys(String catalog, "
+                + "String schema, String table)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getExportedKeys(String catalog, String schema, String table) throws SQLException {
-        logger().debug("invoke unimplemented method #getExportedKeys(String catalog, String schema, String table)");
+    default ResultSet getExportedKeys(
+            String catalog,
+            String schema,
+            String table
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getExportedKeys(String catalog,"
+                + " String schema, String table)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getCrossReference(String parentCatalog, String parentSchema, String parentTable, String foreignCatalog, String foreignSchema, String foreignTable) throws SQLException {
-        logger().debug("invoke unimplemented method #getCrossReference(String parentCatalog, String parentSchema, String parentTable, String foreignCatalog, String foreignSchema, String foreignTable)");
+    default ResultSet getCrossReference(
+            String parentCatalog,
+            String parentSchema,
+            String parentTable,
+            String foreignCatalog,
+            String foreignSchema,
+            String foreignTable
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getCrossReference(String parentCatalog, "
+                + "String parentSchema, String parentTable, String foreignCatalog, "
+                + "String foreignSchema, String foreignTable)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -832,8 +904,15 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
     }
 
     @Override
-    default ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique, boolean approximate) throws SQLException {
-        logger().debug("invoke unimplemented method #getIndexInfo(String catalog, String schema, String table, boolean unique, boolean approximate)");
+    default ResultSet getIndexInfo(
+            String catalog,
+            String schema,
+            String table,
+            boolean unique,
+            boolean approximate
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getIndexInfo(String catalog, "
+                + "String schema, String table, boolean unique, boolean approximate)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -845,7 +924,8 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
 
     @Override
     default boolean supportsResultSetConcurrency(int type, int concurrency) throws SQLException {
-        logger().debug("invoke unimplemented method #supportsResultSetConcurrency(int type, int concurrency)");
+        logger().debug("invoke unimplemented method #supportsResultSetConcurrency(int type,"
+                + " int concurrency)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -910,8 +990,14 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
     }
 
     @Override
-    default ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types) throws SQLException {
-        logger().debug("invoke unimplemented method #getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types)");
+    default ResultSet getUDTs(
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern,
+            int[] types
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getUDTs(String catalog, "
+                + "String schemaPattern, String typeNamePattern, int[] types)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -946,20 +1032,36 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
     }
 
     @Override
-    default ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getSuperTypes(String catalog, String schemaPattern, String typeNamePattern)");
+    default ResultSet getSuperTypes(
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getSuperTypes(String catalog, "
+                + "String schemaPattern, String typeNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getSuperTables(String catalog, String schemaPattern, String tableNamePattern)");
+    default ResultSet getSuperTables(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getSuperTables(String catalog,"
+                + " String schemaPattern, String tableNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getAttributes(String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getAttributes(String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern)");
+    default ResultSet getAttributes(
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern,
+            String attributeNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getAttributes(String catalog, "
+                + "String schemaPattern, String typeNamePattern, String attributeNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -1025,7 +1127,8 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
 
     @Override
     default ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getSchemas(String catalog, String schemaPattern)");
+        logger().debug("invoke unimplemented method #getSchemas(String catalog,"
+                + " String schemaPattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -1048,20 +1151,36 @@ public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Loggin
     }
 
     @Override
-    default ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getFunctions(String catalog, String schemaPattern, String functionNamePattern)");
+    default ResultSet getFunctions(
+            String catalog,
+            String schemaPattern,
+            String functionNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getFunctions(String catalog,"
+                + " String schemaPattern, String functionNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern)");
+    default ResultSet getFunctionColumns(
+            String catalog,
+            String schemaPattern,
+            String functionNamePattern,
+            String columnNamePattern
+    ) throws SQLException {
+        logger().debug("invoke unimplemented method #getFunctionColumns(String catalog, "
+                + "String schemaPattern, String functionNamePattern, String columnNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 
     @Override
-    default ResultSet getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
-        logger().debug("invoke unimplemented method #getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)");
+    default ResultSet getPseudoColumns(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String columnNamePattern) throws SQLException {
+        logger().debug("invoke unimplemented method #getPseudoColumns(String catalog, "
+                + "String schemaPattern, String tableNamePattern, String columnNamePattern)");
         throw new SQLFeatureNotSupportedException();
     }
 

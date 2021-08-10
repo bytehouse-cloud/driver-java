@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,13 +49,12 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
 
     private static final Logger LOG = LoggerFactory.getLogger(BalancedByteHouseDataSource.class);
 
-    private static final Pattern URL_TEMPLATE = Pattern.compile(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
-            "//([a-zA-Z0-9_:,.-]+)" +
-            "((/[a-zA-Z0-9_]+)?" +
-            "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
-            ")?");
-
-    private final ThreadLocal<Random> randomThreadLocal = new ThreadLocal<>();
+    private static final Pattern URL_TEMPLATE = Pattern.compile(
+            ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
+                    "//([a-zA-Z0-9_:,.-]+)" +
+                    "((/[a-zA-Z0-9_]+)?" +
+                    "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
+                    ")?");
 
     private final List<String> allUrls;
 
@@ -104,8 +103,12 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
         this(urls, ByteHouseJdbcUrlParser.parseProperties(properties));
     }
 
-    private BalancedByteHouseDataSource(final List<String> urls, Map<SettingKey, Serializable> settings) {
-        Validate.ensure(!urls.isEmpty(), "Incorrect ByteHouse jdbc url list. It must be not empty");
+    private BalancedByteHouseDataSource(
+            final List<String> urls,
+            final Map<SettingKey, Serializable> settings
+    ) {
+        Validate.ensure(!urls.isEmpty(), "Incorrect ByteHouse jdbc url list. "
+                + "It must be not empty");
 
         this.cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(urls.get(0))
@@ -114,7 +117,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
                 .port(0)
                 .build();
 
-        List<String> allUrls = new ArrayList<>(urls.size());
+        final List<String> allUrls = new ArrayList<>(urls.size());
         for (final String url : urls) {
             try {
                 if (driver.acceptsURL(url)) {
@@ -134,10 +137,10 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
     }
 
     static List<String> splitUrl(final String url) {
-        Matcher m = URL_TEMPLATE.matcher(url);
+        final Matcher m = URL_TEMPLATE.matcher(url);
         Validate.ensure(m.matches(), "Incorrect url: " + url);
         final String database = StrUtil.getOrDefault(m.group(2), "");
-        String[] hosts = m.group(1).split(",");
+        final String[] hosts = m.group(1).split(",");
         return Arrays.stream(hosts)
                 .map(host -> ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX + "//" + host + database)
                 .collect(Collectors.toList());
@@ -157,9 +160,9 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * @return number of available bytehouse urls
      */
     synchronized int actualize() {
-        List<String> enabledUrls = new ArrayList<>(allUrls.size());
+        final List<String> enabledUrls = new ArrayList<>(allUrls.size());
 
-        for (String url : allUrls) {
+        for (final String url : allUrls) {
             LOG.debug("Pinging disabled url: {}", url);
             if (ping(url)) {
                 LOG.debug("Url is alive now: {}", url);
@@ -174,17 +177,11 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
     }
 
     private String getAnyUrl() throws SQLException {
-        List<String> localEnabledUrls = enabledUrls;
+        final List<String> localEnabledUrls = enabledUrls;
         if (localEnabledUrls.isEmpty()) {
             throw new SQLException("Unable to get connection: there are no enabled urls");
         }
-        Random random = this.randomThreadLocal.get();
-        if (random == null) {
-            this.randomThreadLocal.set(new Random());
-            random = this.randomThreadLocal.get();
-        }
-
-        int index = random.nextInt(localEnabledUrls.size());
+        final int index = ThreadLocalRandom.current().nextInt(localEnabledUrls.size());
         return localEnabledUrls.get(index);
     }
 
@@ -200,7 +197,10 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * {@inheritDoc}
      */
     @Override
-    public ByteHouseConnection getConnection(String user, String password) throws SQLException {
+    public ByteHouseConnection getConnection(
+            final String user,
+            final String password
+    ) throws SQLException {
         return driver.connect(getAnyUrl(), cfg.withCredentials(user, password));
     }
 
@@ -216,7 +216,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * Not supported as logging cannot be enabled.
      */
     @Override
-    public void setLogWriter(PrintWriter printWriter) throws SQLException {
+    public void setLogWriter(final PrintWriter printWriter) throws SQLException {
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -253,11 +253,11 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
     }
 
     public List<String> getDisabledUrls() {
-        List<String> enabledUrls = this.enabledUrls;
         if (!hasDisabledUrls()) {
             return Collections.emptyList();
         }
-        List<String> disabledUrls = new ArrayList<>(allUrls);
+        final List<String> enabledUrls = this.enabledUrls;
+        final List<String> disabledUrls = new ArrayList<>(allUrls);
         disabledUrls.removeAll(enabledUrls);
         return disabledUrls;
     }

@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 
+/**
+ * Possible types of objects used in {@link com.bytedance.bytehouse.settings.SettingKey}
+ * so that the settings can be serde-ed.
+ */
 public interface SettingType<T extends Serializable> {
 
     SettingType<Long> Int64 = new SettingType<Long>() {

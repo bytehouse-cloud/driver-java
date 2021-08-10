@@ -19,6 +19,9 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Represents server's application log from the server.
+ */
 public class LogResponse implements Response {
 
     private final String name;
@@ -35,12 +38,15 @@ public class LogResponse implements Response {
      * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/logs.go">logs.go</a>
      */
     public static LogResponse readFrom(
-            BinaryDeserializer deserializer, NativeContext.ServerContext info) throws IOException, SQLException {
+            final BinaryDeserializer deserializer,
+            final NativeContext.ServerContext info
+    ) throws IOException, SQLException {
 
-        String name = deserializer.readUTF8StringBinary();
+        final String name = deserializer.readUTF8StringBinary();
 
         deserializer.maybeDisableCompressed();
-        Block block = Block.readFrom(deserializer, info);
+        final Block block = Block.readFrom(deserializer, info);
+        deserializer.maybeEnableCompressed();
 
         return new LogResponse(name, block);
     }

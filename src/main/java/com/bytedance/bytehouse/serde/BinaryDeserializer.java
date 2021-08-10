@@ -19,13 +19,25 @@ import com.bytedance.bytehouse.misc.Switcher;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * deserialize binary from a buffer.
+ */
 public class BinaryDeserializer {
 
     private final Switcher<BuffedReader> switcher;
 
-    private boolean enableCompression;
+    private volatile boolean enableCompression;
 
-    public BinaryDeserializer(BuffedReader buffedReader, boolean enableCompression) {
+    /**
+     * constructor. it directly caches the {@link BuffedReader} without making a copy of it. <br>
+     * Therefore: <br>
+     * 1. other code is not supposed to read from this {@link BuffedReader}.
+     * 2. this class does not own the resource, hence it does not close it.
+     */
+    public BinaryDeserializer(
+            final BuffedReader buffedReader,
+            final boolean enableCompression
+    ) {
         this.enableCompression = enableCompression;
         BuffedReader compressedReader = new CompressedBuffedReader(buffedReader);
         switcher = new Switcher<>(compressedReader, buffedReader);

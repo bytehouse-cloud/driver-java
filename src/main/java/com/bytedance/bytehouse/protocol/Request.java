@@ -11,21 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.protocol;
 
 import com.bytedance.bytehouse.serde.BinarySerializer;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Represent a request to the server.
+ */
 public interface Request {
 
     ProtoType type();
 
-    void writeImpl(BinarySerializer serializer) throws IOException, SQLException;
+    void writeImpl(final BinarySerializer serializer) throws IOException, SQLException;
 
-    default void writeTo(BinarySerializer serializer) throws IOException, SQLException {
+    default void writeTo(final BinarySerializer serializer) throws IOException, SQLException {
         serializer.writeVarInt(type().id());
         this.writeImpl(serializer);
     }

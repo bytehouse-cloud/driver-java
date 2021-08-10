@@ -16,6 +16,9 @@ package com.bytedance.bytehouse.protocol;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 
+/**
+ * Profile information from the server.
+ */
 public class ProfileInfoResponse implements Response {
 
     private final long rows;
@@ -30,8 +33,14 @@ public class ProfileInfoResponse implements Response {
 
     private final boolean calculatedRowsBeforeLimit;
 
-    public ProfileInfoResponse(long rows, long blocks, long bytes,
-                               long appliedLimit, long rowsBeforeLimit, boolean calculatedRowsBeforeLimit) {
+    public ProfileInfoResponse(
+            final long rows,
+            final long blocks,
+            final long bytes,
+            final long appliedLimit,
+            final long rowsBeforeLimit,
+            final boolean calculatedRowsBeforeLimit
+    ) {
         this.rows = rows;
         this.blocks = blocks;
         this.bytes = bytes;
@@ -40,14 +49,23 @@ public class ProfileInfoResponse implements Response {
         this.calculatedRowsBeforeLimit = calculatedRowsBeforeLimit;
     }
 
-    public static ProfileInfoResponse readFrom(BinaryDeserializer deserializer) throws IOException {
-        long rows = deserializer.readVarInt();
-        long blocks = deserializer.readVarInt();
-        long bytes = deserializer.readVarInt();
-        long appliedLimit = deserializer.readVarInt();
-        long rowsBeforeLimit = deserializer.readVarInt();
-        boolean calculatedRowsBeforeLimit = deserializer.readBoolean();
-        return new ProfileInfoResponse(rows, blocks, bytes, appliedLimit, rowsBeforeLimit, calculatedRowsBeforeLimit);
+    public static ProfileInfoResponse readFrom(
+            final BinaryDeserializer deserializer
+    ) throws IOException {
+        final long rows = deserializer.readVarInt();
+        final long blocks = deserializer.readVarInt();
+        final long bytes = deserializer.readVarInt();
+        final long appliedLimit = deserializer.readVarInt();
+        final long rowsBeforeLimit = deserializer.readVarInt();
+        final boolean calculatedRowsBeforeLimit = deserializer.readBoolean();
+        return new ProfileInfoResponse(
+                rows,
+                blocks,
+                bytes,
+                appliedLimit,
+                rowsBeforeLimit,
+                calculatedRowsBeforeLimit
+        );
     }
 
     @Override

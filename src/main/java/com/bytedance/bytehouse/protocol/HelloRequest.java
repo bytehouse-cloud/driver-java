@@ -17,6 +17,9 @@ import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.BHConstants;
 import java.io.IOException;
 
+/**
+ * Represents Hello to the server.
+ */
 public class HelloRequest implements Request {
 
     private final String clientName;
@@ -29,8 +32,13 @@ public class HelloRequest implements Request {
 
     private final String clientPassword;
 
-    public HelloRequest(String clientName, long clientReversion, String defaultDatabase,
-                        String clientUsername, String clientPassword) {
+    public HelloRequest(
+            final String clientName,
+            final long clientReversion,
+            final String defaultDatabase,
+            final String clientUsername,
+            final String clientPassword
+    ) {
         this.clientName = clientName;
         this.clientReversion = clientReversion;
         this.defaultDatabase = defaultDatabase;
@@ -44,7 +52,7 @@ public class HelloRequest implements Request {
     }
 
     @Override
-    public void writeImpl(BinarySerializer serializer) throws IOException {
+    public void writeImpl(final BinarySerializer serializer) throws IOException {
         serializer.writeUTF8StringBinary(BHConstants.NAME + " " + clientName);
         serializer.writeVarInt(BHConstants.MAJOR_VERSION);
         serializer.writeVarInt(BHConstants.MINOR_VERSION);

@@ -19,12 +19,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * represents Aggregated Query Plans from the server.
+ */
 public class AggQueryPlanResponse implements Response {
 
     private final List<String> plans;
 
-    public AggQueryPlanResponse(List<String> plans) {
-        this.plans = plans;
+    public AggQueryPlanResponse(final List<String> plans) {
+        this.plans = plans; // do not need to copy
     }
 
     /**
@@ -34,9 +37,10 @@ public class AggQueryPlanResponse implements Response {
      * </a>
      */
     public static AggQueryPlanResponse readFrom(
-            BinaryDeserializer deserializer) throws IOException, SQLException {
-        List<String> plans = new ArrayList<>();
-        long count = deserializer.readVarInt();
+            final BinaryDeserializer deserializer
+    ) throws IOException, SQLException {
+        final List<String> plans = new ArrayList<>();
+        final long count = deserializer.readVarInt();
 
         for (int i = 0; i < count; i++) {
             plans.add(deserializer.readUTF8StringBinary());

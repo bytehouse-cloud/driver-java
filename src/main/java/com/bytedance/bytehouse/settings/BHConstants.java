@@ -33,6 +33,7 @@ public final class BHConstants {
 
     public static final int CLIENT_REVISION = 54406;
 
+    // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3118
     public static final int DBMS_MIN_REVISION_WITH_SERVER_TIMEZONE = 54058;
 
     public static final int DBMS_MIN_REVISION_WITH_SERVER_DISPLAY_NAME = 54372;

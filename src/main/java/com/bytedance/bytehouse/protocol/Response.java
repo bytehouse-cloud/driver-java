@@ -68,7 +68,9 @@ public interface Response {
             case 14:
                 return QueryMetadataResponse.readFrom(deserializer);
             default:
-                throw new IllegalStateException(String.format("Unknown server response type: %d", responseType));
+                throw new IllegalStateException(
+                        String.format("Unknown server response type: %d", responseType)
+                );
         }
     }
 

@@ -19,20 +19,28 @@ import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Total response.
+ */
 public class TotalsResponse implements Response {
 
     private final String name;
 
     private final Block block;
 
-    TotalsResponse(String name, Block block) {
+    TotalsResponse(final String name, final Block block) {
         this.name = name;
         this.block = block;
     }
 
-    public static TotalsResponse readFrom(BinaryDeserializer deserializer, NativeContext.ServerContext info)
-            throws IOException, SQLException {
-        return new TotalsResponse(deserializer.readUTF8StringBinary(), Block.readFrom(deserializer, info));
+    public static TotalsResponse readFrom(
+            final BinaryDeserializer deserializer,
+            final NativeContext.ServerContext info
+    ) throws IOException, SQLException {
+        return new TotalsResponse(
+                deserializer.readUTF8StringBinary(),
+                Block.readFrom(deserializer, info)
+        );
     }
 
     @Override
