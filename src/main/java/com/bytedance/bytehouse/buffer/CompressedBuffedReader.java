@@ -13,16 +13,16 @@
  */
 package com.bytedance.bytehouse.buffer;
 
-import static com.bytedance.bytehouse.settings.BHConstants.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.BHConstants.COMPRESSION_HEADER_LENGTH;
-
 import com.bytedance.bytehouse.misc.BytesHelper;
 import io.airlift.compress.Decompressor;
 import io.airlift.compress.lz4.Lz4Decompressor;
 import java.io.IOException;
 
+import static com.bytedance.bytehouse.settings.BHConstants.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.BHConstants.COMPRESSION_HEADER_LENGTH;
+
 /**
- * CompressedBufferReader supporting LZ4 fast compression.
+ * {@link CompressedBuffedReader} supporting LZ4 fast compression.
  */
 public class CompressedBuffedReader implements BuffedReader, BytesHelper {
 
@@ -41,7 +41,10 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
 
     private byte[] decompressed;
 
-    public CompressedBuffedReader(BuffedReader buf) {
+    /**
+     * constructor.
+     */
+    public CompressedBuffedReader(final BuffedReader buf) {
         this.buf = buf;
     }
 
@@ -57,7 +60,8 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
     }
 
     @Override
-    public int readBinary(byte[] bytes) throws IOException {
+    @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
+    public int readBinary(final byte[] bytes) throws IOException {
         for (int i = 0; i < bytes.length; ) {
             if (position == capacity) {
                 decompressed = readCompressedData();
@@ -65,8 +69,8 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
                 this.capacity = decompressed.length;
             }
 
-            int padding = bytes.length - i;
-            int fillLength = Math.min(padding, capacity - position);
+            final int padding = bytes.length - i;
+            final int fillLength = Math.min(padding, capacity - position);
 
             if (fillLength > 0) {
                 System.arraycopy(decompressed, position, bytes, i, fillLength);
@@ -83,28 +87,32 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
         //TODO: validate checksum
         buf.readBinary(new byte[CHECKSUM_LENGTH]);
 
-        byte[] compressedHeader = new byte[COMPRESSION_HEADER_LENGTH];
+        final byte[] compressedHeader = new byte[COMPRESSION_HEADER_LENGTH];
 
         if (buf.readBinary(compressedHeader) != COMPRESSION_HEADER_LENGTH) {
             throw new IOException("Invalid compression header");
         }
 
-        int method = compressedHeader[0] & 0x0FF;
-        int compressedSize = getIntLE(compressedHeader, 1);
-        int decompressedSize = getIntLE(compressedHeader, 5);
+        final int method = compressedHeader[0] & 0x0FF;
+        final int compressedSize = getIntLE(compressedHeader, 1);
+        final int decompressedSize = getIntLE(compressedHeader, 5);
 
         switch (method) {
             case LZ4:
-                return readLZ4CompressedData(compressedSize - COMPRESSION_HEADER_LENGTH, decompressedSize);
+                return readLZ4CompressedData(
+                        compressedSize - COMPRESSION_HEADER_LENGTH,
+                        decompressedSize
+                );
             case NONE:
                 return readNoneCompressedData(decompressedSize);
             default:
-                throw new UnsupportedOperationException("Unknown compression magic code: " + method);
+                throw new UnsupportedOperationException("Unknown compression magic code: "
+                        + method);
         }
     }
 
-    private byte[] readNoneCompressedData(int size) throws IOException {
-        byte[] decompressed = new byte[size];
+    private byte[] readNoneCompressedData(final int size) throws IOException {
+        final byte[] decompressed = new byte[size];
 
         if (buf.readBinary(decompressed) != size) {
             throw new IOException("Cannot decompress use None method.");
@@ -113,12 +121,22 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
         return decompressed;
     }
 
-    private byte[] readLZ4CompressedData(int compressedSize, int decompressedSize) throws IOException {
-        byte[] compressed = new byte[compressedSize];
+    private byte[] readLZ4CompressedData(
+            final int compressedSize,
+            final int decompressedSize
+    ) throws IOException {
+        final byte[] compressed = new byte[compressedSize];
         if (buf.readBinary(compressed) == compressedSize) {
-            byte[] decompressed = new byte[decompressedSize];
+            final byte[] decompressed = new byte[decompressedSize];
 
-            if (lz4Decompressor.decompress(compressed, 0, compressedSize, decompressed, 0, decompressedSize) == decompressedSize) {
+            if (lz4Decompressor.decompress(
+                    compressed,
+                    0,
+                    compressedSize,
+                    decompressed,
+                    0,
+                    decompressedSize
+            ) == decompressedSize) {
                 return decompressed;
             }
         }

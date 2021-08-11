@@ -88,7 +88,6 @@
     <rule ref="category/java/codestyle.xml/MethodNamingConventions"/>
     <rule ref="category/java/codestyle.xml/PackageCase"/>
     <rule ref="category/java/codestyle.xml/ShortClassName"/>
-    <rule ref="category/java/codestyle.xml/ShortVariable"/>
 
     <rule ref="category/java/codestyle.xml/LocalHomeNamingConvention"/>
     <rule ref="category/java/codestyle.xml/LocalInterfaceSessionNamingConvention"/>

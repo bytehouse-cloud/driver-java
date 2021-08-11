@@ -13,16 +13,18 @@
  */
 package com.bytedance.bytehouse.buffer;
 
-import static com.bytedance.bytehouse.settings.BHConstants.CHECKSUM_LENGTH;
-import static com.bytedance.bytehouse.settings.BHConstants.COMPRESSION_HEADER_LENGTH;
-
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.ClickHouseCityHash;
 import io.airlift.compress.Compressor;
 import io.airlift.compress.lz4.Lz4Compressor;
-import io.airlift.compress.zstd.ZstdCompressor;
 import java.io.IOException;
 
+import static com.bytedance.bytehouse.settings.BHConstants.CHECKSUM_LENGTH;
+import static com.bytedance.bytehouse.settings.BHConstants.COMPRESSION_HEADER_LENGTH;
+
+/**
+ * {@link CompressedBuffedWriter} writes in a compressed format
+ */
 public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
 
     private final int capacity;
@@ -33,31 +35,49 @@ public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
 
     private final Compressor lz4Compressor = new Lz4Compressor();
 
-    private final Compressor zstdCompressor = new ZstdCompressor();
+    // no longer in use
+    //private final Compressor zstdCompressor = new ZstdCompressor();
 
     private int position;
 
-    public CompressedBuffedWriter(int capacity, BuffedWriter writer) {
+    /**
+     * Constructor.
+     */
+    public CompressedBuffedWriter(final int capacity, final BuffedWriter writer) {
         this.capacity = capacity;
         this.writtenBuf = new byte[capacity];
         this.writer = writer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte byt) throws IOException {
+    public void writeBinary(final byte byt) throws IOException {
         writtenBuf[position++] = byt;
         flushToTarget(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte[] bytes) throws IOException {
+    public void writeBinary(final byte[] bytes) throws IOException {
         writeBinary(bytes, 0, bytes.length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte[] bytes, int offset, int length) throws IOException {
+    @SuppressWarnings("PMD.AvoidReassigningParameters")
+    public void writeBinary(
+            final byte[] bytes,
+            int offset,
+            int length
+    ) throws IOException {
         while (remaining() < length) {
-            int num = remaining();
+            final int num = remaining();
             System.arraycopy(bytes, offset, writtenBuf, position, remaining());
             position += num;
 
@@ -71,22 +91,61 @@ public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
         flushToTarget(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void flushToTarget(boolean force) throws IOException {
+    public void flushToTarget(final boolean force) throws IOException {
         if (position > 0 && (force || !hasRemaining())) {
-            int maxLen = lz4Compressor.maxCompressedLength(position);
+            final int maxLen = lz4Compressor.maxCompressedLength(position);
 
-            byte[] compressedBuffer = new byte[maxLen + COMPRESSION_HEADER_LENGTH + CHECKSUM_LENGTH];
-            int res = lz4Compressor.compress(writtenBuf, 0, position, compressedBuffer, COMPRESSION_HEADER_LENGTH + CHECKSUM_LENGTH, compressedBuffer.length);
+            final byte[] compressedBuffer =
+                    new byte[maxLen + COMPRESSION_HEADER_LENGTH + CHECKSUM_LENGTH];
+            final int res = lz4Compressor.compress(
+                    writtenBuf,
+                    0,
+                    position,
+                    compressedBuffer,
+                    COMPRESSION_HEADER_LENGTH + CHECKSUM_LENGTH,
+                    compressedBuffer.length
+            );
 
             compressedBuffer[CHECKSUM_LENGTH] = (byte) (0x82 & 0xFF);
-            int compressedSize = res + COMPRESSION_HEADER_LENGTH;
-            System.arraycopy(getBytesLE(compressedSize), 0, compressedBuffer, CHECKSUM_LENGTH + 1, Integer.BYTES);
-            System.arraycopy(getBytesLE(position), 0, compressedBuffer, CHECKSUM_LENGTH + Integer.BYTES + 1, Integer.BYTES);
+            final int compressedSize = res + COMPRESSION_HEADER_LENGTH;
+            System.arraycopy(
+                    getBytesLE(compressedSize),
+                    0,
+                    compressedBuffer,
+                    CHECKSUM_LENGTH + 1,
+                    Integer.BYTES
+            );
+            System.arraycopy(
+                    getBytesLE(position),
+                    0,
+                    compressedBuffer,
+                    CHECKSUM_LENGTH + Integer.BYTES + 1,
+                    Integer.BYTES
+            );
 
-            long[] checksum = ClickHouseCityHash.cityHash128(compressedBuffer, CHECKSUM_LENGTH, compressedSize);
-            System.arraycopy(getBytesLE(checksum[0]), 0, compressedBuffer, 0, Long.BYTES);
-            System.arraycopy(getBytesLE(checksum[1]), 0, compressedBuffer, Long.BYTES, Long.BYTES);
+            final long[] checksum = ClickHouseCityHash.cityHash128(
+                    compressedBuffer,
+                    CHECKSUM_LENGTH,
+                    compressedSize
+            );
+            System.arraycopy(
+                    getBytesLE(checksum[0]),
+                    0,
+                    compressedBuffer,
+                    0,
+                    Long.BYTES
+            );
+            System.arraycopy(
+                    getBytesLE(checksum[1]),
+                    0,
+                    compressedBuffer,
+                    Long.BYTES,
+                    Long.BYTES
+            );
 
             writer.writeBinary(compressedBuffer, 0, compressedSize + CHECKSUM_LENGTH);
             position = 0;

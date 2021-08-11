@@ -15,9 +15,21 @@ package com.bytedance.bytehouse.buffer;
 
 import java.io.IOException;
 
+/**
+ * read and buffer.
+ */
 public interface BuffedReader {
 
+    /**
+     * Read 4 bytes and return them as int
+     */
     int readBinary() throws IOException;
 
+    /**
+     * read bytes into the array and return total amount of bytes read.
+     *
+     * @param bytes byte array container
+     * @return amount of bytes read.
+     */
     int readBinary(byte[] bytes) throws IOException;
 }

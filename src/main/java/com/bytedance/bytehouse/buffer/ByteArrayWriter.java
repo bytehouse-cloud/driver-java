@@ -18,37 +18,57 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * writes to a List of JVM-memory-backed {@link ByteBuffer}.
+ * the content is then access by the getter method of the list.
+ */
 public class ByteArrayWriter implements BuffedWriter {
 
     private final int blockSize;
 
-    // TODO pooling
     private final List<ByteBuffer> byteBufferList = new LinkedList<>();
 
     private ByteBuffer buffer;
 
-    public ByteArrayWriter(int blockSize) {
-        this.blockSize = blockSize;
-        this.buffer = ByteBuffer.allocate(blockSize);
+    /**
+     * Create a {@link ByteBuffer} with block size.
+     */
+    public ByteArrayWriter(final int blockSizeInByte) {
+        this.blockSize = blockSizeInByte;
+        this.buffer = ByteBuffer.allocate(blockSizeInByte);
         this.byteBufferList.add(buffer);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte byt) throws IOException {
+    public void writeBinary(final byte byt) throws IOException {
         buffer.put(byt);
         flushToTarget(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte[] bytes) throws IOException {
+    public void writeBinary(final byte[] bytes) throws IOException {
         writeBinary(bytes, 0, bytes.length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte[] bytes, int offset, int length) throws IOException {
+    @SuppressWarnings("PMD.AvoidReassigningParameters")
+    public void writeBinary(
+            final byte[] bytes,
+            int offset,
+            int length
+    ) throws IOException {
 
         while (buffer.remaining() < length) {
-            int num = buffer.remaining();
+            final int num = buffer.remaining();
             buffer.put(bytes, offset, num);
             flushToTarget(true);
 
@@ -60,15 +80,22 @@ public class ByteArrayWriter implements BuffedWriter {
         flushToTarget(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void flushToTarget(boolean force) throws IOException {
+    public void flushToTarget(final boolean force) throws IOException {
         if (buffer.hasRemaining() && !force) {
             return;
         }
+        // the current buffer is already added to the list. Hence we can directly dereference
         buffer = ByteBuffer.allocate(blockSize);
         byteBufferList.add(buffer);
     }
 
+    /**
+     * Get the accumulated content.
+     */
     public List<ByteBuffer> getBufferList() {
         return byteBufferList;
     }

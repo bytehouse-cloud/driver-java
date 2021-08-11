@@ -15,13 +15,28 @@ package com.bytedance.bytehouse.buffer;
 
 import java.io.IOException;
 
+/**
+ * a writer that writes to a buffer.
+ */
 public interface BuffedWriter {
 
+    /**
+     * Write a single byte into the buffer.
+     */
     void writeBinary(byte byt) throws IOException;
 
+    /**
+     * write the array of bytes into the buffer.
+     */
     void writeBinary(byte[] bytes) throws IOException;
 
+    /**
+     * write the content [offset, offset+length] of the byte array into the buffer.
+     */
     void writeBinary(byte[] bytes, int offset, int length) throws IOException;
 
+    /**
+     * flush the content of the buffer into underlying storage.
+     */
     void flushToTarget(boolean force) throws IOException;
 }

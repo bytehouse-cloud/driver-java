@@ -4,6 +4,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "org.sonarqube" version "3.0"
     id "jacoco"
+    id "pmd"
 }
 
 jacocoTestReport {
@@ -83,3 +84,13 @@ checkstyle {
     configFile file("config/checkstyle.xml")
     configProperties 'checkstyle.header.file': file("config/license.header")
 }
+
+pmd {
+    sourceSets = [sourceSets.main]
+    ruleSetFiles = files(
+            "./config/pmd/quickstart.xml"
+    )
+    ruleSets = []
+    ignoreFailures = true
+}
+

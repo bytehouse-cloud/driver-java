@@ -17,31 +17,53 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
+/**
+ * {@link SocketBuffedWriter} directly writes into the outputStream of the socket.
+ */
 public class SocketBuffedWriter implements BuffedWriter {
 
     private final OutputStream out;
 
-    public SocketBuffedWriter(Socket socket) throws IOException {
+    /**
+     * constructor.
+     */
+    public SocketBuffedWriter(final Socket socket) throws IOException {
         this.out = socket.getOutputStream();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte byt) throws IOException {
+    public void writeBinary(final byte byt) throws IOException {
         out.write(byt);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte[] bytes) throws IOException {
+    public void writeBinary(final byte[] bytes) throws IOException {
         out.write(bytes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeBinary(byte[] bytes, int offset, int length) throws IOException {
+    public void writeBinary(
+            final byte[] bytes,
+            final int offset,
+            final int length
+    ) throws IOException {
         out.write(bytes, offset, length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void flushToTarget(boolean force) throws IOException {
+    public void flushToTarget(final boolean force) throws IOException {
         out.flush();
     }
 }

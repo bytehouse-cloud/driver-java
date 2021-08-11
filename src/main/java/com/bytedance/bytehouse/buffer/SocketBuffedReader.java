@@ -19,6 +19,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
+/**
+ * read from socket and buffer into byte array.
+ *
+ * this class reads {@link BHConstants#SOCKET_RECV_BUFFER_BYTES} bytes into an internal
+ * array and use the array to serve downstream. It will only fetch from inputStream
+ * again if the internal buffer runs out.
+ */
 public class SocketBuffedReader implements BuffedReader {
 
     private final int capacity;
@@ -31,11 +38,17 @@ public class SocketBuffedReader implements BuffedReader {
 
     private int position;
 
-    public SocketBuffedReader(Socket socket) throws IOException {
+    /**
+     * constructor.
+     */
+    public SocketBuffedReader(final Socket socket) throws IOException {
         this(socket.getInputStream(), BHConstants.SOCKET_RECV_BUFFER_BYTES);
     }
 
-    SocketBuffedReader(InputStream in, int capacity) {
+    SocketBuffedReader(
+            final InputStream in,
+            final int capacity
+    ) {
         this.limit = 0;
         this.position = 0;
         this.capacity = capacity;
@@ -44,6 +57,9 @@ public class SocketBuffedReader implements BuffedReader {
         this.buf = new byte[capacity];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int readBinary() throws IOException {
         if (!remaining() && !refill()) {
@@ -53,15 +69,19 @@ public class SocketBuffedReader implements BuffedReader {
         return buf[position++] & 0xFF;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int readBinary(byte[] bytes) throws IOException {
+    @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
+    public int readBinary(final byte[] bytes) throws IOException {
         for (int i = 0; i < bytes.length; ) {
             if (!remaining() && !refill()) {
                 throw new EOFException("Attempt to read after eof.");
             }
 
-            int pending = bytes.length - i;
-            int fillLength = Math.min(pending, limit - position);
+            final int pending = bytes.length - i;
+            final int fillLength = Math.min(pending, limit - position);
 
             if (fillLength > 0) {
                 System.arraycopy(buf, position, bytes, i, fillLength);
@@ -77,6 +97,7 @@ public class SocketBuffedReader implements BuffedReader {
         return position < limit;
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
     private boolean refill() throws IOException {
         if (!remaining() && (limit = in.read(buf, 0, capacity)) <= 0) {
             throw new EOFException("Attempt to read after eof.");
