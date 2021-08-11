@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.stream;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.ColumnFactory;
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -38,7 +38,7 @@ public class QueryResultBuilder {
 
     private final int columnNum;
 
-    private final NativeContext.ServerContext serverContext;
+    private final ServerContext serverContext;
 
     private final List<List<?>> rows = new ArrayList<>();
 
@@ -46,12 +46,12 @@ public class QueryResultBuilder {
 
     private List<IDataType> columnTypes;
 
-    private QueryResultBuilder(int columnNum, NativeContext.ServerContext serverContext) {
+    private QueryResultBuilder(int columnNum, ServerContext serverContext) {
         this.columnNum = columnNum;
         this.serverContext = serverContext;
     }
 
-    public static QueryResultBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
+    public static QueryResultBuilder builder(int columnsNum, ServerContext serverContext) {
         return new QueryResultBuilder(columnsNum, serverContext);
     }
 

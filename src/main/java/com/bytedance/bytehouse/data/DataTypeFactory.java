@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.type.DataTypeBitMap64;
 import com.bytedance.bytehouse.data.type.DataTypeDate;
 import com.bytedance.bytehouse.data.type.DataTypeFloat32;
@@ -58,7 +58,7 @@ public class DataTypeFactory {
 
     private static final Map<String, IDataType<?, ?>> dataTypes = initialDataTypes();
 
-    public static IDataType<?, ?> get(String type, NativeContext.ServerContext serverContext) throws SQLException {
+    public static IDataType<?, ?> get(String type, ServerContext serverContext) throws SQLException {
         IDataType<?, ?> dataType = DATA_TYPE_CACHE.get(type);
         if (dataType != null) {
             DATA_TYPE_CACHE.put(type, dataType);
@@ -73,7 +73,7 @@ public class DataTypeFactory {
         return dataType;
     }
 
-    public static IDataType<?, ?> get(SQLLexer lexer, NativeContext.ServerContext serverContext) throws SQLException {
+    public static IDataType<?, ?> get(SQLLexer lexer, ServerContext serverContext) throws SQLException {
         String dataTypeName = String.valueOf(lexer.bareWord());
 
         if (dataTypeName.equalsIgnoreCase("Tuple")) {

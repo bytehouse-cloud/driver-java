@@ -189,7 +189,7 @@ public class NativeClient implements AutoCloseable {
 
     public boolean ping(
             final Duration soTimeout,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) {
         try {
             sendRequest(PingRequest.INSTANCE);
@@ -211,7 +211,7 @@ public class NativeClient implements AutoCloseable {
 
     public Block receiveSampleBlock(
             final Duration soTimeout,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) throws SQLException {
         while (!Thread.currentThread().isInterrupted()) {
             final Response response = receiveResponse(soTimeout, info);
@@ -236,7 +236,7 @@ public class NativeClient implements AutoCloseable {
 
     public void sendQuery(
             final String query,
-            final NativeContext.ClientContext info,
+            final ClientContext info,
             final Map<SettingKey, Serializable> settings,
             final boolean enableCompression
     ) throws SQLException {
@@ -256,7 +256,7 @@ public class NativeClient implements AutoCloseable {
 
     public HelloResponse receiveHello(
             final Duration soTimeout,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) throws SQLException {
         Response response = receiveResponse(soTimeout, info);
         Validate.isTrue(response instanceof HelloResponse, "Expect Hello Response.");
@@ -265,7 +265,7 @@ public class NativeClient implements AutoCloseable {
 
     public EOFStreamResponse receiveEndOfStream(
             final Duration soTimeout,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) throws SQLException {
         final Response response = receiveResponse(soTimeout, info);
         Validate.isTrue(
@@ -277,7 +277,7 @@ public class NativeClient implements AutoCloseable {
 
     public QueryResult receiveQuery(
             final Duration soTimeout,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) {
         return new ByteHouseQueryResult(() -> receiveResponse(soTimeout, info));
     }
@@ -307,7 +307,7 @@ public class NativeClient implements AutoCloseable {
     private void sendQuery(
             final String id,
             final int stage,
-            final NativeContext.ClientContext info,
+            final ClientContext info,
             final String query,
             final Map<SettingKey, Serializable> settings,
             final boolean enableCompression
@@ -327,7 +327,7 @@ public class NativeClient implements AutoCloseable {
 
     private Response receiveResponse(
             final Duration soTimeout,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) throws SQLException {
         try {
             socket.setSoTimeout(((int) soTimeout.toMillis()));

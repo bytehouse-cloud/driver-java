@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.protocol;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ClientContext;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.serde.SettingType;
 import com.bytedance.bytehouse.settings.SettingKey;
@@ -54,13 +54,13 @@ public class QueryRequest implements Request {
      */
     private final boolean enableCompression;
 
-    private final NativeContext.ClientContext clientContext;
+    private final ClientContext clientContext;
 
     private final Map<SettingKey, Serializable> settings;
 
     public QueryRequest(
             final String queryId,
-            final NativeContext.ClientContext clientContext,
+            final ClientContext clientContext,
             final int stage,
             final boolean enableCompression,
             final String queryString,

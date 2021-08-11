@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data.type.complex;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
@@ -49,7 +49,7 @@ public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
 
     private final ZonedDateTime defaultValue;
 
-    public DataTypeDateTime(String name, NativeContext.ServerContext serverContext) {
+    public DataTypeDateTime(String name, ServerContext serverContext) {
         this.name = name;
         this.tz = DateTimeUtil.chooseTimeZone(serverContext);
         this.defaultValue = EPOCH_LOCAL_DT.atZone(tz);

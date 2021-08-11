@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data.type.complex;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
@@ -33,7 +33,7 @@ public class DataTypeNothing implements IDataType<Byte, Object> {
     public static DataTypeCreator<Byte, Object> CREATOR =
             (lexer, serverContext) -> new DataTypeNothing(serverContext);
 
-    public DataTypeNothing(NativeContext.ServerContext serverContext) {
+    public DataTypeNothing(ServerContext serverContext) {
     }
 
     @Override

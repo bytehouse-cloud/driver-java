@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.BlockSettings.Setting;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -71,7 +71,7 @@ public class Block {
      */
     public static Block readFrom(
             final BinaryDeserializer deserializer,
-            final NativeContext.ServerContext serverContext
+            final ServerContext serverContext
     ) throws IOException, SQLException {
         final BlockSettings info = BlockSettings.readFrom(deserializer);
 

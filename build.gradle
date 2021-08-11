@@ -62,19 +62,8 @@ shadowJar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Explicit strategy to exclude duplicates
 }
 
-// set up test task to exclude bytehouse integration tests.
 def test = tasks.named("test") {
-    useJUnitPlatform {
-        excludeTags "bh-integration-test"
-    }
-}
-
-// create task to run bytehouse integration tests. Should be ran locally with env variables defined.
-// the env variables to be defined can be found in AbstractByteHouseITest
-task bhIntegrationTest(type: Test) {
-    useJUnitPlatform {
-        includeTags "bh-integration-test"
-    }
+    useJUnitPlatform{}
 }
 
 checkstyle {

@@ -13,8 +13,10 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
+import com.bytedance.bytehouse.client.ClientContext;
 import com.bytedance.bytehouse.client.NativeClient;
 import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.client.SessionState;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.DataTypeFactory;
@@ -105,7 +107,7 @@ public class ByteHouseConnection implements BHConnection {
         );
     }
 
-    private static NativeContext.ClientContext clientContext(
+    private static ClientContext clientContext(
             final NativeClient nativeClient,
             final ByteHouseConfig configure
     ) throws SQLException {
@@ -114,10 +116,10 @@ public class ByteHouseConnection implements BHConnection {
         final String clientName = String.format(Locale.ROOT, "%s %s",
                 BHConstants.NAME, "client");
         final String initialAddress = "[::ffff:127.0.0.1]:0";
-        return new NativeContext.ClientContext(initialAddress, address.getHostName(), clientName);
+        return new ClientContext(initialAddress, address.getHostName(), clientName);
     }
 
-    private static NativeContext.ServerContext serverContext(
+    private static ServerContext serverContext(
             final NativeClient nativeClient,
             final ByteHouseConfig configure
     ) throws SQLException {
@@ -135,7 +137,7 @@ public class ByteHouseConnection implements BHConnection {
                     configure.queryTimeout(), null
             );
             final ZoneId timeZone = getZoneId(response.serverTimeZone());
-            return new NativeContext.ServerContext(
+            return new ServerContext(
                     response.majorVersion(),
                     response.minorVersion(),
                     response.reversion(),
@@ -165,11 +167,11 @@ public class ByteHouseConnection implements BHConnection {
         return cfg.get();
     }
 
-    public NativeContext.ServerContext serverContext() {
+    public ServerContext serverContext() {
         return nativeCtx.serverCtx();
     }
 
-    public NativeContext.ClientContext clientContext() {
+    public ClientContext clientContext() {
         return nativeCtx.clientCtx();
     }
 
@@ -466,7 +468,7 @@ public class ByteHouseConnection implements BHConnection {
         final NativeContext oldCtx = nativeCtx;
         if (!oldCtx.nativeClient().ping(cfg.get().queryTimeout(), nativeCtx.serverCtx())) {
             LOG.warn(
-                    "connection loss with state[{}], create new connection and reset state",
+                    "connection loss with state [{}], create new connection and reset state",
                     state
             );
             nativeCtx = createNativeContext(cfg.get());

@@ -60,31 +60,94 @@ javax.sql.DataSource | com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource
 ```java
 import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
 
-import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
+import javax.sql.DataSource;
 
-public class Main {
-
+public class SimpleQuery {
     public static void main(String[] args) throws Exception {
-        String url = "jdbc:bytehouse://localhost:9000";
+        String url = String.format("jdbc:bytehouse://gateway.staging.bytehouse.cloud:19000");
         Properties properties = new Properties();
-        properties.setProperty("account_id", "id");
-        properties.setProperty("user", "test");
-        properties.setProperty("password", "password");
+        properties.setProperty("account_id", "GCP02U60");
+        properties.setProperty("user", "zx");
+        properties.setProperty("password", "P@55word");
+        properties.setProperty("secure", "true");
 
-        // Obtain DataSource with url and properties set
         DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
+        Connection connection = dataSource.getConnection();
 
-        // Obtain Connection with DataSource
-        try (Connection connection = dataSource.getConnection()) {
-            try (Statement stmt = connection.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("SELECT 5")) {
-                    while (rs.next()) {
-                        System.out.println(rs.getInt(1));
-                    }
+        createDatabase(connection);
+        createTable(connection);
+        insertTable(connection);
+        selectTable(connection);
+        dropDatabase(connection);
+
+        connection.close();
+    }
+
+    public static void createDatabase(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("CREATE DATABASE IF NOT EXISTS inventory");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void createTable(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute(
+                    "CREATE TABLE IF NOT EXISTS inventory.orders\n" +
+                            "(" +
+                            "    OrderID String," +
+                            "    OrderName String," +
+                            "    OrderPriority Int8" +
+                            ")" +
+                            "    engine = CnchMergeTree()" +
+                            "    partition by OrderID" +
+                            "    order by OrderID"
+            );
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertTable(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate(
+                    "INSERT INTO inventory.orders VALUES ('54895','Apple',12)"
+            );
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void selectTable(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery("SELECT * FROM inventory.orders");
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+            while (rs.next()) {
+                for (int i = 1; i <= columnsNumber; i++) {
+                    if (i > 1) System.out.print(", ");
+                    String columnValue = rs.getString(i);
+                    System.out.print(columnValue);
                 }
+                System.out.println();
             }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void dropDatabase(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("DROP DATABASE inventory");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 }

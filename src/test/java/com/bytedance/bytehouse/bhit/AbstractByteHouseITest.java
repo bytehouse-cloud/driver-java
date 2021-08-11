@@ -11,12 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.bhit;
 
 import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
-
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -24,48 +27,90 @@ import java.util.Properties;
 /**
  * Abstract class to be inherited by all ByteHouse Integration tests.
  * Contains methods for obtaining parameters to connect to ByteHouse.
- *
- *
  */
-@ByteHouseIntegrationTest
 public abstract class AbstractByteHouseITest {
 
-    /**
-     * The following environment variables should be defined for the BH integration tests.
-     */
+    private static final String ACCOUNT_ID = "ACCOUNT_ID";
+
     private static final String USER = "USER";
+
     private static final String PASSWORD = "PASSWORD";
+
     private static final String SECURE = "SECURE";
+
     private static final String HOST = "HOST";
+
     private static final String PORT = "PORT";
+
     private static final String WAREHOUSE = "WAREHOUSE";
 
+    private static final String DATABASE = "DATABASE";
+
+    private static Properties ByteHouseTestConfigs;
+
     protected String getUsername() {
-        return System.getenv(USER);
+        return ByteHouseTestConfigs.getProperty(USER);
     }
 
     protected String getPassword() {
-        return System.getenv(PASSWORD);
+        return ByteHouseTestConfigs.getProperty(PASSWORD);
     }
 
     protected Boolean isSecureConnection() {
-        return Boolean.parseBoolean(System.getenv(SECURE));
+        return Boolean.parseBoolean(ByteHouseTestConfigs.getProperty(SECURE));
+    }
+
+    protected String getAccountId() {
+        return ByteHouseTestConfigs.getProperty(ACCOUNT_ID);
     }
 
     protected String getUrl() {
-        return String.format("jdbc:bytehouse://%s:%s", System.getenv(HOST), System.getenv(PORT));
+        return String.format("jdbc:bytehouse://%s:%s",
+                ByteHouseTestConfigs.getProperty(HOST),
+                ByteHouseTestConfigs.getProperty(PORT)
+        );
     }
 
-    protected String getVirtualWarehouse() throws SQLException {
-        return System.getenv(WAREHOUSE);
+    protected String getVirtualWarehouse() {
+        return ByteHouseTestConfigs.getProperty(WAREHOUSE);
+    }
+
+    protected String getDatabase() {
+        return ByteHouseTestConfigs.getProperty(DATABASE);
     }
 
     protected Connection getConnection() throws SQLException {
+        loadByteHouseTestConfigs();
+
         Properties properties = new Properties();
+        properties.setProperty("account_id", getAccountId());
         properties.setProperty("user", getUsername());
         properties.setProperty("password", getPassword());
         properties.setProperty("secure", String.valueOf(isSecureConnection()));
-        DataSource dataSource = new BalancedByteHouseDataSource(getUrl(), properties);
+        properties.setProperty("database", getDatabase());
+        properties.setProperty("warehouse", getVirtualWarehouse());
+        final DataSource dataSource = new BalancedByteHouseDataSource(getUrl(), properties);
         return dataSource.getConnection();
+    }
+
+    private void loadByteHouseTestConfigs() {
+        try (InputStream input = new FileInputStream("src/test/resources/config.properties")) {
+            ByteHouseTestConfigs = new Properties();
+            ByteHouseTestConfigs.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    protected String loadSqlStatement(String filepath) throws IOException {
+        String fullPath = "src/test/resources/sql/" + filepath + ".sql";
+        File file = new File(fullPath);
+        byte[] data;
+        try (FileInputStream fis = new FileInputStream(file)) {
+            data = new byte[(int) file.length()];
+            fis.read(data);
+        }
+        String query = new String(data, StandardCharsets.UTF_8);
+        return query;
     }
 }

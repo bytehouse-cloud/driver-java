@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
@@ -37,7 +37,7 @@ public class ByteHouseResultSetBuilder {
         this.queryResultBuilder = queryResultBuilder;
     }
 
-    public static ByteHouseResultSetBuilder builder(int columnsNum, NativeContext.ServerContext serverContext) {
+    public static ByteHouseResultSetBuilder builder(int columnsNum, ServerContext serverContext) {
         return new ByteHouseResultSetBuilder(QueryResultBuilder.builder(columnsNum, serverContext));
     }
 

@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.protocol;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.exception.NotImplementedException;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public interface Response {
      */
     static Response readFrom(
             final BinaryDeserializer deserializer,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) throws IOException, SQLException {
         int responseType = (int) deserializer.readVarInt();
         switch (responseType) {

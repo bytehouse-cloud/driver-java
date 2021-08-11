@@ -13,6 +13,9 @@
  */
 package com.bytedance.bytehouse.client;
 
+/**
+ * Possible states of the client.
+ */
 public enum SessionState {
     IDLE, WAITING_INSERT
 }

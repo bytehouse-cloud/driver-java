@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data.type.complex;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import java.sql.SQLException;
@@ -21,5 +21,5 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface DataTypeCreator<CK, JDBC> {
 
-    IDataType<CK, JDBC> createDataType(SQLLexer lexer, NativeContext.ServerContext serverContext) throws SQLException;
+    IDataType<CK, JDBC> createDataType(SQLLexer lexer, ServerContext serverContext) throws SQLException;
 }

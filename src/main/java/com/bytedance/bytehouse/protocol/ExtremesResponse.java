@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.protocol;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class ExtremesResponse implements Response {
 
     public static ExtremesResponse readFrom(
             final BinaryDeserializer deserializer,
-            final NativeContext.ServerContext info
+            final ServerContext info
     ) throws IOException, SQLException {
         final String name = deserializer.readUTF8StringBinary();
 

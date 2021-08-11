@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.misc;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class DateTimeUtil {
 
-    public static ZoneId chooseTimeZone(NativeContext.ServerContext serverContext) {
+    public static ZoneId chooseTimeZone(ServerContext serverContext) {
         return (boolean) serverContext.getConfigure().settings().getOrDefault(SettingKey.use_client_time_zone, false)
                 ? ZoneId.systemDefault() : serverContext.timeZone();
     }

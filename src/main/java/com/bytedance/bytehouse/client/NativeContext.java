@@ -13,12 +13,10 @@
  */
 package com.bytedance.bytehouse.client;
 
-import com.bytedance.bytehouse.serde.BinarySerializer;
-import com.bytedance.bytehouse.settings.BHConstants;
-import com.bytedance.bytehouse.settings.ByteHouseConfig;
-import java.io.IOException;
-import java.time.ZoneId;
-
+/**
+ * A Context binding the client's identity({@link ClientContext}) and the server's identity
+ * ({@link ServerContext}) with a bridge ({@link NativeClient}).
+ */
 public class NativeContext {
 
     private final ClientContext clientCtx;
@@ -27,7 +25,11 @@ public class NativeContext {
 
     private final NativeClient nativeClient;
 
-    public NativeContext(ClientContext clientCtx, ServerContext serverCtx, NativeClient nativeClient) {
+    public NativeContext(
+            final ClientContext clientCtx,
+            final ServerContext serverCtx,
+            final NativeClient nativeClient
+    ) {
         this.clientCtx = clientCtx;
         this.serverCtx = serverCtx;
         this.nativeClient = nativeClient;
@@ -43,107 +45,5 @@ public class NativeContext {
 
     public NativeClient nativeClient() {
         return nativeClient;
-    }
-
-    public static class ClientContext {
-
-        public static final int TCP_KINE = 1;
-
-        public static final byte NO_QUERY = 0;
-
-        public static final byte INITIAL_QUERY = 1;
-
-        public static final byte SECONDARY_QUERY = 2;
-
-        private final String clientName;
-
-        private final String clientHostname;
-
-        private final String initialAddress;
-
-        public ClientContext(String initialAddress, String clientHostname, String clientName) {
-            this.clientName = clientName;
-            this.clientHostname = clientHostname;
-            this.initialAddress = initialAddress;
-        }
-
-        public void writeTo(BinarySerializer serializer) throws IOException {
-            serializer.writeVarInt(ClientContext.INITIAL_QUERY);
-            serializer.writeUTF8StringBinary("");
-            serializer.writeUTF8StringBinary("");
-            serializer.writeUTF8StringBinary(initialAddress);
-
-            // for TCP kind
-            serializer.writeVarInt(TCP_KINE);
-            serializer.writeUTF8StringBinary("");
-            serializer.writeUTF8StringBinary(clientHostname);
-            serializer.writeUTF8StringBinary(clientName);
-            serializer.writeVarInt(BHConstants.MAJOR_VERSION);
-            serializer.writeVarInt(BHConstants.MINOR_VERSION);
-            serializer.writeVarInt(BHConstants.CLIENT_REVISION);
-            serializer.writeUTF8StringBinary("");
-            serializer.writeVarInt(BHConstants.CLIENT_REVISION); // might be versionPatch instead
-        }
-    }
-
-    public static class ServerContext {
-
-        private final long majorVersion;
-
-        private final long minorVersion;
-
-        private final long reversion;
-
-        private final ZoneId timeZone;
-
-        private final String displayName;
-
-        private final long versionPatch;
-
-        private final ByteHouseConfig configure;
-
-        public ServerContext(long majorVersion, long minorVersion, long reversion,
-                             ByteHouseConfig configure,
-                             ZoneId timeZone, String displayName, long versionPatch) {
-            this.majorVersion = majorVersion;
-            this.minorVersion = minorVersion;
-            this.reversion = reversion;
-            this.configure = configure;
-            this.timeZone = timeZone;
-            this.displayName = displayName;
-            this.versionPatch = versionPatch;
-        }
-
-        public long majorVersion() {
-            return majorVersion;
-        }
-
-        public long minorVersion() {
-            return minorVersion;
-        }
-
-        public long reversion() {
-            return reversion;
-        }
-
-        public String version() {
-            return majorVersion + "." + minorVersion + "." + reversion;
-        }
-
-        public ZoneId timeZone() {
-            return timeZone;
-        }
-
-        public String displayName() {
-            return displayName;
-        }
-
-        public long versionPatch() {
-            return versionPatch;
-        }
-
-        public ByteHouseConfig getConfigure() {
-            return configure;
-        }
     }
 }

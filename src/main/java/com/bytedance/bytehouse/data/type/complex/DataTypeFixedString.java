@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data.type.complex;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
@@ -44,7 +44,7 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
 
     private final Charset charset;
 
-    public DataTypeFixedString(String name, int n, NativeContext.ServerContext serverContext) {
+    public DataTypeFixedString(String name, int n, ServerContext serverContext) {
         this.n = n;
         this.name = name;
         this.charset = serverContext.getConfigure().charset();

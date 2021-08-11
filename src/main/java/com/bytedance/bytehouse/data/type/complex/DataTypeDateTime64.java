@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.data.type.complex;
 
-import com.bytedance.bytehouse.client.NativeContext.ServerContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
