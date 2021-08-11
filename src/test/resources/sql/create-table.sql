@@ -101,5 +101,7 @@ CREATE TABLE IF NOT EXISTS customer_database.customer_table (
     android_register_time	Int64,
     userstatus	Int64,
     new_group_array	Array(UInt32),
-    group_array	Array(UInt32)
+    group_array	Array(UInt32),
+    new_group_bitmap AggregateFunction(groupBitmap, UInt32) MATERIALIZED bitmapBuild(new_group_array),
+    group_bitmap AggregateFunction(groupBitmap, UInt32) MATERIALIZED bitmapBuild(group_array)
 ) engine = CnchMergeTree() order by tuple();

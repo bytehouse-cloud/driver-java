@@ -70,23 +70,27 @@ import javax.sql.DataSource;
 
 public class SimpleQuery {
     public static void main(String[] args) throws Exception {
-        String url = String.format("jdbc:bytehouse://gateway.staging.bytehouse.cloud:19000");
+        String url = String.format("jdbc:bytehouse://gateway.aws-cn-north-1.bytehouse.cn:19000");
         Properties properties = new Properties();
-        properties.setProperty("account_id", "GCP02U60");
-        properties.setProperty("user", "zx");
-        properties.setProperty("password", "P@55word");
+        properties.setProperty("account_id", "AWS12345");
+        properties.setProperty("user", "username");
+        properties.setProperty("password", "YOUR_PASSWORD");
         properties.setProperty("secure", "true");
 
         DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
-        Connection connection = dataSource.getConnection();
 
-        createDatabase(connection);
-        createTable(connection);
-        insertTable(connection);
-        selectTable(connection);
-        dropDatabase(connection);
+        try (Connection connection = dataSource.getConnection()) {
+            createDatabase(connection);
+            createTable(connection);
+            insertTable(connection);
+            insertBatch(connection);
+            selectTable(connection);
+            dropDatabase(connection);
 
-        connection.close();
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static void createDatabase(Connection connection) {
@@ -120,6 +124,23 @@ public class SimpleQuery {
             stmt.executeUpdate(
                     "INSERT INTO inventory.orders VALUES ('54895','Apple',12)"
             );
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertBatch(Connection connection) {
+        String insertQuery = "INSERT INTO inventory.orders (OrderID, OrderName, OrderPriority) VALUES (?,'Apple',?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
+            int insertBatchSize = 10;
+
+            for (int i = 0; i < insertBatchSize; i++) {
+                pstmt.setString(1, "ID" + i);
+                pstmt.setInt(2, i);
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

@@ -67,7 +67,7 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
     public void createDatabase_success() throws SQLException {
         Connection connection = getConnection();
         Statement stmt = connection.createStatement();
-        assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE jdbc_test_db"));
+        assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
         assertDoesNotThrow(() -> stmt.execute("DROP DATABASE jdbc_test_db"));
         connection.close();
     }
@@ -76,11 +76,10 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
     public void createTable_success() throws SQLException {
         try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
-            assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE jdbc_test_db"));
-            assertDoesNotThrow(() -> stmt.execute("SET WAREHOUSE " + getVirtualWarehouse()));
+            assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
             assertDoesNotThrow(() -> {
                 stmt.execute(
-                        "CREATE TABLE jdbc_test_db.npc_cases\n" +
+                        "CREATE TABLE IF NOT EXISTS jdbc_test_db.npc_cases\n" +
                                 "(" +
                                 "    year Int16," +
                                 "    npc String," +
@@ -100,11 +99,10 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
     public void insert_success() throws SQLException {
         try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
-            assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE jdbc_test_db"));
-            assertDoesNotThrow(() -> stmt.execute("SET WAREHOUSE " + getVirtualWarehouse()));
+            assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
             assertDoesNotThrow(() -> {
                 stmt.execute(
-                        "CREATE TABLE jdbc_test_db.npc_cases\n" +
+                        "CREATE TABLE IF NOT EXISTS jdbc_test_db.npc_cases\n" +
                                 "(" +
                                 "    year Int16," +
                                 "    npc String," +

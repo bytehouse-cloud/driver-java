@@ -17,11 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.junit.Ignore;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -54,18 +54,18 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     public void insertIntoSingleColumn() throws SQLException, IOException {
         try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate(loadSqlStatement("insert-table-single"));
+            stmt.executeUpdate(loadSqlStatement("insert-table-single-column"));
         }
     }
 
-    @Ignore
+    @Test
     @Order(4)
     public void insertIntoSingleColumnMultipleTimes() throws SQLException, IOException {
         try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
 
-            for (int iter = 0; iter < 100; iter++) {
-                stmt.executeUpdate(loadSqlStatement("insert-table-single"));
+            for (int iter = 0; iter < 10; iter++) {
+                stmt.executeUpdate(loadSqlStatement("insert-table-single-column"));
             }
         }
     }
@@ -88,9 +88,26 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
             Statement stmt = connection.createStatement();
 
             GenerateSqlInsertStatementUtil.generateInsertQuery("customer_database.customer_table");
-            for (int iter = 0; iter < 100; iter++) {
+            for (int iter = 0; iter < 10; iter++) {
                 stmt.executeUpdate(loadSqlStatement("insert-table"));
             }
+        }
+    }
+
+    @Test
+    @Order(7)
+    public void insertBatchTest() throws SQLException, IOException {
+        try (Connection connection = getConnection()) {
+            PreparedStatement pstmt = connection.prepareStatement(loadSqlStatement("insert-batch"));
+            int insertBatchSize = 100;
+
+            for (int i = 0; i < insertBatchSize; i++) {
+                pstmt.setString(1, "Hello");
+                pstmt.setString(2, "Byte");
+                pstmt.setString(3, "House");
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
         }
     }
 

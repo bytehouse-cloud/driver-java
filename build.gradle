@@ -57,13 +57,26 @@ dependencies {
     testImplementation "org.testcontainers:clickhouse:1.15.1"
 }
 
+configurations {
+    // configuration that holds jars to include in the jar
+    implementation {
+        canBeResolved = true
+    }
+}
+
 shadowJar {
     zip64 true
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Explicit strategy to exclude duplicates
 }
 
-def test = tasks.named("test") {
+tasks.named("test") {
     useJUnitPlatform{}
+}
+
+jar {
+    from {
+        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 checkstyle {

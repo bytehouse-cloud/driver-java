@@ -14,34 +14,33 @@
 package examples;
 
 import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import java.sql.*;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-/**
- * This simple query demonstrate basic steps to create table and insert data and query data.
- */
 public class SimpleQuery {
-
     public static void main(String[] args) throws Exception {
-        final String url = String.format("jdbc:bytehouse://gateway.staging.bytehouse.cloud:19000");
-        final Properties properties = new Properties();
-        properties.setProperty("account_id", "GCP02U60");
-        properties.setProperty("user", "zx");
-        properties.setProperty("password", "P@55word");
+        String url = String.format("jdbc:bytehouse://gateway.aws-cn-north-1.bytehouse.cn:19000");
+        Properties properties = new Properties();
+        properties.setProperty("account_id", "AWS12345");
+        properties.setProperty("user", "username");
+        properties.setProperty("password", "YOUR_PASSWORD");
         properties.setProperty("secure", "true");
 
-        final DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
+        DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
+
         try (Connection connection = dataSource.getConnection()) {
             createDatabase(connection);
             createTable(connection);
             insertTable(connection);
+            insertBatch(connection);
             selectTable(connection);
             dropDatabase(connection);
+
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -76,6 +75,23 @@ public class SimpleQuery {
             stmt.executeUpdate(
                     "INSERT INTO inventory.orders VALUES ('54895','Apple',12)"
             );
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertBatch(Connection connection) {
+        String insertQuery = "INSERT INTO inventory.orders (OrderID, OrderName, OrderPriority) VALUES (?,'Apple',?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
+            int insertBatchSize = 10;
+
+            for (int i = 0; i < insertBatchSize; i++) {
+                pstmt.setString(1, "ID" + i);
+                pstmt.setInt(2, i);
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

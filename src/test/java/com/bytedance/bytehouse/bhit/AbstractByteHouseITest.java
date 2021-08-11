@@ -87,8 +87,6 @@ public abstract class AbstractByteHouseITest {
         properties.setProperty("user", getUsername());
         properties.setProperty("password", getPassword());
         properties.setProperty("secure", String.valueOf(isSecureConnection()));
-        properties.setProperty("database", getDatabase());
-        properties.setProperty("warehouse", getVirtualWarehouse());
         final DataSource dataSource = new BalancedByteHouseDataSource(getUrl(), properties);
         return dataSource.getConnection();
     }
