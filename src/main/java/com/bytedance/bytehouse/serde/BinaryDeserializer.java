@@ -39,14 +39,17 @@ public class BinaryDeserializer {
             final boolean enableCompression
     ) {
         this.enableCompression = enableCompression;
-        BuffedReader compressedReader = new CompressedBuffedReader(buffedReader);
+        final BuffedReader compressedReader = new CompressedBuffedReader(buffedReader);
         switcher = new Switcher<>(compressedReader, buffedReader);
     }
 
-    public void setEnableCompression(boolean enableCompression) {
+    public void setEnableCompression(final boolean enableCompression) {
         this.enableCompression = enableCompression;
     }
 
+    /**
+     * read a long.
+     */
     public long readVarInt() throws IOException {
         int number = 0;
         for (int i = 0; i < 9; i++) {
@@ -61,7 +64,10 @@ public class BinaryDeserializer {
         return number;
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
+    /**
+     * read a short.
+     */
+    @SuppressWarnings({"PointlessBitwiseExpression", "PMD.AvoidUsingShortType"})
     public short readShort() throws IOException {
         // @formatter:off
         return (short) (((switcher.get().readBinary() & 0xFF) << 0)
@@ -69,6 +75,9 @@ public class BinaryDeserializer {
         // @formatter:on
     }
 
+    /**
+     * Read a int.
+     */
     @SuppressWarnings("PointlessBitwiseExpression")
     public int readInt() throws IOException {
         // @formatter:off
@@ -79,6 +88,9 @@ public class BinaryDeserializer {
         // @formatter:on
     }
 
+    /**
+     * read a long.
+     */
     @SuppressWarnings("PointlessBitwiseExpression")
     public long readLong() throws IOException {
         // @formatter:off

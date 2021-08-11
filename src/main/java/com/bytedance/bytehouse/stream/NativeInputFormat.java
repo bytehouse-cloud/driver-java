@@ -16,12 +16,23 @@ package com.bytedance.bytehouse.stream;
 import com.bytedance.bytehouse.data.Block;
 import java.sql.SQLException;
 
+/**
+ * Fills {@link Block} with some data.
+ */
 public interface NativeInputFormat extends InputFormat<Block, SQLException> {
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
     @Override
     default String name() {
         return "Native";
     }
 
+    /**
+     * Fill the block.
+     */
     void fill(Block block) throws SQLException;
 }

@@ -91,7 +91,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
     @Override
     public int executeUpdate() throws SQLException {
         addParameters();
-        int result = connection.sendInsertRequest(block);
+        int result = creator.sendInsertRequest(block);
         this.blockInit = false;
         this.block.initWriteBuffer();
         return result;
@@ -114,7 +114,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     @Override
     public int[] executeBatch() throws SQLException {
-        int rows = connection.sendInsertRequest(block);
+        int rows = creator.sendInsertRequest(block);
         int[] result = new int[rows];
         Arrays.fill(result, 1);
         clearBatch();
@@ -127,7 +127,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
     public void close() throws SQLException {
         if (blockInit) {
             // Empty insert when close.
-            this.connection.sendInsertRequest(new Block());
+            this.creator.sendInsertRequest(new Block());
             this.blockInit = false;
             this.block.initWriteBuffer();
         }
@@ -166,7 +166,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
             return;
         }
         ExceptionUtil.rethrowSQLException(() -> {
-            this.block = connection.getSampleBlock(insertQuery);
+            this.block = creator.getSampleBlock(insertQuery);
             this.block.initWriteBuffer();
             this.blockInit = true;
             new ValuesWithParametersNativeInputFormat(posOfData, fullQuery).fill(block);

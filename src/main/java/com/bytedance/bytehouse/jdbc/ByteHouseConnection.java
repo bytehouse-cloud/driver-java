@@ -28,14 +28,11 @@ import com.bytedance.bytehouse.jdbc.wrapper.BHConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.Validate;
-import com.bytedance.bytehouse.protocol.HelloResponse;
-import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseErrCode;
 import com.bytedance.bytehouse.settings.SettingKey;
 import com.bytedance.bytehouse.stream.QueryResult;
 import java.io.Serializable;
-import java.net.InetSocketAddress;
 import java.sql.Array;
 import java.sql.ClientInfoStatus;
 import java.sql.Connection;
@@ -49,9 +46,7 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
@@ -64,11 +59,15 @@ import javax.annotation.Nullable;
 /**
  * Provides implementation for {@link BHConnection}.
  */
+@SuppressWarnings({"PMD.GodClass", "PMD.TooManyMethods", "PMD.AvoidFieldNameMatchingMethodName"})
 public class ByteHouseConnection implements BHConnection {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseConnection.class);
 
     private static final Pattern VALUES_REGEX = Pattern.compile("[Vv][Aa][Ll][Uu][Ee][Ss]\\s*\\(");
+
+    private static final String TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE =
+            "Transaction is not supported in Bytehouse";
 
     private final AtomicBoolean isClosed;
 
@@ -78,6 +77,9 @@ public class ByteHouseConnection implements BHConnection {
 
     private volatile NativeContext nativeCtx;
 
+    /**
+     * Constructor. do not call directly. Use the factory method.
+     */
     protected ByteHouseConnection(
             final ByteHouseConfig cfg,
             final NativeContext nativeCtx
@@ -88,79 +90,18 @@ public class ByteHouseConnection implements BHConnection {
     }
 
     /**
-     * Creates {@link ByteHouseConnection}.
+     * factory method {@link ByteHouseConnection}.
      */
+    @SuppressWarnings("PMD.CloseResource")
     public static ByteHouseConnection createByteHouseConnection(
-            final ByteHouseConfig configure
+            final ByteHouseConfig config
     ) throws SQLException {
-        return new ByteHouseConnection(configure, createNativeContext(configure));
-    }
-
-    private static NativeContext createNativeContext(
-            final ByteHouseConfig configure
-    ) throws SQLException {
-        final NativeClient nativeClient = NativeClient.connect(configure);
-        return new NativeContext(
-                clientContext(nativeClient, configure),
-                serverContext(nativeClient, configure),
+        final NativeClient nativeClient = NativeClient.connect(config);
+        return new ByteHouseConnection(config, new NativeContext(
+                ClientContext.create(nativeClient, config),
+                ServerContext.create(nativeClient, config),
                 nativeClient
-        );
-    }
-
-    private static ClientContext clientContext(
-            final NativeClient nativeClient,
-            final ByteHouseConfig configure
-    ) throws SQLException {
-        Validate.isTrue(nativeClient.address() instanceof InetSocketAddress);
-        final InetSocketAddress address = (InetSocketAddress) nativeClient.address();
-        final String clientName = String.format(Locale.ROOT, "%s %s",
-                BHConstants.NAME, "client");
-        final String initialAddress = "[::ffff:127.0.0.1]:0";
-        return new ClientContext(initialAddress, address.getHostName(), clientName);
-    }
-
-    private static ServerContext serverContext(
-            final NativeClient nativeClient,
-            final ByteHouseConfig configure
-    ) throws SQLException {
-        try {
-            final long revision = BHConstants.CLIENT_REVISION;
-            nativeClient.sendHello(
-                    "client",
-                    revision,
-                    configure.database(),
-                    configure.fullUsername(),
-                    configure.password()
-            );
-
-            final HelloResponse response = nativeClient.receiveHello(
-                    configure.queryTimeout(), null
-            );
-            final ZoneId timeZone = getZoneId(response.serverTimeZone());
-            return new ServerContext(
-                    response.majorVersion(),
-                    response.minorVersion(),
-                    response.reversion(),
-                    configure,
-                    timeZone,
-                    response.serverDisplayName(),
-                    response.serverVersionPatch()
-            );
-        } catch (SQLException rethrows) {
-            nativeClient.silentDisconnect();
-            throw rethrows;
-        }
-    }
-
-    /**
-     * Temporary fix for CNCH returning "Local" as a serverTimeZone.
-     */
-    private static ZoneId getZoneId(String serverTimeZone) {
-        if (serverTimeZone.equals("Local")) {
-            return ZoneId.systemDefault();
-        } else {
-            return ZoneId.of(serverTimeZone);
-        }
+        ));
     }
 
     public ByteHouseConfig cfg() {
@@ -175,9 +116,12 @@ public class ByteHouseConnection implements BHConnection {
         return nativeCtx.clientCtx();
     }
 
+    /**
+     * {@inheritDoc}.
+     */
     @Override
     public boolean getAutoCommit() throws SQLException {
-        LOG.warn("Transaction is not supported in Bytehouse");
+        LOG.warn(TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE);
         return true;
     }
 
@@ -185,10 +129,10 @@ public class ByteHouseConnection implements BHConnection {
      * autoCommit is always true as transactions are not supported in ByteHouse.
      */
     @Override
-    public void setAutoCommit(boolean autoCommit) throws SQLException {
+    public void setAutoCommit(final boolean autoCommit) throws SQLException {
         LOG.warn("Transaction is not supported in Bytehouse");
         if (!autoCommit) {
-            throw new SQLFeatureNotSupportedException("Transaction is not supported in Bytehouse");
+            throw new SQLFeatureNotSupportedException(TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE);
         }
     }
 
@@ -197,7 +141,7 @@ public class ByteHouseConnection implements BHConnection {
      */
     @Override
     public void commit() throws SQLException {
-        throw new SQLFeatureNotSupportedException("Transaction is not supported in Bytehouse");
+        throw new SQLFeatureNotSupportedException(TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE);
     }
 
     /**
@@ -205,7 +149,7 @@ public class ByteHouseConnection implements BHConnection {
      */
     @Override
     public void rollback() throws SQLException {
-        throw new SQLFeatureNotSupportedException("Transaction is not supported in Bytehouse");
+        throw new SQLFeatureNotSupportedException(TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE);
     }
 
     /**
@@ -221,12 +165,14 @@ public class ByteHouseConnection implements BHConnection {
      */
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
-        // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3098
         if (readOnly) {
             throw new SQLFeatureNotSupportedException("read-only mode is not supported");
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getHoldability() throws SQLException {
         return ResultSet.CLOSE_CURSORS_AT_COMMIT;
@@ -250,9 +196,11 @@ public class ByteHouseConnection implements BHConnection {
 
     @Override
     public void close() throws SQLException {
-        if (!isClosed() && isClosed.compareAndSet(false, true)) {
-            NativeClient nativeClient = nativeCtx.nativeClient();
-            nativeClient.disconnect();
+        synchronized (this) {
+            if (!isClosed() && isClosed.compareAndSet(false, true)) {
+                final NativeClient nativeClient = nativeCtx.nativeClient();
+                nativeClient.disconnect();
+            }
         }
     }
 
@@ -269,7 +217,7 @@ public class ByteHouseConnection implements BHConnection {
     }
 
     @Override
-    public PreparedStatement prepareStatement(String query) throws SQLException {
+    public PreparedStatement prepareStatement(final String query) throws SQLException {
         // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3099
         Validate.isTrue(!isClosed(), "Unable to create PreparedStatement, "
                 + "because the connection is closed.");
@@ -412,7 +360,7 @@ public class ByteHouseConnection implements BHConnection {
      * Get Sample block.
      */
     public Block getSampleBlock(final String insertQuery) throws SQLException {
-        NativeClient nativeClient = getHealthyNativeClient();
+        final NativeClient nativeClient = getHealthyNativeClient();
         nativeClient.sendQuery(
                 insertQuery,
                 nativeCtx.clientCtx(),
@@ -456,27 +404,35 @@ public class ByteHouseConnection implements BHConnection {
         Validate.isTrue(this.state.get() == SessionState.WAITING_INSERT,
                 "Call getSampleBlock before insert.");
 
-        NativeClient nativeClient = getNativeClient();
+        final NativeClient nativeClient = getNativeClient();
         nativeClient.sendData(block);
-        nativeClient.sendData(new Block());
+        nativeClient.sendData(Block.empty());
         nativeClient.receiveEndOfStream(cfg.get().queryTimeout(), nativeCtx.serverCtx());
         Validate.isTrue(this.state.compareAndSet(SessionState.WAITING_INSERT, SessionState.IDLE));
         return block.rowCnt();
     }
 
-    synchronized private NativeClient getHealthyNativeClient() throws SQLException {
-        final NativeContext oldCtx = nativeCtx;
-        if (!oldCtx.nativeClient().ping(cfg.get().queryTimeout(), nativeCtx.serverCtx())) {
-            LOG.warn(
-                    "connection loss with state [{}], create new connection and reset state",
-                    state
-            );
-            nativeCtx = createNativeContext(cfg.get());
-            state.set(SessionState.IDLE);
-            oldCtx.nativeClient().silentDisconnect();
-        }
+    private NativeClient getHealthyNativeClient() throws SQLException {
+        synchronized (this) {
+            final NativeContext oldCtx = nativeCtx;
+            if (!oldCtx.nativeClient().ping(cfg.get().queryTimeout(), oldCtx.serverCtx())) {
+                LOG.warn(
+                        "connection loss with state [{}], create new connection and reset state",
+                        state
+                );
+                final ByteHouseConfig config = cfg.get();
+                final NativeClient nativeClient = NativeClient.connect(config);
+                nativeCtx = new NativeContext(
+                        ClientContext.create(nativeClient, config),
+                        ServerContext.create(nativeClient, config),
+                        nativeClient
+                );
+                state.set(SessionState.IDLE);
+                oldCtx.nativeClient().silentDisconnect();
+            }
 
-        return nativeCtx.nativeClient();
+            return nativeCtx.nativeClient();
+        }
     }
 
     private NativeClient getNativeClient() {

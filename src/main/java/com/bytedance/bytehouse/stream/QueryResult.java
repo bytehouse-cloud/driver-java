@@ -18,8 +18,14 @@ import com.bytedance.bytehouse.misc.CheckedIterator;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import java.sql.SQLException;
 
+/**
+ * Query Result.
+ */
 public interface QueryResult {
 
+    /**
+     * Block represending the header.
+     */
     Block header() throws SQLException;
 
     CheckedIterator<DataResponse, SQLException> data();

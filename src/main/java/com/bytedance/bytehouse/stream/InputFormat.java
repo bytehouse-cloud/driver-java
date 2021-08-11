@@ -13,10 +13,18 @@
  */
 package com.bytedance.bytehouse.stream;
 
-// TODO remove E
+/**
+ * A class that takes some data and fill T with the data, possibly throws E.
+ */
 public interface InputFormat<T, E extends Throwable> {
 
+    /**
+     * name of the format.
+     */
     String name();
 
+    /**
+     * trigger fill action.
+     */
     void fill(T payload) throws E;
 }

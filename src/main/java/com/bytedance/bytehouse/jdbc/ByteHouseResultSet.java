@@ -39,6 +39,10 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 
+/**
+ * Bytehouse implementation of {@link ResultSet}.
+ */
+@SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.GodClass"})
 public class ByteHouseResultSet implements SQLResultSet {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSet.class);
@@ -63,20 +67,25 @@ public class ByteHouseResultSet implements SQLResultSet {
 
     private int lastFetchColumnIdx = -1;
 
-    private Block lastFetchBlock = null;
+    private Block lastFetchBlock;
 
-    private boolean isFirst = false;
+    private boolean isFirst;
 
-    private boolean isAfterLast = false;
+    private boolean isAfterLast;
 
-    private boolean isClosed = false;
+    private boolean isClosed;
 
-    public ByteHouseResultSet(ByteHouseStatement statement,
-                              ByteHouseConfig cfg,
-                              String db,
-                              String table,
-                              Block header,
-                              CheckedIterator<DataResponse, SQLException> dataResponses) {
+    /**
+     * Constructor.
+     */
+    public ByteHouseResultSet(
+            final ByteHouseStatement statement,
+            final ByteHouseConfig cfg,
+            final String db,
+            final String table,
+            final Block header,
+            final CheckedIterator<DataResponse, SQLException> dataResponses
+    ) {
         this.statement = statement;
         this.cfg = cfg;
         this.db = db;
@@ -86,98 +95,98 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public boolean getBoolean(String name) throws SQLException {
+    public boolean getBoolean(final String name) throws SQLException {
         return this.getBoolean(this.findColumn(name));
     }
 
     @Override
-    public byte getByte(String name) throws SQLException {
+    public byte getByte(final String name) throws SQLException {
         return this.getByte(this.findColumn(name));
     }
 
     @Override
-    public short getShort(String name) throws SQLException {
+    public short getShort(final String name) throws SQLException {
         return this.getShort(this.findColumn(name));
     }
 
     @Override
-    public int getInt(String name) throws SQLException {
+    public int getInt(final String name) throws SQLException {
         return this.getInt(this.findColumn(name));
     }
 
     @Override
-    public long getLong(String name) throws SQLException {
+    public long getLong(final String name) throws SQLException {
         return this.getLong(this.findColumn(name));
     }
 
     @Override
-    public float getFloat(String name) throws SQLException {
+    public float getFloat(final String name) throws SQLException {
         return this.getFloat(this.findColumn(name));
     }
 
     @Override
-    public double getDouble(String name) throws SQLException {
+    public double getDouble(final String name) throws SQLException {
         return this.getDouble(this.findColumn(name));
     }
 
     @Override
-    public Timestamp getTimestamp(String name) throws SQLException {
+    public Timestamp getTimestamp(final String name) throws SQLException {
         return this.getTimestamp(this.findColumn(name));
     }
 
     @Override
-    public Timestamp getTimestamp(String name, Calendar cal) throws SQLException {
+    public Timestamp getTimestamp(final String name, final Calendar cal) throws SQLException {
         return this.getTimestamp(this.findColumn(name), cal);
     }
 
     @Override
-    public Date getDate(String name) throws SQLException {
+    public Date getDate(final String name) throws SQLException {
         return this.getDate(this.findColumn(name));
     }
 
     @Override
-    public BigDecimal getBigDecimal(String name) throws SQLException {
+    public BigDecimal getBigDecimal(final String name) throws SQLException {
         return this.getBigDecimal(this.findColumn(name));
     }
 
     @Override
-    public String getString(String name) throws SQLException {
+    public String getString(final String name) throws SQLException {
         return this.getString(this.findColumn(name));
     }
 
     @Override
-    public byte[] getBytes(String name) throws SQLException {
+    public byte[] getBytes(final String name) throws SQLException {
         return this.getBytes(this.findColumn(name));
     }
 
     @Override
-    public URL getURL(String name) throws SQLException {
+    public URL getURL(final String name) throws SQLException {
         return this.getURL(this.findColumn(name));
     }
 
     @Override
-    public Array getArray(String name) throws SQLException {
+    public Array getArray(final String name) throws SQLException {
         return this.getArray(this.findColumn(name));
     }
 
     @Override
-    public Object getObject(String name) throws SQLException {
+    public Object getObject(final String name) throws SQLException {
         return this.getObject(this.findColumn(name));
     }
 
     @Override
-    public boolean getBoolean(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public boolean getBoolean(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return false;
         }
-        Number ndata = (Number) data;
+        final Number ndata = (Number) data;
         return (ndata.shortValue() != 0);
     }
 
     @Override
-    public byte getByte(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public byte getByte(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return 0;
         }
@@ -185,8 +194,8 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public short getShort(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public short getShort(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return 0;
         }
@@ -194,8 +203,8 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public int getInt(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public int getInt(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return 0;
         }
@@ -203,8 +212,8 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public long getLong(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public long getLong(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return 0;
         }
@@ -212,8 +221,8 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public float getFloat(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public float getFloat(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return 0;
         }
@@ -221,8 +230,8 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public double getDouble(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public double getDouble(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return 0;
         }
@@ -230,36 +239,36 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public Timestamp getTimestamp(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public Timestamp getTimestamp(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return null;
         }
-        ZonedDateTime zts = (ZonedDateTime) data;
+        final ZonedDateTime zts = (ZonedDateTime) data;
         return DateTimeUtil.toTimestamp(zts, null);
     }
 
     @Override
-    public Timestamp getTimestamp(int position, Calendar cal) throws SQLException {
-        Object data = getInternalObject(position);
+    public Timestamp getTimestamp(final int position, final Calendar cal) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return null;
         }
-        ZonedDateTime zts = (ZonedDateTime) data;
+        final ZonedDateTime zts = (ZonedDateTime) data;
         return DateTimeUtil.toTimestamp(zts, cal.getTimeZone().toZoneId());
     }
 
     @Override
-    public Date getDate(int position) throws SQLException {
-        LocalDate date = (LocalDate) getInternalObject(position);
+    public Date getDate(final int position) throws SQLException {
+        final LocalDate date = (LocalDate) getInternalObject(position);
         if (date == null)
             return null;
         return Date.valueOf(date);
     }
 
     @Override
-    public BigDecimal getBigDecimal(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public BigDecimal getBigDecimal(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return null;
         }
@@ -270,8 +279,8 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public String getString(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public String getString(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return null;
         }
@@ -280,20 +289,21 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public byte[] getBytes(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public byte[] getBytes(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         if (data == null) {
             return null;
         }
         if (data instanceof String) {
             return ((String) data).getBytes(cfg.charset());
         }
-        throw new ByteHouseSQLException(-1, "Currently not support getBytes from class: " + data.getClass());
+        throw new ByteHouseSQLException(-1, "Currently not support getBytes from class: "
+                + data.getClass());
     }
 
     @Override
-    public URL getURL(int position) throws SQLException {
-        String data = this.getString(position);
+    public URL getURL(final int position) throws SQLException {
+        final String data = this.getString(position);
         if (data == null) {
             return null;
         }
@@ -305,14 +315,14 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public Array getArray(int position) throws SQLException {
-        Object data = getInternalObject(position);
+    public Array getArray(final int position) throws SQLException {
+        final Object data = getInternalObject(position);
         return (Array) data;
     }
 
     @Override
-    public Object getObject(int position) throws SQLException {
-        Object obj = getInternalObject(position);
+    public Object getObject(final int position) throws SQLException {
+        final Object obj = getInternalObject(position);
         if (obj == null) {
             return null;
         }
@@ -329,12 +339,16 @@ public class ByteHouseResultSet implements SQLResultSet {
         return obj;
     }
 
-    private Object getInternalObject(int position) throws SQLException {
-        LOG.trace("get object at row: {}, column position: {} from block with column count: {}, row count: {}",
+    private Object getInternalObject(final int position) throws SQLException {
+        LOG.trace("get object at row: {}, column position: {} from block with "
+                        + "column count: {}, row count: {}",
                 currentRowNum, position, currentBlock.columnCnt(), currentBlock.rowCnt());
         Validate.isTrue(currentRowNum >= 0 && currentRowNum < currentBlock.rowCnt(),
-                "No row information was obtained. You must call ResultSet.next() before that.");
-        IColumn column = (lastFetchBlock = currentBlock).getColumn((lastFetchColumnIdx = position - 1));
+                "No row information was obtained. You must call "
+                        + "ResultSet.next() before that.");
+        final IColumn column = (lastFetchBlock = currentBlock).getColumn(
+                (lastFetchColumnIdx = position - 1)
+        );
         return column.value((lastFetchRowIdx = currentRowNum));
     }
 
@@ -407,7 +421,10 @@ public class ByteHouseResultSet implements SQLResultSet {
     public boolean wasNull() throws SQLException {
         Validate.isTrue(lastFetchBlock != null, "Please call Result.next()");
         Validate.isTrue(lastFetchColumnIdx >= 0, "Please call Result.getXXX()");
-        Validate.isTrue(lastFetchRowIdx >= 0 && lastFetchRowIdx < lastFetchBlock.rowCnt(), "Please call Result.next()");
+        Validate.isTrue(
+                lastFetchRowIdx >= 0 && lastFetchRowIdx < lastFetchBlock.rowCnt(),
+                "Please call Result.next()"
+        );
         return lastFetchBlock.getColumn(lastFetchColumnIdx).value(lastFetchRowIdx) == null;
     }
 
@@ -422,21 +439,24 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
-    public int findColumn(String name) throws SQLException {
+    public int findColumn(final String name) throws SQLException {
         LOG.trace("find column: {}", name);
         return header.getPositionByName(name);
     }
 
     @Override
     public boolean next() throws SQLException {
-        boolean isBeforeFirst = isBeforeFirst();
-        LOG.trace("check status[before]: is_before_first: {}, is_first: {}, is_after_last: {}", isBeforeFirst, isFirst, isAfterLast);
+        final boolean isBeforeFirst = isBeforeFirst();
+        LOG.trace("check status[before]: is_before_first: {}, is_first: {}, is_after_last: {}",
+                isBeforeFirst, isFirst, isAfterLast);
 
-        boolean hasNext = ++currentRowNum < currentBlock.rowCnt() || (currentRowNum = 0) < (currentBlock = fetchBlock()).rowCnt();
+        final boolean hasNext = (++currentRowNum < currentBlock.rowCnt())
+                || (currentRowNum = 0) < (currentBlock = fetchBlock()).rowCnt();
 
         isFirst = isBeforeFirst && hasNext;
         isAfterLast = !hasNext;
-        LOG.trace("check status[after]: has_next: {}, is_before_first: {}, is_first: {}, is_after_last: {}", hasNext, isBeforeFirst(), isFirst, isAfterLast);
+        LOG.trace("check status[after]: has_next: {}, is_before_first: {}, is_first: {}, "
+                + "is_after_last: {}", hasNext, isBeforeFirst(), isFirst, isAfterLast);
 
         return hasNext;
     }
@@ -474,7 +494,7 @@ public class ByteHouseResultSet implements SQLResultSet {
     private Block fetchBlock() throws SQLException {
         while (dataResponses.hasNext()) {
             LOG.trace("fetch next DataResponse");
-            DataResponse next = dataResponses.next();
+            final DataResponse next = dataResponses.next();
             if (next.block().rowCnt() > 0) {
                 return next.block();
             }

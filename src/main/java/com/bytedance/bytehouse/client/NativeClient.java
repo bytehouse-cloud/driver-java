@@ -194,18 +194,19 @@ public class NativeClient implements AutoCloseable {
         try {
             sendRequest(PingRequest.INSTANCE);
             while (!Thread.currentThread().isInterrupted()) {
-                Response response = receiveResponse(soTimeout, info);
+                final Response response = receiveResponse(soTimeout, info);
 
+                // seek only the PongResponse
                 if (response instanceof PongResponse)
                     return true;
 
-                // TODO there are some previous response we haven't consumed
                 LOG.debug("expect pong, skip response: {}", response.type());
             }
         } catch (SQLException e) {
             LOG.warn(e.getMessage());
             return false;
         }
+        LOG.warn("Pinging server is interrupted");
         return false;
     }
 
@@ -331,7 +332,7 @@ public class NativeClient implements AutoCloseable {
     ) throws SQLException {
         try {
             socket.setSoTimeout(((int) soTimeout.toMillis()));
-            Response response = Response.readFrom(deserializer, info);
+            final Response response = Response.readFrom(deserializer, info);
             LOG.trace("recv response: {}", response.type());
             return response;
         } catch (IOException ex) {

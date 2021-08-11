@@ -13,7 +13,10 @@
  */
 package com.bytedance.bytehouse.client;
 
+import com.bytedance.bytehouse.protocol.HelloResponse;
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
+import java.sql.SQLException;
 import java.time.ZoneId;
 
 /**
@@ -35,7 +38,7 @@ public class ServerContext {
 
     private final ByteHouseConfig configure;
 
-    public ServerContext(
+    ServerContext(
             final long majorVersion,
             final long minorVersion,
             final long reversion,
@@ -51,6 +54,53 @@ public class ServerContext {
         this.timeZone = timeZone;
         this.displayName = displayName;
         this.versionPatch = versionPatch;
+    }
+
+    /**
+     * Factory method that creates {@link ServerContext}.
+     */
+    public static ServerContext create(
+            final NativeClient nativeClient,
+            final ByteHouseConfig configure
+    ) throws SQLException {
+        try {
+            final long revision = BHConstants.CLIENT_REVISION;
+            nativeClient.sendHello(
+                    "client",
+                    revision,
+                    configure.database(),
+                    configure.fullUsername(),
+                    configure.password()
+            );
+
+            final HelloResponse response = nativeClient.receiveHello(
+                    configure.queryTimeout(), null
+            );
+            final ZoneId timeZone = getZoneId(response.serverTimeZone());
+            return new ServerContext(
+                    response.majorVersion(),
+                    response.minorVersion(),
+                    response.reversion(),
+                    configure,
+                    timeZone,
+                    response.serverDisplayName(),
+                    response.serverVersionPatch()
+            );
+        } catch (SQLException rethrows) {
+            nativeClient.silentDisconnect();
+            throw rethrows;
+        }
+    }
+
+    /**
+     * Temporary fix for CNCH returning "Local" as a serverTimeZone.
+     */
+    private static ZoneId getZoneId(String serverTimeZone) {
+        if (serverTimeZone.equals("Local")) {
+            return ZoneId.systemDefault();
+        } else {
+            return ZoneId.of(serverTimeZone);
+        }
     }
 
     public long majorVersion() {

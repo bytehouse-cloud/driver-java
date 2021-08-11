@@ -19,18 +19,41 @@ import com.bytedance.bytehouse.misc.Validate;
 import java.sql.SQLException;
 import java.util.BitSet;
 
+/**
+ * Fills the {@link Block} with the data from behind the "values" syntax.
+ * <br>
+ * For example:<br>
+ * <pre>
+ * insert into table xxx (col1, col2) values (1,2), (3,4)
+ * </pre>
+ * will become
+ * <pre>
+ *  block
+ *  ---------
+ *  | 1 | 2 |
+ *  ---------
+ *  | 3 | 4 |
+ *  ---------
+ * </pre>
+ */
 public class ValuesNativeInputFormat implements NativeInputFormat {
 
     private final SQLLexer lexer;
 
-    public ValuesNativeInputFormat(int pos, String sql) {
+    /**
+     * create a input form.
+     */
+    public ValuesNativeInputFormat(final int pos, final String sql) {
         this.lexer = new SQLLexer(pos, sql);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void fill(Block block) throws SQLException {
-        BitSet constIdxFlags = new BitSet(block.columnCnt());
-        for (; ; ) {
+        final BitSet constIdxFlags = new BitSet(block.columnCnt());
+        while (true) {
             char nextChar = lexer.character();
             if (lexer.eof() || nextChar == ';') {
                 break;

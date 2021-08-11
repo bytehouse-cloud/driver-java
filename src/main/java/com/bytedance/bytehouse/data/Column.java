@@ -25,7 +25,7 @@ public class Column extends AbstractColumn {
     }
 
     @Override
-    public void write(Object object) throws IOException, SQLException {
+    public void write(final Object object) throws IOException, SQLException {
         type().serializeBinary(object, buffer.column);
     }
 

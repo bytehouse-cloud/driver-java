@@ -13,9 +13,14 @@
  */
 package com.bytedance.bytehouse.client;
 
+import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.BHConstants;
+import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.sql.SQLException;
+import java.util.Locale;
 
 /**
  * A Context object describing who the client is.
@@ -30,19 +35,36 @@ public class ClientContext {
 
     public static final byte SECONDARY_QUERY = 2;
 
+    private static final String IPV6_LOCALHOST_PORT0 = "[::ffff:127.0.0.1]:0";
+
     private final String clientName;
 
     private final String clientHostname;
 
     private final String initialAddress;
 
-    public ClientContext(
+    ClientContext(
             final String initialAddress,
             final String clientHostname,
-            final String clientName) {
+            final String clientName
+    ) {
         this.clientName = clientName;
         this.clientHostname = clientHostname;
         this.initialAddress = initialAddress;
+    }
+
+    /**
+     * Factory method that creates {@link ClientContext}.
+     */
+    public static ClientContext create(
+            final NativeClient nativeClient,
+            final ByteHouseConfig configure
+    ) throws SQLException {
+        Validate.isTrue(nativeClient.address() instanceof InetSocketAddress);
+        final InetSocketAddress address = (InetSocketAddress) nativeClient.address();
+        final String clientName = String.format(Locale.ROOT,
+                "%s %s", BHConstants.NAME, "client");
+        return new ClientContext(IPV6_LOCALHOST_PORT0, address.getHostName(), clientName);
     }
 
     public void writeTo(final BinarySerializer serializer) throws IOException {

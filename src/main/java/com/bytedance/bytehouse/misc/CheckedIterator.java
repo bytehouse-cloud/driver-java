@@ -14,13 +14,17 @@
 package com.bytedance.bytehouse.misc;
 
 /**
- * Copyright (C) 2018 SpectX
- * Created by Lauri Nõmme
- * 12.12.2018 16:11
+ * {@link java.util.Iterator} which can throw exception
  */
 public interface CheckedIterator<T, E extends Throwable> {
 
+    /**
+     * check if there is next.
+     */
     boolean hasNext() throws E;
 
+    /**
+     * get next.
+     */
     T next() throws E;
 }

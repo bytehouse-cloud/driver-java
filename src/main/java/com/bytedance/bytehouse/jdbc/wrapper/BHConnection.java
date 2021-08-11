@@ -77,6 +77,7 @@ public interface BHConnection extends Connection, SQLWrapper, Logging {
         throw new SQLFeatureNotSupportedException();
     }
 
+    // TODO: 12/8/21 https://jira-sg.bytedance.net/browse/BYT-3158
     @Override
     default CallableStatement prepareCall(String sql) throws SQLException {
         logger().debug("invoke unimplemented method #prepareCall(String sql)");

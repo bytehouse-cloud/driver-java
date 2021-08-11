@@ -30,20 +30,25 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * {@link Statement} implementation for Bytehouse.
+ */
 public class ByteHouseStatement implements SQLStatement {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStatement.class);
 
-    private static final Pattern VALUES_REGEX = Pattern.compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
+    private static final Pattern VALUES_REGEX = Pattern
+            .compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
 
     private static final Pattern SELECT_DB_TABLE = Pattern.compile("(?i)FROM\\s+(\\S+\\.)?(\\S+)");
 
-    protected final ByteHouseConnection connection;
+    protected final ByteHouseConnection creator;
 
     protected final NativeContext nativeContext;
 
@@ -55,16 +60,21 @@ public class ByteHouseStatement implements SQLStatement {
 
     private long maxRows;
 
+    // =========  START: temporary variables per execution ===========
     private String db;
 
     private String table = "unknown";
 
     private int updateCount = -1;
+    // =========  END: temporary variables per execution ===========
 
     private boolean isClosed = false;
 
-    public ByteHouseStatement(ByteHouseConnection connection, NativeContext nativeContext) {
-        this.connection = connection;
+    public ByteHouseStatement(
+            final ByteHouseConnection connection,
+            final NativeContext nativeContext
+    ) {
+        this.creator = connection;
         this.nativeContext = nativeContext;
         this.cfg = connection.cfg();
         this.db = cfg.database();
@@ -75,12 +85,15 @@ public class ByteHouseStatement implements SQLStatement {
      * Only tracks the one and only ResultSet / updateCount returned by query.
      */
     @Override
-    public boolean execute(String query) throws SQLException {
+    public boolean execute(final String query) throws SQLException {
         return executeQuery(query) != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int executeUpdate(String query) throws SQLException {
+    public int executeUpdate(final String query) throws SQLException {
         // closes current ResultSet if it exists before running another query.
         if (lastResultSet != null) {
             lastResultSet.close();
@@ -88,40 +101,62 @@ public class ByteHouseStatement implements SQLStatement {
 
         return ExceptionUtil.rethrowSQLException(() -> {
             extractDBAndTableName(query);
-            Matcher matcher = VALUES_REGEX.matcher(query);
+            final Matcher matcher = VALUES_REGEX.matcher(query);
 
             if (matcher.find() && query.trim().toUpperCase(Locale.ROOT).startsWith("INSERT")) {
+                // insert statement we return row count.
                 lastResultSet = null;
-                String insertQuery = query.substring(0, matcher.end() - 1);
-                block = connection.getSampleBlock(insertQuery);
+                final String insertQuery = query.substring(0, matcher.end() - 1);
+                block = creator.getSampleBlock(insertQuery);
                 block.initWriteBuffer();
                 new ValuesNativeInputFormat(matcher.end() - 1, query).fill(block);
-                updateCount = connection.sendInsertRequest(block);
+                updateCount = creator.sendInsertRequest(block);
                 return updateCount;
+            } else {
+                // other statement we return 0.
+                updateCount = -1;
+                final QueryResult result = creator.sendQueryRequest(query, cfg);
+                lastResultSet = new ByteHouseResultSet(
+                        this,
+                        cfg,
+                        db,
+                        table,
+                        result.header(),
+                        result.data()
+                );
+                return 0;
             }
-            updateCount = -1;
-            QueryResult result = connection.sendQueryRequest(query, cfg);
-            lastResultSet = new ByteHouseResultSet(this, cfg, db, table, result.header(), result.data());
-            return 0;
         });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ResultSet executeQuery(String query) throws SQLException {
+    public ResultSet executeQuery(final String query) throws SQLException {
         executeUpdate(query);
         return getResultSet();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getUpdateCount() throws SQLException {
         return updateCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ResultSet getResultSet() {
         return lastResultSet;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean getMoreResults() throws SQLException {
         updateCount = -1;
@@ -162,7 +197,7 @@ public class ByteHouseStatement implements SQLStatement {
     }
 
     @Override
-    public void setMaxRows(int max) throws SQLException {
+    public void setMaxRows(final int max) throws SQLException {
         Validate.isTrue(max >= 0, "Illegal maxRows value: " + max);
         maxRows = max;
         cfg.settings().put(SettingKey.max_result_rows, maxRows);
@@ -175,7 +210,7 @@ public class ByteHouseStatement implements SQLStatement {
     }
 
     @Override
-    public void setQueryTimeout(int seconds) {
+    public void setQueryTimeout(final int seconds) {
         this.cfg = cfg.withQueryTimeout(Duration.ofSeconds(seconds));
     }
 
@@ -189,7 +224,7 @@ public class ByteHouseStatement implements SQLStatement {
      * currently not supported in ResultSet.
      */
     @Override
-    public void setFetchDirection(int direction) throws SQLException {
+    public void setFetchDirection(final int direction) throws SQLException {
         if (direction != ResultSet.FETCH_FORWARD) {
             throw new SQLException("direction is not supported. FETCH_FORWARD only.");
         }
@@ -213,7 +248,7 @@ public class ByteHouseStatement implements SQLStatement {
      * Statement pooling is not supported, so it cannot be set to true.
      */
     @Override
-    public void setPoolable(boolean poolable) throws SQLException {
+    public void setPoolable(final boolean poolable) throws SQLException {
         if (poolable) {
             throw new SQLException("statement not poolable.");
         }
@@ -231,7 +266,7 @@ public class ByteHouseStatement implements SQLStatement {
 
     @Override
     public Connection getConnection() {
-        return connection;
+        return creator;
     }
 
     @Override
@@ -253,14 +288,10 @@ public class ByteHouseStatement implements SQLStatement {
         return ByteHouseStatement.LOG;
     }
 
-    protected Block getSampleBlock(final String insertQuery) throws SQLException {
-        return connection.getSampleBlock(insertQuery);
-    }
-
-    private void extractDBAndTableName(String sql) {
-        String upperSQL = sql.trim().toUpperCase(Locale.ROOT);
+    private void extractDBAndTableName(final String sql) {
+        final String upperSQL = sql.trim().toUpperCase(Locale.ROOT);
         if (upperSQL.startsWith("SELECT")) {
-            Matcher m = SELECT_DB_TABLE.matcher(sql);
+            final Matcher m = SELECT_DB_TABLE.matcher(sql);
             if (m.find()) {
                 if (m.groupCount() == 2) {
                     if (m.group(1) != null) {
