@@ -25,9 +25,11 @@ public interface SQLHelper {
 
     /**
      * simulate the sql 'LIKE' matching.
+     * null pattern = .* according to sql standard.
      */
     default boolean sqlLike(final String str, final String pattern) {
-        if (str == null || pattern == null) return false;
+        if (str == null) return false;
+        if (pattern == null) return true;
         return str.toLowerCase().matches(
                 pattern.toLowerCase()
                         .replaceAll("\\?", ".")

@@ -24,12 +24,13 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 public class SimpleQuery {
+
     public static void main(String[] args) throws Exception {
         String url = String.format("jdbc:bytehouse://gateway.aws-cn-north-1.bytehouse.cn:19000");
         Properties properties = new Properties();
-        properties.setProperty("account_id", "AWS12345");
-        properties.setProperty("user", "username");
-        properties.setProperty("password", "YOUR_PASSWORD");
+        properties.setProperty("account_id", "AWSKUBIO");
+        properties.setProperty("user", "account.admin");
+        properties.setProperty("password", "P@55word");
         properties.setProperty("secure", "true");
 
         DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
@@ -41,7 +42,6 @@ public class SimpleQuery {
             insertBatch(connection);
             selectTable(connection);
             dropDatabase(connection);
-
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -94,7 +94,6 @@ public class SimpleQuery {
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
-
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

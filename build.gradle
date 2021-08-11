@@ -5,6 +5,11 @@ plugins {
     id "org.sonarqube" version "3.0"
     id "jacoco"
     id "pmd"
+    id 'application'
+}
+
+application {
+    mainClassName = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "NULL"
 }
 
 jacocoTestReport {

@@ -57,6 +57,10 @@ java.sql.Driver      | com.bytedance.bytehouse.jdbc.ByteHouseDriver
 javax.sql.DataSource | com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource 
 
 ### Connecting using the DataSource (Recommended)
+```bash
+# how to run
+./gradlew -PmainClass=examples.SimpleQuery run
+```
 ```java
 import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
 
@@ -87,7 +91,6 @@ public class SimpleQuery {
             selectTable(connection);
             dropDatabase(connection);
 
-            connection.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -175,6 +178,10 @@ public class SimpleQuery {
 ```
 
 ### Connecting using the DriverManager
+```bash
+# how to run
+./gradlew -PmainClass=examples.Main run
+```
 ```java
 import java.sql.*;
 import java.util.Properties;

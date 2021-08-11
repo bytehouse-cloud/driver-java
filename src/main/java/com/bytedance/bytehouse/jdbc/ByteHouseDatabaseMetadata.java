@@ -797,7 +797,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
 
                     // filter 2
                     final String tableName = rs.getString("Name");
-                    if (!sqlLike(tableName, tableNamePattern)) {
+                    if (tableNamePattern != null && !sqlLike(tableName, tableNamePattern)) {
                         continue;
                     }
 
@@ -806,8 +806,9 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                             matchingSchema, //TABLE_SCHEM
                             tableName, //TABLE_NAME
                             type, // TABLE_TYPE
-                            rs.getString("Comments,"), //REMARKS
+                            rs.getString("Comments"), //REMARKS
                             null, // TYPE_CAT
+                            null, // TYPE_SCHEM
                             null, // TYPE_NAME
                             null, // SELF_REFERENCING_COL_NAME
                             null // REF_GENERATION
@@ -929,7 +930,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
         try (ResultSet rs = request(sql)) {
             while (rs.next()) {
                 final String name = rs.getString("Name").toUpperCase(Locale.ROOT);
-                if (!sqlLike(name, schemaPattern)) {
+                if (schemaPattern != null && !sqlLike(name, schemaPattern)) {
                     continue;
                 }
                 builder.addRow(
@@ -1082,23 +1083,33 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String matchingTable = matchingTables.get(i);
             final String matchingSchema = matchingSchemas.get(i);
 
-            final String sql = String.format("DESCRIBE TABLE `%s`", matchingTable);
+            final String sql = String.format("DESCRIBE TABLE `%s`.`%s`", matchingSchema, matchingTable);
+            logger().info(sql);
             try (ResultSet descTable = request(sql)) {
                 int colNum = 1;
                 while (descTable.next()) {
+                    final String columnName = descTable.getString("Name");
+                    if (columnNamePattern != null && !sqlLike(columnName, columnNamePattern)) {
+                        continue;
+                    }
+
                     final List<Object> row = new ArrayList<>();
                     //catalog name
                     row.add(BHConstants.DEFAULT_CATALOG);
+
                     //database name
                     row.add(matchingSchema);
+
                     //table name
                     row.add(matchingTable);
+
                     //column name
                     final IDataType<?, ?> dataType = DataTypeFactory.get(
                             descTable.getString("Type"),
                             connection.serverContext()
                     );
-                    row.add(descTable.getString("Name"));
+                    row.add(columnName);
+
                     //data type
                     row.add(dataType.sqlTypeId());
                     //type name
