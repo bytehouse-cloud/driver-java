@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.bytedance.bytehouse.bhit;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -99,7 +100,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     public void insertBatchTest() throws SQLException, IOException {
         try (Connection connection = getConnection()) {
             PreparedStatement pstmt = connection.prepareStatement(loadSqlStatement("insert-batch"));
-            int insertBatchSize = 100;
+            int insertBatchSize = 1000;
 
             for (int i = 0; i < insertBatchSize; i++) {
                 pstmt.setString(1, "Hello");

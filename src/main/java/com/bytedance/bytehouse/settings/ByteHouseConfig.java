@@ -426,7 +426,7 @@ public class ByteHouseConfig implements Serializable {
         public ByteHouseConfig build() {
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
-            this.database = (String) this.settings.getOrDefault(SettingKey.database, "default");
+            this.database = (String) this.settings.getOrDefault(SettingKey.database, "");
             this.accountId = (String) this.settings.getOrDefault(SettingKey.account_id, "");
             this.user = (String) this.settings.getOrDefault(SettingKey.user, "default");
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
@@ -452,7 +452,7 @@ public class ByteHouseConfig implements Serializable {
         private void revisit() {
             if (StrUtil.isBlank(this.host)) this.host = "127.0.0.1";
             if (this.port == -1) this.port = 9000;
-            if (StrUtil.isBlank(this.database)) this.database = "default";
+            if (StrUtil.isBlank(this.database)) this.database = "";
             if (StrUtil.isBlank(this.accountId)) this.accountId = "";
             if (StrUtil.isBlank(this.user)) this.user = "default";
             if (StrUtil.isBlank(this.password)) this.password = "";

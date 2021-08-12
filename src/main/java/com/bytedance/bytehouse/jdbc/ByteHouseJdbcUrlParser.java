@@ -98,7 +98,7 @@ public final class ByteHouseJdbcUrlParser {
             }
         }
         if (database != null && database.isEmpty()) {
-            database = "default";
+            database = "";
         }
         return database;
     }

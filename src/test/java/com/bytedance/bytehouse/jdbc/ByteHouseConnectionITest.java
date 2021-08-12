@@ -37,7 +37,7 @@ public class ByteHouseConnectionITest extends AbstractITest {
     @Test
     public void testSchema() throws Exception {
         withNewConnection(connection -> {
-            assertEquals("default", connection.getSchema());
+            assertEquals("", connection.getSchema());
             connection.setSchema("abc");
             assertEquals("abc", connection.getSchema());
         });
