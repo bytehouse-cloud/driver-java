@@ -51,16 +51,10 @@ public class CnchQuery {
         }
         System.out.println(uuid);
 
-        try (Connection connection = dataSource.getConnection(uuid)) {
-            createDatabase(connection);
-            createTable(connection);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
 
-        try (Connection connection = dataSource.getConnection()) {
-            selectTable(connection);
-            createTable(connection);
+        try (Connection connection = dataSource.getConnection(uuid)) {
+            insertTable(connection);
+            insertBatch(connection);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
