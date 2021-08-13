@@ -61,7 +61,7 @@ public class ByteHouseResultSet implements SQLResultSet {
 
     private int currentRowNum = -1;
 
-    private Block currentBlock = new Block();
+    private Block currentBlock = Block.empty();
 
     private int lastFetchRowIdx = -1;
 
@@ -474,7 +474,7 @@ public class ByteHouseResultSet implements SQLResultSet {
             dataResponses.next();
         }
         // reset variables
-        currentBlock = new Block();
+        currentBlock = Block.empty();
         currentRowNum = 0;
         isFirst = false;
         isAfterLast = true;
@@ -500,6 +500,6 @@ public class ByteHouseResultSet implements SQLResultSet {
             }
         }
         LOG.debug("no more DataResponse, return empty Block");
-        return new Block();
+        return Block.empty();
     }
 }

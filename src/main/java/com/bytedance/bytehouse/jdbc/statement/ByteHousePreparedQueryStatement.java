@@ -13,7 +13,8 @@
  */
 package com.bytedance.bytehouse.jdbc.statement;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
+import com.bytedance.bytehouse.exception.ByteHouseClientException;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import java.sql.Date;
@@ -25,20 +26,29 @@ import java.util.List;
 
 public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
 
-    public ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String query) {
-        this(conn, nativeContext, splitQueryByQuestionMark(query));
+    public ByteHousePreparedQueryStatement(
+            final ByteHouseConnection conn,
+            final ServerContext serverContext,
+            final String query
+    ) {
+        this(conn, serverContext, splitQueryByQuestionMark(query));
     }
 
-    private ByteHousePreparedQueryStatement(ByteHouseConnection conn, NativeContext nativeContext, String[] parts) {
-        super(conn, nativeContext, parts);
+    private ByteHousePreparedQueryStatement(
+            final ByteHouseConnection conn,
+            final ServerContext serverContext,
+            final String[] parts
+    ) {
+        super(conn, serverContext, parts);
     }
 
-    private static String[] splitQueryByQuestionMark(String query) {
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
+    private static String[] splitQueryByQuestionMark(final String query) {
         int lastPos = 0;
-        List<String> queryParts = new ArrayList<>();
+        final List<String> queryParts = new ArrayList<>();
         boolean inQuotes = false, inBackQuotes = false;
         for (int i = 0; i < query.length(); i++) {
-            char ch = query.charAt(i);
+            final char ch = query.charAt(i);
             if (ch == '`') {
                 inBackQuotes = !inBackQuotes;
             } else if (ch == '\'') {
@@ -55,7 +65,7 @@ public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
     }
 
     @Override
-    public void setObject(int idx, Object x) throws SQLException {
+    public void setObject(final int idx, final Object x) throws SQLException {
         parameters[idx - 1] = convertObjectIfNecessary(x);
     }
 
@@ -76,18 +86,18 @@ public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
 
     @Override
     public String toString() {
-        StringBuilder queryBuilder = new StringBuilder();
+        final StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(super.toString());
         try {
             queryBuilder.append(": ");
             queryBuilder.append(assembleQueryPartsAndParameters());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ByteHouseClientException(e);
         }
         return queryBuilder.toString();
     }
 
-    private Object convertObjectIfNecessary(Object obj) {
+    private Object convertObjectIfNecessary(final Object obj) {
         Object result = obj;
         if (obj instanceof Date) {
             result = ((Date) obj).toLocalDate();

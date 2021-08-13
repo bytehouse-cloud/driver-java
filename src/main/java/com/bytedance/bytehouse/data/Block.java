@@ -44,15 +44,11 @@ public class Block {
 
     private int rowCnt;
 
-    public Block() {
-        this(0, new IColumn[0]);
-    }
-
-    public Block(int rowCnt, IColumn[] columns) {
+    public Block(final int rowCnt, final IColumn[] columns) {
         this(rowCnt, columns, new BlockSettings(Setting.defaultValues()));
     }
 
-    public Block(int rowCnt, IColumn[] columns, BlockSettings settings) {
+    public Block(final int rowCnt, final IColumn[] columns, final BlockSettings settings) {
         this.rowCnt = rowCnt;
         this.columns = columns;
         this.settings = settings;
@@ -68,12 +64,15 @@ public class Block {
 
     /**
      * factory method to create a {@link Block} from {@link BinaryDeserializer}.
+     * <br><br>
+     * this method is used to deserialize a {@link com.bytedance.bytehouse.protocol.Response}
+     * from the server into JVM representation.
      */
     public static Block readFrom(
             final BinaryDeserializer deserializer,
             final ServerContext serverContext
     ) throws IOException, SQLException {
-        final BlockSettings info = BlockSettings.readFrom(deserializer);
+        final BlockSettings blockSettings = BlockSettings.readFrom(deserializer);
 
         final int columnCnt = (int) deserializer.readVarInt();
         final int rowCnt = (int) deserializer.readVarInt();
@@ -89,14 +88,14 @@ public class Block {
             columns[i] = ColumnFactory.createColumn(name, dataType, arr);
         }
 
-        return new Block(rowCnt, columns, info);
+        return new Block(rowCnt, columns, blockSettings);
     }
 
     /**
      * Factory method to create an empty {@link Block}.
      */
     public static Block empty() {
-        return new Block();
+        return new Block(0, new IColumn[0]);
     }
 
     public int rowCnt() {

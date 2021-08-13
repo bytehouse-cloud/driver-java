@@ -28,8 +28,8 @@ public class ValuesWithParametersNativeInputFormat implements NativeInputFormat 
     }
 
     @Override
-    public void fill(Block block) throws SQLException {
-        BitSet constIdxFlags = new BitSet(block.columnCnt());
+    public void fill(final Block block) throws SQLException {
+        final BitSet constIdxFlags = new BitSet(block.columnCnt());
         char nextChar = lexer.character();
         Validate.isTrue(nextChar == '(');
         for (int columnIdx = 0; columnIdx < block.columnCnt(); columnIdx++) {

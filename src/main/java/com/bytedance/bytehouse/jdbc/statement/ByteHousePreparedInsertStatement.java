@@ -13,10 +13,11 @@
  */
 package com.bytedance.bytehouse.jdbc.statement;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.DataTypeConverter;
 import com.bytedance.bytehouse.data.IColumn;
+import com.bytedance.bytehouse.exception.ByteHouseClientException;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
@@ -37,15 +38,17 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     private final String insertQuery;
 
-    private boolean blockInit;
-
     private final DataTypeConverter dataTypeConverter;
 
-    public ByteHousePreparedInsertStatement(int posOfData,
-                                            String fullQuery,
-                                            ByteHouseConnection conn,
-                                            NativeContext nativeContext) throws SQLException {
-        super(conn, nativeContext, null);
+    private boolean blockInit;
+
+    public ByteHousePreparedInsertStatement(
+            final int posOfData,
+            final String fullQuery,
+            final ByteHouseConnection conn,
+            final ServerContext serverContext
+    ) throws SQLException {
+        super(conn, serverContext, null);
         this.blockInit = false;
         this.posOfData = posOfData;
         this.fullQuery = fullQuery;
@@ -55,7 +58,10 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
         initBlockIfPossible();
     }
 
-    private static int computeQuestionMarkSize(String query, int start) throws SQLException {
+    private static int computeQuestionMarkSize(
+            final String query,
+            final int start
+    ) throws SQLException {
         int param = 0;
         boolean inQuotes = false, inBackQuotes = false;
         for (int i = 0; i < query.length(); i++) {
@@ -76,10 +82,10 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     // paramPosition start with 1
     @Override
-    public void setObject(int paramPosition, Object x) throws SQLException {
+    public void setObject(final int paramPosition, final Object x) throws SQLException {
         initBlockIfPossible();
-        int columnIdx = block.paramIdx2ColumnIdx(paramPosition - 1);
-        IColumn column = block.getColumn(columnIdx);
+        final int columnIdx = block.paramIdx2ColumnIdx(paramPosition - 1);
+        final IColumn column = block.getColumn(columnIdx);
         block.setObject(columnIdx, dataTypeConverter.convertJdbcToJava(column.type(), x));
     }
 
@@ -114,8 +120,8 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     @Override
     public int[] executeBatch() throws SQLException {
-        int rows = creator.sendInsertRequest(block);
-        int[] result = new int[rows];
+        final int rows = creator.sendInsertRequest(block);
+        final int[] result = new int[rows];
         Arrays.fill(result, 1);
         clearBatch();
         this.blockInit = false;
@@ -127,7 +133,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
     public void close() throws SQLException {
         if (blockInit) {
             // Empty insert when close.
-            this.creator.sendInsertRequest(new Block());
+            this.creator.sendInsertRequest(Block.empty());
             this.blockInit = false;
             this.block.initWriteBuffer();
         }
@@ -136,27 +142,26 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString());
-        sb.append(": ");
+        final StringBuilder sb = new StringBuilder();
+        sb.append(super.toString()).append(": ");
         try {
             sb.append(insertQuery).append(" (");
             for (int i = 0; i < block.columnCnt(); i++) {
-                Object obj = block.getObject(i);
+                final Object obj = block.getObject(i);
                 if (obj == null) {
-                    sb.append("?");
+                    sb.append('?');
                 } else if (obj instanceof Number) {
                     sb.append(obj);
                 } else {
-                    sb.append("'").append(obj).append("'");
+                    sb.append('\'').append(obj).append('\'');
                 }
                 if (i < block.columnCnt() - 1) {
-                    sb.append(",");
+                    sb.append(',');
                 }
             }
-            sb.append(")");
+            sb.append(')');
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ByteHouseClientException(e);
         }
         return sb.toString();
     }

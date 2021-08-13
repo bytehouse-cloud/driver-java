@@ -210,12 +210,15 @@ public class NativeClient implements AutoCloseable {
         return false;
     }
 
+    /**
+     * Get metadata for an insert query.
+     */
     public Block receiveSampleBlock(
             final Duration soTimeout,
-            final ServerContext info
+            final ServerContext serverContext
     ) throws SQLException {
         while (!Thread.currentThread().isInterrupted()) {
-            final Response response = receiveResponse(soTimeout, info);
+            final Response response = receiveResponse(soTimeout, serverContext);
             if (response instanceof DataResponse) {
                 return ((DataResponse) response).block();
             }

@@ -21,10 +21,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.util.Locale;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A Context object describing who the client is.
  */
+@Immutable
 public class ClientContext {
 
     public static final int TCP_KINE = 1;

@@ -13,7 +13,6 @@
  */
 package com.bytedance.bytehouse.jdbc.statement;
 
-import com.bytedance.bytehouse.client.NativeContext;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
@@ -50,17 +49,15 @@ public class ByteHouseStatement implements SQLStatement {
 
     protected final ByteHouseConnection creator;
 
-    protected final NativeContext nativeContext;
-
     protected Block block;
-
-    private ResultSet lastResultSet;
 
     private ByteHouseConfig cfg;
 
+    // =========  START: temporary variables per execution ===========
+    private ResultSet lastResultSet;
+
     private long maxRows;
 
-    // =========  START: temporary variables per execution ===========
     private String db;
 
     private String table = "unknown";
@@ -71,11 +68,9 @@ public class ByteHouseStatement implements SQLStatement {
     private boolean isClosed = false;
 
     public ByteHouseStatement(
-            final ByteHouseConnection connection,
-            final NativeContext nativeContext
+            final ByteHouseConnection connection
     ) {
         this.creator = connection;
-        this.nativeContext = nativeContext;
         this.cfg = connection.cfg();
         this.db = cfg.database();
     }

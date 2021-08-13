@@ -88,7 +88,7 @@ public class ByteArrayWriter implements BuffedWriter {
         if (buffer.hasRemaining() && !force) {
             return;
         }
-        // the current buffer is already added to the list. Hence we can directly dereference
+        // the current buffer is already added to the list. Hence, we can directly dereference
         buffer = ByteBuffer.allocate(blockSize);
         byteBufferList.add(buffer);
     }

@@ -30,7 +30,7 @@ public class DataRequest implements Request {
     private final Block block;
 
     public DataRequest(final String name) {
-        this(name, new Block());
+        this(name, Block.empty());
     }
 
     public DataRequest(final String name, final Block block) {

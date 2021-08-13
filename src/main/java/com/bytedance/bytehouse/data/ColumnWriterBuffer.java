@@ -32,10 +32,10 @@ public class ColumnWriterBuffer {
     }
 
     @SuppressWarnings("RedundantCast")
-    public void writeTo(BinarySerializer serializer) throws IOException {
+    public void writeTo(final BinarySerializer serializer) throws IOException {
         // FIXME: 11/8/21 double check if this is a source of memory leak. since this class
         //  reads the buffer list but it never clears it.
-        for (ByteBuffer buffer : columnWriter.getBufferList()) {
+        for (final ByteBuffer buffer : columnWriter.getBufferList()) {
             // upcast is necessary, see detail at:
             // https://bitbucket.org/ijabz/jaudiotagger/issues/313/java-8-javalangnosuchmethoderror
             ((Buffer) buffer).flip();

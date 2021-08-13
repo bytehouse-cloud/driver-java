@@ -24,12 +24,16 @@ import javax.annotation.Nullable;
 
 public class DateTimeUtil {
 
-    public static ZoneId chooseTimeZone(ServerContext serverContext) {
-        return (boolean) serverContext.getConfigure().settings().getOrDefault(SettingKey.use_client_time_zone, false)
+    public static ZoneId chooseTimeZone(final ServerContext serverContext) {
+        return (boolean) serverContext.getConfigure().settings()
+                .getOrDefault(SettingKey.use_client_time_zone, false)
                 ? ZoneId.systemDefault() : serverContext.timeZone();
     }
 
-    public static LocalDateTime convertTimeZone(LocalDateTime localDateTime, ZoneId from, ZoneId to) {
+    public static LocalDateTime convertTimeZone(
+            final LocalDateTime localDateTime,
+            final ZoneId from,
+            final ZoneId to) {
         return localDateTime.atZone(from).withZoneSameInstant(to).toLocalDateTime();
     }
 

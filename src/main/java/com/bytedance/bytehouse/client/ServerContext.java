@@ -18,10 +18,12 @@ import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import java.sql.SQLException;
 import java.time.ZoneId;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A Context object describing who the server is
  */
+@Immutable
 public class ServerContext {
 
     private final long majorVersion;

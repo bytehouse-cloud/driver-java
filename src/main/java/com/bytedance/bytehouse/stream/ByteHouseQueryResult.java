@@ -78,8 +78,8 @@ public class ByteHouseQueryResult implements QueryResult {
 
     private void ensureHeaderConsumed() throws SQLException {
         if (header == null) {
-            DataResponse firstDataResponse = consumeDataResponse();
-            header = firstDataResponse != null ? firstDataResponse.block() : new Block();
+            final DataResponse firstDataResponse = consumeDataResponse();
+            header = firstDataResponse != null ? firstDataResponse.block() : Block.empty();
         }
     }
 

@@ -13,10 +13,13 @@
  */
 package com.bytedance.bytehouse.client;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * A Context binding the client's identity({@link ClientContext}) and the server's identity
  * ({@link ServerContext}) with a bridge ({@link NativeClient}).
  */
+@Immutable
 public class NativeContext {
 
     private final ClientContext clientCtx;

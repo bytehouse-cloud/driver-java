@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.jdbc.statement;
 
-import com.bytedance.bytehouse.client.NativeContext;
+import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLPreparedStatement;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
@@ -36,7 +36,12 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-public abstract class AbstractPreparedStatement extends ByteHouseStatement implements SQLPreparedStatement {
+/**
+ * contains some metadata shared by all PreparedStatement.
+ */
+public abstract class AbstractPreparedStatement
+        extends ByteHouseStatement
+        implements SQLPreparedStatement {
 
     protected final ZoneId tz;
 
@@ -48,110 +53,127 @@ public abstract class AbstractPreparedStatement extends ByteHouseStatement imple
 
     protected Object[] parameters;
 
-    public AbstractPreparedStatement(ByteHouseConnection connection, NativeContext nativeContext, String[] queryParts) {
-        super(connection, nativeContext);
+    /**
+     * Constructor.
+     */
+    public AbstractPreparedStatement(
+            final ByteHouseConnection connection,
+            final ServerContext serverContext,
+            final String[] queryParts
+    ) {
+        super(connection);
         this.queryParts = queryParts;
         if (queryParts != null && queryParts.length > 0)
             this.parameters = new Object[queryParts.length];
 
-        this.tz = DateTimeUtil.chooseTimeZone(nativeContext.serverCtx());
-        this.dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT).withZone(tz);
-        this.timestampFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT).withZone(tz);
+        this.tz = DateTimeUtil.chooseTimeZone(serverContext);
+        this.dateFmt = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd", Locale.ROOT).withZone(tz);
+        this.timestampFmt = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT).withZone(tz);
     }
 
     @Override
-    public void setBoolean(int index, boolean x) throws SQLException {
+    public void setBoolean(final int index, final boolean x) throws SQLException {
         setObject(index, x ? (byte) 1 : (byte) 0);
     }
 
     @Override
-    public void setByte(int index, byte x) throws SQLException {
+    public void setByte(final int index, final byte x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setShort(int index, short x) throws SQLException {
+    public void setShort(final int index, final short x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setInt(int index, int x) throws SQLException {
+    public void setInt(final int index, final int x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setLong(int index, long x) throws SQLException {
+    public void setLong(final int index, final long x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setFloat(int index, float x) throws SQLException {
+    public void setFloat(final int index, final float x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setDouble(int index, double x) throws SQLException {
+    public void setDouble(final int index, final double x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setNull(int index, int type) throws SQLException {
+    public void setNull(final int index, final int type) throws SQLException {
         setObject(index, null);
     }
 
     @Override
-    public void setTimestamp(int index, Timestamp x) throws SQLException {
+    public void setTimestamp(final int index, final Timestamp x) throws SQLException {
         setObject(index, DateTimeUtil.toZonedDateTime(x, tz));
     }
 
     @Override
-    public void setTimestamp(int index, Timestamp x, Calendar cal) throws SQLException {
+    public void setTimestamp(
+            final int index,
+            final Timestamp x,
+            final Calendar cal
+    ) throws SQLException {
         setObject(index, DateTimeUtil.toZonedDateTime(x, cal.getTimeZone().toZoneId()));
     }
 
     @Override
-    public void setDate(int index, Date x) throws SQLException {
+    public void setDate(final int index, final Date x) throws SQLException {
         setObject(index, x.toLocalDate());
     }
 
     @Override
-    public void setDate(int index, Date x, Calendar cal) throws SQLException {
+    public void setDate(final int index, final Date x, final Calendar cal) throws SQLException {
         // just ignore cal, date has no concepts of timezone
         setObject(index, x.toLocalDate());
     }
 
     @Override
-    public void setBigDecimal(int index, BigDecimal x) throws SQLException {
+    public void setBigDecimal(final int index, final BigDecimal x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setString(int index, String x) throws SQLException {
+    public void setString(final int index, final String x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setBytes(int index, byte[] x) throws SQLException {
+    public void setBytes(final int index, final byte[] x) throws SQLException {
         setObject(index, new BytesCharSeq(x));
     }
 
     @Override
-    public void setURL(int index, URL x) throws SQLException {
+    public void setURL(final int index, final URL x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setArray(int index, Array x) throws SQLException {
+    public void setArray(final int index, final Array x) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setObject(int index, Object x, int targetSqlType) throws SQLException {
+    public void setObject(final int index, Object x, final int targetSqlType) throws SQLException {
         setObject(index, x);
     }
 
     @Override
-    public void setObject(int index, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
+    public void setObject(
+            final int index, Object x,
+            final int targetSqlType,
+            final int scaleOrLength
+    ) throws SQLException {
         setObject(index, x);
     }
 
@@ -178,12 +200,18 @@ public abstract class AbstractPreparedStatement extends ByteHouseStatement imple
         return queryBuilder.toString();
     }
 
-    private boolean assembleParameter(Object parameter, StringBuilder queryBuilder) throws SQLException {
+    private boolean assembleParameter(
+            final Object parameter,
+            final StringBuilder queryBuilder
+    ) throws SQLException {
         return assembleSimpleParameter(queryBuilder, parameter)
                 || assembleComplexQuotedParameter(queryBuilder, parameter);
     }
 
-    private boolean assembleSimpleParameter(StringBuilder queryBuilder, Object parameter) {
+    private boolean assembleSimpleParameter(
+            final StringBuilder queryBuilder,
+            final Object parameter
+    ) {
         if (parameter instanceof String)
             return assembleQuotedParameter(queryBuilder, String.valueOf(parameter));
         if (parameter == null)
@@ -197,30 +225,40 @@ public abstract class AbstractPreparedStatement extends ByteHouseStatement imple
         return false;
     }
 
-    private boolean assembleQuotedParameter(StringBuilder queryBuilder, String parameter) {
-        queryBuilder.append("'");
-        queryBuilder.append(parameter.replaceAll("'", Matcher.quoteReplacement("\\'")));
-        queryBuilder.append("'");
+    private boolean assembleQuotedParameter(
+            final StringBuilder queryBuilder,
+            final String parameter
+    ) {
+        queryBuilder
+                .append('\'')
+                .append(parameter.replaceAll("'", Matcher.quoteReplacement("\\'")))
+                .append('\'');
         return true;
     }
 
-    private boolean assembleWithoutQuotedParameter(StringBuilder queryBuilder, Object parameter) {
+    private boolean assembleWithoutQuotedParameter(
+            final StringBuilder queryBuilder,
+            final Object parameter
+    ) {
         queryBuilder.append(parameter);
         return true;
     }
 
-    private boolean assembleComplexQuotedParameter(StringBuilder queryBuilder, Object parameter) throws SQLException {
+    private boolean assembleComplexQuotedParameter(
+            final StringBuilder queryBuilder,
+            final Object parameter
+    ) throws SQLException {
         if (parameter instanceof Array) {
-            queryBuilder.append("[");
-            Object[] arrayData = (Object[]) ((Array) parameter).getArray();
+            queryBuilder.append('[');
+            final Object[] arrayData = (Object[]) ((Array) parameter).getArray();
             for (int arrayIndex = 0; arrayIndex < arrayData.length; arrayIndex++) {
                 assembleParameter(arrayData[arrayIndex], queryBuilder);
                 queryBuilder.append(arrayIndex == arrayData.length - 1 ? "]" : ",");
             }
             return true;
         } else if (parameter instanceof Struct) {
-            queryBuilder.append("(");
-            Object[] structData = ((Struct) parameter).getAttributes();
+            queryBuilder.append('(');
+            final Object[] structData = ((Struct) parameter).getAttributes();
             for (int structIndex = 0; structIndex < structData.length; structIndex++) {
                 assembleParameter(structData[structIndex], queryBuilder);
                 queryBuilder.append(structIndex == structData.length - 1 ? ")" : ",");

@@ -213,7 +213,7 @@ public class ByteHouseConnection implements BHConnection {
     public Statement createStatement() throws SQLException {
         Validate.isTrue(!isClosed(), "Unable to create Statement, "
                 + "because the connection is closed.");
-        return new ByteHouseStatement(this, nativeCtx);
+        return new ByteHouseStatement(this);
     }
 
     @Override
@@ -227,10 +227,10 @@ public class ByteHouseConnection implements BHConnection {
                     matcher.end() - 1,
                     query,
                     this,
-                    nativeCtx
+                    nativeCtx.serverCtx()
             );
         } else {
-            return new ByteHousePreparedQueryStatement(this, nativeCtx, query);
+            return new ByteHousePreparedQueryStatement(this, nativeCtx.serverCtx(), query);
         }
     }
 
@@ -357,7 +357,7 @@ public class ByteHouseConnection implements BHConnection {
     }
 
     /**
-     * Get Sample block.
+     * Get metadata for a insert query.
      */
     public Block getSampleBlock(final String insertQuery) throws SQLException {
         final NativeClient nativeClient = getHealthyNativeClient();
