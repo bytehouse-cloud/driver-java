@@ -146,8 +146,9 @@ public class ByteHouseConfig implements Serializable {
     }
 
     public String jdbcUrl() {
-        StringBuilder builder = new StringBuilder(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
-                .append("//").append(host).append(":").append(port).append("/").append(database)
+        final StringBuilder builder = new StringBuilder(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
+                .append("//").append(host).append(":").append(port)
+                .append("/").append(database)
                 .append("?").append(SettingKey.query_timeout.name()).append("=").append(queryTimeout.getSeconds())
                 .append("&").append(SettingKey.connect_timeout.name()).append("=").append(connectTimeout.getSeconds())
                 .append("&").append(SettingKey.charset.name()).append("=").append(charset)

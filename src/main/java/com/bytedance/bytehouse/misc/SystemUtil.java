@@ -13,13 +13,23 @@
  */
 package com.bytedance.bytehouse.misc;
 
-public class SystemUtil {
+/**
+ * Get System properties.
+ */
+public final class SystemUtil {
 
-    public static String loadProp(String key, String def) {
-        String property = System.getProperty(key);
+    private SystemUtil() {
+        // no instantiation
+    }
+
+    /**
+     * load from prop.
+     */
+    public static String loadProp(final String key, final String def) {
+        final String property = System.getProperty(key);
         if (property != null)
             return property;
-        String env = System.getenv(key);
+        final String env = System.getenv(key);
         if (env != null)
             return env;
         return def;

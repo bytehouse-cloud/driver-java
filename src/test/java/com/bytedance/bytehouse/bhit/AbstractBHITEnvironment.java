@@ -14,21 +14,22 @@
 package com.bytedance.bytehouse.bhit;
 
 import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import javax.sql.DataSource;
 
 /**
  * Abstract class to be inherited by all ByteHouse Integration tests.
  * Contains methods for obtaining parameters to connect to ByteHouse.
  */
-public abstract class AbstractByteHouseITest {
+public abstract class AbstractBHITEnvironment {
 
     private static final String ACCOUNT_ID = "ACCOUNT_ID";
 
@@ -46,69 +47,64 @@ public abstract class AbstractByteHouseITest {
 
     private static final String DATABASE = "DATABASE";
 
-    private static Properties ByteHouseTestConfigs;
+    private Properties ByteHouseTestConfigs;
 
-    protected String getUsername() {
+    protected String getEnvUsername() {
         return ByteHouseTestConfigs.getProperty(USER);
     }
 
-    protected String getPassword() {
+    protected String getEnvPassword() {
         return ByteHouseTestConfigs.getProperty(PASSWORD);
     }
 
-    protected Boolean isSecureConnection() {
+    protected Boolean isEnvSecureConnection() {
         return Boolean.parseBoolean(ByteHouseTestConfigs.getProperty(SECURE));
     }
 
-    protected String getAccountId() {
+    protected String getEnvAccountId() {
         return ByteHouseTestConfigs.getProperty(ACCOUNT_ID);
     }
 
-    protected String getUrl() {
+    protected String getEnvUrl() {
         return String.format("jdbc:bytehouse://%s:%s",
                 ByteHouseTestConfigs.getProperty(HOST),
                 ByteHouseTestConfigs.getProperty(PORT)
         );
     }
 
-    protected String getVirtualWarehouse() {
+    protected String getEnvVirtualWarehouse() {
         return ByteHouseTestConfigs.getProperty(WAREHOUSE);
     }
 
-    protected String getDatabase() {
+    protected String getEnvDatabase() {
         return ByteHouseTestConfigs.getProperty(DATABASE);
     }
 
-    protected Connection getConnection() throws SQLException {
+    protected Connection getEnvConnection() throws SQLException {
         loadByteHouseTestConfigs();
 
-        Properties properties = new Properties();
-        properties.setProperty("account_id", getAccountId());
-        properties.setProperty("user", getUsername());
-        properties.setProperty("password", getPassword());
-        properties.setProperty("secure", String.valueOf(isSecureConnection()));
-        final DataSource dataSource = new BalancedByteHouseDataSource(getUrl(), properties);
+        final Properties properties = new Properties();
+        properties.setProperty("account_id", getEnvAccountId());
+        properties.setProperty("user", getEnvUsername());
+        properties.setProperty("password", getEnvPassword());
+        properties.setProperty("secure", String.valueOf(isEnvSecureConnection()));
+        final DataSource dataSource = new BalancedByteHouseDataSource(getEnvUrl(), properties);
         return dataSource.getConnection();
     }
 
     private void loadByteHouseTestConfigs() {
-        try (InputStream input = new FileInputStream("src/test/resources/config.properties")) {
+        try (InputStream input = Files.newInputStream(Paths
+                .get("src/test/resources/config.properties"))) {
             ByteHouseTestConfigs = new Properties();
             ByteHouseTestConfigs.load(input);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
     }
 
-    protected String loadSqlStatement(String filepath) throws IOException {
-        String fullPath = "src/test/resources/sql/" + filepath + ".sql";
-        File file = new File(fullPath);
-        byte[] data;
-        try (FileInputStream fis = new FileInputStream(file)) {
-            data = new byte[(int) file.length()];
-            fis.read(data);
-        }
-        String query = new String(data, StandardCharsets.UTF_8);
-        return query;
+    protected String loadSqlStatement(final String filepath) throws IOException {
+        final String fullPath = "src/test/resources/sql/" + filepath + ".sql";
+        final byte[] bytes = Files.readAllBytes(Paths.get(fullPath));
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

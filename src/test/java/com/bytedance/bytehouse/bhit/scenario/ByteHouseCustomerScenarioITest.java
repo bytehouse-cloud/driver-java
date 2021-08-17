@@ -12,10 +12,14 @@
  * limitations under the License.
  */
 
-package com.bytedance.bytehouse.bhit;
+package com.bytedance.bytehouse.bhit.scenario;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.bytedance.bytehouse.bhit.AbstractBHITEnvironment;
+import com.bytedance.bytehouse.util.GenerateSqlInsertStatementUtil;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,18 +27,16 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
+public class ByteHouseCustomerScenarioITest extends AbstractBHITEnvironment {
 
     @Test
     @Order(1)
     public void createDatabaseTest() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             stmt.execute(loadSqlStatement("create-database"));
         }
@@ -43,7 +45,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(2)
     public void createTableTest() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
 
             stmt.execute(loadSqlStatement("create-table"));
@@ -53,7 +55,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(3)
     public void insertIntoSingleColumn() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(loadSqlStatement("insert-table-single-column"));
         }
@@ -62,7 +64,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(4)
     public void insertIntoSingleColumnMultipleTimes() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
 
             for (int iter = 0; iter < 10; iter++) {
@@ -74,7 +76,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(5)
     public void insertIntoAllColumns() throws IOException, SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
 
             GenerateSqlInsertStatementUtil.generateInsertQuery("customer_database.customer_table");
@@ -85,7 +87,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(6)
     public void insertIntoAllColumnsMultipleTimes() throws IOException, SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
 
             GenerateSqlInsertStatementUtil.generateInsertQuery("customer_database.customer_table");
@@ -98,7 +100,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(7)
     public void insertBatchTest() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             PreparedStatement pstmt = connection.prepareStatement(loadSqlStatement("insert-batch"));
             int insertBatchSize = 1000;
 
@@ -115,7 +117,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(7)
     public void selectTableTest() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(loadSqlStatement("select-table"));
 
@@ -133,7 +135,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(8)
     public void dropTableTest() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
 
             stmt.execute(loadSqlStatement("drop-table"));
@@ -143,7 +145,7 @@ public class ByteHouseCustomerScenarioITest extends AbstractByteHouseITest {
     @Test
     @Order(9)
     public void dropDatabaseTest() throws SQLException, IOException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
 
             stmt.execute(loadSqlStatement("drop-database"));

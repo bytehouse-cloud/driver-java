@@ -52,20 +52,35 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class DataTypeFactory {
+/**
+ * Methods to generate {@link IDataType}.
+ */
+public final class DataTypeFactory {
 
-    private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE = new LRUCache<>(BHConstants.DATA_TYPE_CACHE_SIZE);
+    private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE =
+            new LRUCache<>(BHConstants.DATA_TYPE_CACHE_SIZE);
 
+    @SuppressWarnings("PMD.FieldNamingConventions")
     private static final Map<String, IDataType<?, ?>> dataTypes = initialDataTypes();
 
-    public static IDataType<?, ?> get(String type, ServerContext serverContext) throws SQLException {
+    private DataTypeFactory() {
+        // no creation
+    }
+
+    /**
+     * Parsing a subclass of {@link IDataType} from the string.
+     */
+    public static IDataType<?, ?> get(
+            final String type,
+            final ServerContext serverContext
+    ) throws SQLException {
         IDataType<?, ?> dataType = DATA_TYPE_CACHE.get(type);
         if (dataType != null) {
             DATA_TYPE_CACHE.put(type, dataType);
             return dataType;
         }
 
-        SQLLexer lexer = new SQLLexer(0, type);
+        final SQLLexer lexer = new SQLLexer(0, type);
         dataType = get(lexer, serverContext);
         Validate.isTrue(lexer.eof());
 
@@ -73,8 +88,15 @@ public class DataTypeFactory {
         return dataType;
     }
 
-    public static IDataType<?, ?> get(SQLLexer lexer, ServerContext serverContext) throws SQLException {
-        String dataTypeName = String.valueOf(lexer.bareWord());
+    /**
+     * parse {@link IDataType} from {@link SQLLexer}.
+     */
+    @SuppressWarnings("PMD.LiteralsFirstInComparisons")
+    public static IDataType<?, ?> get(
+            final SQLLexer lexer,
+            final ServerContext serverContext
+    ) throws SQLException {
+        final String dataTypeName = String.valueOf(lexer.bareWord());
 
         if (dataTypeName.equalsIgnoreCase("Tuple")) {
             return DataTypeTuple.creator.createDataType(lexer, serverContext);
@@ -136,20 +158,26 @@ public class DataTypeFactory {
         return creators;
     }
 
-    private static void registerType(Map<String, IDataType<?, ?>> creators, IDataType<?, ?> type) {
+    private static void registerType(
+            final Map<String, IDataType<?, ?>> creators,
+            final IDataType<?, ?> type
+    ) {
         creators.put(type.name().toLowerCase(Locale.ROOT), type);
-        for (String typeName : type.getAliases()) {
+        for (final String typeName : type.getAliases()) {
             creators.put(typeName.toLowerCase(Locale.ROOT), type);
         }
     }
 
-    // TODO
+    // TODO: ?? legacy comment from the open source
     private static Map<String, DataTypeCreator<?, ?>> initComplexDataTypes() {
         return new HashMap<>();
     }
 
     private static void registerComplexType(
-            Map<String, DataTypeCreator<?, ?>> creators, IDataType<?, ?> type, DataTypeCreator<?, ?> creator) {
+            final Map<String, DataTypeCreator<?, ?>> creators,
+            final IDataType<?, ?> type,
+            final DataTypeCreator<?, ?> creator
+    ) {
 
         creators.put(type.name().toLowerCase(Locale.ROOT), creator);
         for (String typeName : type.getAliases()) {

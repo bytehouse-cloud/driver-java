@@ -11,27 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.bytedance.bytehouse.util;
 
-package com.bytedance.bytehouse.bhit;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A util class to generate sql insert statement.
+ */
 public final class GenerateSqlInsertStatementUtil {
-
-    private GenerateSqlInsertStatementUtil() {
-        // no creation of util class
-    }
 
     public static final String[] columnTypes = {"String", "Int64", "UInt8", "Array(UInt32)"};
 
     public static final String[] columnValues = {"'rand_string'", "123456789123456789", "123", "[1, 2, 3, 4, 5]"};
+
+    private GenerateSqlInsertStatementUtil() {
+        // no creation of util class
+    }
 
     public static void main(String[] args) throws IOException {
         String queryCreateTable = getSqlCreateTable("create-table");
@@ -52,7 +54,7 @@ public final class GenerateSqlInsertStatementUtil {
     public static String createValuesForSqlInsert(Map<String, String> columnProperties) {
         String sqlInsertValues = "";
         boolean started = false;
-        for (Map.Entry<String, String> columnProperty: columnProperties.entrySet()) {
+        for (Map.Entry<String, String> columnProperty : columnProperties.entrySet()) {
             if (started == false) started = true;
             else sqlInsertValues += ",\n\t";
             sqlInsertValues += getValueForType(columnProperty.getValue());
@@ -60,7 +62,7 @@ public final class GenerateSqlInsertStatementUtil {
 
         String sqlInsertNames = "";
         started = false;
-        for (Map.Entry<String, String> columnProperty: columnProperties.entrySet()) {
+        for (Map.Entry<String, String> columnProperty : columnProperties.entrySet()) {
             if (started == false) started = true;
             else sqlInsertNames += ",\n\t";
             sqlInsertNames += columnProperty.getKey();
@@ -70,23 +72,22 @@ public final class GenerateSqlInsertStatementUtil {
         return query;
     }
 
-    public static void writeToSqlFile(String filename, String query) throws IOException {
-        String fullPath = "src/test/resources/sql/" + filename + ".sql";
-        FileWriter myWriter = new FileWriter(fullPath);
-        myWriter.write(query);
-        myWriter.close();
+    public static void writeToSqlFile(
+            final String filename,
+            final String query
+    ) throws IOException {
+        final String fullPath = "src/test/resources/sql/" + filename + ".sql";
+        try (FileWriter myWriter = new FileWriter(fullPath)) {
+            myWriter.write(query);
+        }
     }
 
     public static String getSqlCreateTable(String filename) throws IOException {
-        String fullPath = "src/test/resources/sql/" + filename + ".sql";
-        File file = new File(fullPath);
-        FileInputStream fis = new FileInputStream(file);
-        byte[] data = new byte[(int) file.length()];
-        fis.read(data);
-        fis.close();
-
-        String query = new String(data, StandardCharsets.UTF_8);
-        return query;
+        final String fullPath = "src/test/resources/sql/" + filename + ".sql";
+        return new String(
+                Files.readAllBytes(Paths.get(fullPath)),
+                StandardCharsets.UTF_8
+        );
     }
 
     public static Map<String, String> getColumnProperties(String string) {
@@ -109,7 +110,7 @@ public final class GenerateSqlInsertStatementUtil {
         }
 
         String nameAndType = "";
-        for (int i=openBracketPos+1; i<closeBracketPos; i++) {
+        for (int i = openBracketPos + 1; i < closeBracketPos; i++) {
             nameAndType += string.charAt(i);
         }
 
@@ -118,14 +119,14 @@ public final class GenerateSqlInsertStatementUtil {
         splittedString = removeExtraTails(splittedString);
 
         Map<String, String> hashMap = new HashMap<>();
-        for (int i=1; i< splittedString.length; i+=2) {
-            hashMap.put(splittedString[i], splittedString[i+1]);
+        for (int i = 1; i < splittedString.length; i += 2) {
+            hashMap.put(splittedString[i], splittedString[i + 1]);
         }
         return hashMap;
     }
 
     public static String[] removeComma(String[] stringArray) {
-        for (int i=0; i< stringArray.length; i++) {
+        for (int i = 0; i < stringArray.length; i++) {
             stringArray[i] = stringArray[i].replace(",", "");
         }
         return stringArray;
@@ -136,7 +137,7 @@ public final class GenerateSqlInsertStatementUtil {
         while (!isValidColumnType(stringArray[validPosition])) {
             validPosition--;
         }
-        return Arrays.copyOfRange(stringArray, 0, validPosition+1);
+        return Arrays.copyOfRange(stringArray, 0, validPosition + 1);
     }
 
     public static boolean isValidColumnType(String type) {
@@ -148,7 +149,7 @@ public final class GenerateSqlInsertStatementUtil {
 
     public static String getValueForType(String type) {
         String value = "";
-        for (int i=0; i< columnTypes.length; i++) {
+        for (int i = 0; i < columnTypes.length; i++) {
             if (columnTypes[i].equals(type)) {
                 value = columnValues[i];
             }

@@ -31,10 +31,11 @@ import java.util.NoSuchElementException;
 /**
  * Support building QueryResult in client side, it's useful for ad-hoc building a ResultSet for JDBC interface,
  * and mock QueryResult for test.
- * <p>
- * Limitation, assume not use it to build from huge dataset, so all rows will be assembled into ONE block.
+ * <br><br>
+ * Note that this class does not execute any query. It simply turns what you give it into a result and
+ * give it back to you.
  */
-public class QueryResultBuilder {
+public final class QueryResultBuilder {
 
     private final int columnNum;
 
@@ -46,31 +47,55 @@ public class QueryResultBuilder {
 
     private List<IDataType> columnTypes;
 
-    private QueryResultBuilder(int columnNum, ServerContext serverContext) {
+    private QueryResultBuilder(final int columnNum, final ServerContext serverContext) {
         this.columnNum = columnNum;
         this.serverContext = serverContext;
     }
 
-    public static QueryResultBuilder builder(int columnsNum, ServerContext serverContext) {
+    /**
+     * Create a builder.
+     */
+    public static QueryResultBuilder builder(final int columnsNum, final ServerContext serverContext) {
         return new QueryResultBuilder(columnsNum, serverContext);
     }
 
-    public QueryResultBuilder columnNames(String... names) {
+    /**
+     * add a list of column names.
+     */
+    public QueryResultBuilder columnNames(final String... names) {
         return columnNames(Arrays.asList(names));
     }
 
-    public QueryResultBuilder columnNames(List<String> names) {
-        Validate.ensure(names.size() == columnNum, "size mismatch, req: " + columnNum + " got: " + names.size());
+    /**
+     * add a list of column names.
+     * <br><br>
+     * throws exception if the length is inconsistent with what's already existing.
+     */
+    public QueryResultBuilder columnNames(final List<String> names) {
+        Validate.ensure(names.size() == columnNum,
+                "size mismatch, req: " + columnNum + " got: " + names.size()
+        );
         this.columnNames = names;
         return this;
     }
 
-    public QueryResultBuilder columnTypes(String... types) throws SQLException {
+    /**
+     * Add a list of column types described as strings.
+     */
+    public QueryResultBuilder columnTypes(final String... types) throws SQLException {
         return columnTypes(Arrays.asList(types));
     }
 
-    public QueryResultBuilder columnTypes(List<String> types) throws SQLException {
-        Validate.ensure(types.size() == columnNum, "size mismatch, req: " + columnNum + " got: " + types.size());
+    /**
+     * Add a list of column types described as strings.
+     * <br><br>
+     *
+     * @throws com.bytedance.bytehouse.exception.InvalidValueException if the length is inconsistent with what's already existing.
+     * @throws SQLException                                            if the string description of the type is not valid.
+     */
+    public QueryResultBuilder columnTypes(final List<String> types) throws SQLException {
+        Validate.ensure(types.size() == columnNum,
+                "size mismatch, req: " + columnNum + " got: " + types.size());
         this.columnTypes = new ArrayList<>(columnNum);
         for (int i = 0; i < columnNum; i++) {
             columnTypes.add(DataTypeFactory.get(types.get(i), serverContext));
@@ -78,30 +103,42 @@ public class QueryResultBuilder {
         return this;
     }
 
-    public QueryResultBuilder addRow(Object... row) {
+    /**
+     * Add a row of data.
+     */
+    public QueryResultBuilder addRow(final Object... row) {
         return addRow(Arrays.asList(row));
     }
 
-    public QueryResultBuilder addRow(List<?> row) {
-        Validate.ensure(row.size() == columnNum, "size mismatch, req: " + columnNum + " got: " + row.size());
+    /**
+     * Add a row of data.
+     *
+     * @throws com.bytedance.bytehouse.exception.InvalidValueException if the length is inconsistent with what's already existing.
+     */
+    public QueryResultBuilder addRow(final List<?> row) {
+        Validate.ensure(row.size() == columnNum,
+                "size mismatch, req: " + columnNum + " got: " + row.size());
         rows.add(row);
         return this;
     }
 
+    /**
+     * build query and return what you have just plugged into this instance as the results.
+     */
     public QueryResult build() throws SQLException {
         Validate.ensure(columnNames != null, "columnNames is null");
         Validate.ensure(columnTypes != null, "columnTypes is null");
 
         // assemble header block
-        IColumn[] headerColumns = new IColumn[columnNum];
-        Object[] emptyObjects = new Object[columnNum];
+        final IColumn[] headerColumns = new IColumn[columnNum];
+        final Object[] emptyObjects = new Object[columnNum];
         for (int c = 0; c < columnNum; c++) {
             headerColumns[c] = ColumnFactory.createColumn(columnNames.get(c), columnTypes.get(c), emptyObjects);
         }
-        Block headerBlock = new Block(0, headerColumns);
+        final Block headerBlock = new Block(0, headerColumns);
 
         // assemble all rows to one data block
-        IColumn[] dataColumns = new IColumn[columnNum];
+        final IColumn[] dataColumns = new IColumn[columnNum];
         for (int c = 0; c < columnNum; c++) {
             Object[] columnObjects = new Object[rows.size()];
             for (int r = 0; r < rows.size(); r++) {
@@ -109,7 +146,7 @@ public class QueryResultBuilder {
             }
             dataColumns[c] = ColumnFactory.createColumn(columnNames.get(c), columnTypes.get(c), columnObjects);
         }
-        Block dataBlock = new Block(rows.size(), dataColumns);
+        final Block dataBlock = new Block(rows.size(), dataColumns);
 
         return new QueryResult() {
             @Override
@@ -119,7 +156,7 @@ public class QueryResultBuilder {
 
             @Override
             public CheckedIterator<DataResponse, SQLException> data() {
-                DataResponse data = new DataResponse("client_build", dataBlock);
+                final DataResponse data = new DataResponse("client_build", dataBlock);
 
                 return new CheckedIterator<DataResponse, SQLException>() {
                     private final DataResponse dataResponse = data;

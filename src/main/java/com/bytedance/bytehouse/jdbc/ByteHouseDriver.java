@@ -70,7 +70,7 @@ public class ByteHouseDriver implements Driver {
         return connect(url, cfg);
     }
 
-    ByteHouseConnection connect(String url, ByteHouseConfig cfg) throws SQLException {
+    ByteHouseConnection connect(final String url, final ByteHouseConfig cfg) throws SQLException {
         if (!this.acceptsURL(url)) {
             // FIXME: 10/8/21 throw exception
             return null;

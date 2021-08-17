@@ -23,7 +23,10 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-public class ByteHouseResultSetBuilder {
+/**
+ * This class builds {@link QueryResult} into a {@link ByteHouseResultSet}.
+ */
+public final class ByteHouseResultSetBuilder {
 
     private final QueryResultBuilder queryResultBuilder;
 
@@ -33,59 +36,107 @@ public class ByteHouseResultSetBuilder {
 
     private String table = "unknown";
 
-    private ByteHouseResultSetBuilder(QueryResultBuilder queryResultBuilder) {
+    private ByteHouseResultSetBuilder(
+            final QueryResultBuilder queryResultBuilder
+    ) {
         this.queryResultBuilder = queryResultBuilder;
     }
 
-    public static ByteHouseResultSetBuilder builder(int columnsNum, ServerContext serverContext) {
+    /**
+     * factory method to create a builder.
+     */
+    public static ByteHouseResultSetBuilder builder(
+            final int columnsNum,
+            final ServerContext serverContext
+    ) {
         return new ByteHouseResultSetBuilder(QueryResultBuilder.builder(columnsNum, serverContext));
     }
 
-    public ByteHouseResultSetBuilder cfg(ByteHouseConfig cfg) {
+    /**
+     * set the {@link ByteHouseConfig}.
+     *
+     * @param cfg
+     * @return
+     */
+    public ByteHouseResultSetBuilder cfg(final ByteHouseConfig cfg) {
         this.cfg = cfg;
         return this;
     }
 
-    public ByteHouseResultSetBuilder db(String db) {
+    /**
+     * set database name.
+     */
+    public ByteHouseResultSetBuilder db(final String db) {
         this.db = db;
         return this;
     }
 
-    public ByteHouseResultSetBuilder table(String table) {
+    /**
+     * set table name.
+     */
+    public ByteHouseResultSetBuilder table(final String table) {
         this.table = table;
         return this;
     }
 
-    public ByteHouseResultSetBuilder columnNames(String... names) {
+    /**
+     * set column names.
+     */
+    public ByteHouseResultSetBuilder columnNames(final String... names) {
         return columnNames(Arrays.asList(names));
     }
 
-    public ByteHouseResultSetBuilder columnNames(List<String> names) {
+    /**
+     * set column names.
+     */
+    public ByteHouseResultSetBuilder columnNames(final List<String> names) {
         this.queryResultBuilder.columnNames(names);
         return this;
     }
 
-    public ByteHouseResultSetBuilder columnTypes(String... types) throws SQLException {
+    /**
+     * set column types.
+     */
+    public ByteHouseResultSetBuilder columnTypes(final String... types) throws SQLException {
         return columnTypes(Arrays.asList(types));
     }
 
-    public ByteHouseResultSetBuilder columnTypes(List<String> types) throws SQLException {
+    /**
+     * set column types.
+     */
+    public ByteHouseResultSetBuilder columnTypes(final List<String> types) throws SQLException {
         this.queryResultBuilder.columnTypes(types);
         return this;
     }
 
-    public ByteHouseResultSetBuilder addRow(Object... row) {
+    /**
+     * add a row of data.
+     */
+    public ByteHouseResultSetBuilder addRow(final Object... row) {
         return addRow(Arrays.asList(row));
     }
 
-    public ByteHouseResultSetBuilder addRow(List<?> row) {
+    /**
+     * add a row of data.
+     */
+    public ByteHouseResultSetBuilder addRow(final List<?> row) {
         this.queryResultBuilder.addRow(row);
         return this;
     }
 
+    /**
+     * build {@link ByteHouseResultSet} from the builder.
+     */
     public ByteHouseResultSet build() throws SQLException {
         Validate.ensure(cfg != null);
-        QueryResult queryResult = this.queryResultBuilder.build();
-        return new ByteHouseResultSet(null, cfg, db, table, queryResult.header(), queryResult.data());
+        final QueryResult queryResult = this.queryResultBuilder.build();
+        return new ByteHouseResultSet(
+                null,
+                cfg,
+                db,
+                table,
+                queryResult.header(),
+                queryResult.data()
+        );
     }
 }

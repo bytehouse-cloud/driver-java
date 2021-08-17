@@ -28,11 +28,11 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests basic functionalities with ByteHouse.
  */
-public class GatewayConnectionITest extends AbstractByteHouseITest {
+public class GatewayConnectionITest extends AbstractBHITEnvironment {
 
     @Test
     public void runSimpleQuery_success() throws SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT 1");
             assertTrue(rs.next());
@@ -43,7 +43,7 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
 
     @Test
     public void runComplexQuery_success() throws SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(
                     "SELECT (number % 3 + 1) as n, sum(number) FROM numbers(10000000) GROUP BY n"
@@ -57,7 +57,7 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
 
     @Test
     public void showWarehouses_success() throws SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             assertDoesNotThrow(() -> stmt.execute("SHOW WAREHOUSES"));
         }
@@ -65,7 +65,7 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
 
     @Test
     public void createDatabase_success() throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = getEnvConnection();
         Statement stmt = connection.createStatement();
         assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
         assertDoesNotThrow(() -> stmt.execute("DROP DATABASE jdbc_test_db"));
@@ -74,7 +74,7 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
 
     @Test
     public void createTable_success() throws SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
             assertDoesNotThrow(() -> {
@@ -97,7 +97,7 @@ public class GatewayConnectionITest extends AbstractByteHouseITest {
 
     @Test
     public void insert_success() throws SQLException {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = getEnvConnection()) {
             Statement stmt = connection.createStatement();
             assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
             assertDoesNotThrow(() -> {

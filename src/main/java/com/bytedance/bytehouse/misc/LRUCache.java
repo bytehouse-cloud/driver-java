@@ -15,6 +15,7 @@ package com.bytedance.bytehouse.misc;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * LRUCache is a simple LRUCache implementation, based on <code>LinkedHashMap</code>.
@@ -25,35 +26,84 @@ public class LRUCache<K, V> {
 
     private final int cacheSize;
 
+    @SuppressWarnings("PMD.LooseCoupling")
     private final LinkedHashMap<K, V> map;
 
-    public LRUCache(int cacheSize) {
+    private final ReentrantReadWriteLock lock;
+
+    /**
+     * Constructor.
+     */
+    public LRUCache(final int cacheSize) {
         this.cacheSize = cacheSize;
         this.map = new LinkedHashMap<K, V>(cacheSize, HASH_TABLE_LOAD_FACTOR, true) {
-            public boolean removeEldestEntry(Map.Entry eldest) {
+            @SuppressWarnings("PMD.CommentRequired")
+            @Override
+            public boolean removeEldestEntry(final Map.Entry eldest) {
                 return size() > LRUCache.this.cacheSize;
             }
         };
+        this.lock = new ReentrantReadWriteLock();
     }
 
-    public synchronized V get(K key) {
-        return map.get(key);
+    /**
+     * Get.
+     */
+    public V get(final K key) {
+        lock.readLock().lock();
+        try {
+            return map.get(key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
-    public synchronized void put(K key, V value) {
-        map.remove(key);
-        map.put(key, value);
+    /**
+     * update.
+     */
+    public void put(final K key, final V value) {
+        lock.writeLock().lock();
+        try {
+            map.remove(key);
+            map.put(key, value);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    public synchronized void putIfAbsent(K key, V value) {
-        map.putIfAbsent(key, value);
+    /**
+     * update if absent.
+     */
+    public void putIfAbsent(final K key, final V value) {
+        lock.writeLock().lock();
+        try {
+            map.putIfAbsent(key, value);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    public synchronized void clear() {
-        map.clear();
+    /**
+     * clear.
+     */
+    public void clear() {
+        lock.writeLock().lock();
+        try {
+            map.clear();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    public synchronized int cacheSize() {
-        return map.size();
+    /**
+     * get size.
+     */
+    public int cacheSize() {
+        lock.readLock().lock();
+        try {
+            return map.size();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 }
