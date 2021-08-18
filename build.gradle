@@ -55,12 +55,10 @@ dependencies {
     implementation "com.google.code.findbugs:jsr305:3.0.2"
     implementation 'com.github.RoaringBitmap.RoaringBitmap:RoaringBitmap:0.9.15'
 
-    testImplementation "ru.yandex.clickhouse:clickhouse-jdbc:0.2.5"
     testImplementation "org.mockito:mockito-core:3.6.28"
     testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
     testImplementation "com.google.guava:guava:16.0.1"
     testImplementation "org.testcontainers:junit-jupiter:1.15.1"
-    testImplementation "org.testcontainers:clickhouse:1.15.1"
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
 
 }

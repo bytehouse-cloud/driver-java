@@ -11,108 +11,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.misc.StrUtil;
-import com.bytedance.bytehouse.misc.SystemUtil;
-import org.junit.jupiter.api.BeforeAll;
-import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.MountableFile;
-
-import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.sql.*;
-import java.time.ZoneId;
-import java.util.Enumeration;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
+import javax.sql.DataSource;
 
-@Testcontainers
-public abstract class AbstractITest implements Serializable {
+public class AbstractITest implements Serializable {
+    private static final String HOST = "HOST";
+    private static final String PORT = "PORT";
+    private static final String USER = "USER";
 
-    protected static final ZoneId CLIENT_TZ = ZoneId.systemDefault();
-    protected static final ZoneId SERVER_TZ = ZoneId.of("UTC");
+    private Properties TestConfigs;
 
-    // ClickHouse support gRPC from v21.1.2.15-stable 2021-01-18
-    // link: https://github.com/ClickHouse/ClickHouse/blob/master/CHANGELOG.md#clickhouse-release-v211215-stable-2021-01-18
-    public static final String CLICKHOUSE_IMAGE = SystemUtil.loadProp("CLICKHOUSE_IMAGE", "yandex/clickhouse-server:21.3");
-
-    protected static final String CLICKHOUSE_USER = SystemUtil.loadProp("CLICKHOUSE_USER", "default");
-    protected static final String CLICKHOUSE_PASSWORD = SystemUtil.loadProp("CLICKHOUSE_PASSWORD", "");
-    protected static final String CLICKHOUSE_DB = SystemUtil.loadProp("CLICKHOUSE_DB", "");
-
-    protected static final int CLICKHOUSE_GRPC_PORT = 9100;
-
-    @Container
-    public static ClickHouseContainer container = (ClickHouseContainer) new ClickHouseContainer(CLICKHOUSE_IMAGE)
-            .withEnv("CLICKHOUSE_USER", CLICKHOUSE_USER)
-            .withEnv("CLICKHOUSE_PASSWORD", CLICKHOUSE_PASSWORD)
-            .withEnv("CLICKHOUSE_DB", CLICKHOUSE_DB)
-            .withExposedPorts(CLICKHOUSE_GRPC_PORT)
-            .withCopyFileToContainer(MountableFile.forClasspathResource("grpc_config.xml"), "/etc/clickhouse-server/config.d/grpc_config.xml");
-
-
-    protected static String CK_HOST;
-    protected static String CK_IP;
-    protected static int CK_PORT;
-    protected static int CK_GRPC_PORT;
-
-    @BeforeAll
-    public static void extractContainerInfo() {
-        CK_HOST = container.getHost();
-        CK_IP = container.getContainerIpAddress();
-        CK_PORT = container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
-        CK_GRPC_PORT = container.getMappedPort(CLICKHOUSE_GRPC_PORT);
+    protected String getHost() {
+        return TestConfigs.getProperty(HOST);
     }
 
-    /**
-     * just for compatible with scala
-     */
-    protected String getJdbcUrl() {
-        return getJdbcUrl("");
+    protected String getPort() {
+        return TestConfigs.getProperty(PORT);
     }
 
-    protected String getJdbcUrl(Object... params) {
-        StringBuilder sb = new StringBuilder();
-        int port = container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
-        sb.append("jdbc:bytehouse://").append(container.getHost()).append(":").append(port);
-        if (StrUtil.isNotEmpty(CLICKHOUSE_DB)) {
-            sb.append("/").append(container.getDatabaseName());
+    protected String getUrl() {
+        return String.format("jdbc:bytehouse://%s:%s", getHost(), getPort());
+    }
+
+    protected String getUsername() {
+        return TestConfigs.getProperty(USER);
+    }
+
+    protected Connection getConnection(Object... params) throws SQLException {
+        loadTestConfigs(params);
+        final DataSource dataSource = new BalancedByteHouseDataSource(getUrl(), TestConfigs);
+        return dataSource.getConnection();
+    }
+
+    protected BalancedByteHouseDataSource getDataSource(String url, Object... params) throws SQLException {
+        loadTestConfigs(params);
+        final DataSource dataSource = new BalancedByteHouseDataSource(url, TestConfigs);
+        return (BalancedByteHouseDataSource) dataSource;
+    }
+
+    private void loadTestConfigs(Object... params) {
+        Properties envProperty = new Properties();
+        try (InputStream input = Files.newInputStream(Paths
+                .get("src/test/resources/env.properties"))) {
+            envProperty.load(input);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
         }
+
+        String envName = envProperty.getProperty("env");
+        try (InputStream input = Files.newInputStream(Paths
+                .get("src/test/resources/" + envName + "-config.properties"))) {
+            TestConfigs = new Properties();
+            TestConfigs.load(input);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+
         for (int i = 0; i + 1 < params.length; i = i + 2) {
-            sb.append(i == 0 ? "?" : "&");
-            sb.append(params[i]).append("=").append(params[i + 1]);
+            TestConfigs.setProperty(params[i].toString(), params[i+1].toString());
         }
-
-        // Add user
-        sb.append(params.length < 2 ? "?" : "&");
-        sb.append("user=").append(container.getUsername());
-
-        // Add password
-        // ignore blank password
-        if (!StrUtil.isBlank(CLICKHOUSE_PASSWORD)) {
-            sb.append("&password=").append(container.getPassword());
-        }
-
-        return sb.toString();
-    }
-
-    // this method should be synchronized
-    synchronized protected void resetDriverManager() throws SQLException {
-        // remove all registered jdbc drivers
-        Enumeration<Driver> drivers = DriverManager.getDrivers();
-        while (drivers.hasMoreElements()) {
-            DriverManager.deregisterDriver(drivers.nextElement());
-        }
-        DriverManager.registerDriver(new ByteHouseDriver());
     }
 
     protected void withNewConnection(WithConnection withConnection, Object... args) throws Exception {
-        resetDriverManager();
-
-        String connectionStr = getJdbcUrl(args);
-        try (Connection connection = DriverManager.getConnection(connectionStr)) {
+        try (Connection connection = getConnection(args)) {
             withConnection.apply(connection);
         }
     }

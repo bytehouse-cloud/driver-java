@@ -14,59 +14,46 @@
 
 package com.bytedance.bytehouse.jdbc;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.Locale;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
 
 public class ConnectionParamITest extends AbstractITest {
-
-    @BeforeEach
-    public void init() throws SQLException {
-        resetDriverManager();
-    }
 
     @Test
     public void successfullyMaxRowsToRead() {
         assertThrows(SQLException.class, () -> {
-            try (Connection connection = DriverManager
-                    .getConnection(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s?max_rows_to_read=1&connect_timeout=10", CK_HOST, CK_PORT))) {
-                withStatement(connection, stmt -> {
-                    ResultSet rs = stmt.executeQuery("SELECT arrayJoin([1,2,3,4]) from numbers(100)");
-                    int rowsRead = 0;
-                    while (rs.next()) {
-                        ++rowsRead;
-                    }
-                    assertEquals(1, rowsRead); // not reached
-                });
-            }
+            withStatement(statement -> {
+                ResultSet rs = statement.executeQuery("SELECT arrayJoin([1,2,3,4]) from numbers(100)");
+                int rowsRead = 0;
+                while (rs.next()) {
+                    ++rowsRead;
+                }
+                assertEquals(1, rowsRead); // not reached
+            }, "max_rows_to_read", "1", "connect_timeout", "10");
         });
     }
 
     @Test
     public void successfullyMaxResultRows() throws Exception {
-        try (Connection connection = DriverManager
-                .getConnection(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s?max_result_rows=1&connect_timeout=10", CK_HOST, CK_PORT))
-        ) {
-            withStatement(connection, stmt -> {
-                stmt.setMaxRows(400);
-                ResultSet rs = stmt.executeQuery("SELECT arrayJoin([1,2,3,4]) from numbers(100)");
-                int rowsRead = 0;
-                while (rs.next()) {
-                    ++rowsRead;
-                }
-                assertEquals(400, rowsRead);
-            });
-        }
+        withStatement(stmt -> {
+            stmt.setMaxRows(400);
+            ResultSet rs = stmt.executeQuery("SELECT arrayJoin([1,2,3,4]) from numbers(100)");
+            int rowsRead = 0;
+            while (rs.next()) {
+                ++rowsRead;
+            }
+            assertEquals(400, rowsRead);
+        }, "max_result_rows", "1", "connect_timeout", "10");
     }
 
     @Test
@@ -115,31 +102,35 @@ public class ConnectionParamITest extends AbstractITest {
     @Test
     public void successfullyCompressedInsert() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP TABLE IF EXISTS test");
-            statement.execute("CREATE TABLE test(x Int32) ENGINE=Log");
+            statement.execute("DROP DATABASE IF EXISTS test_database");
+            statement.execute("CREATE DATABASE test_database");
+            statement.execute("CREATE TABLE test_database.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
 
             for (int i = 0; i < 30; i++) {
-                assertEquals(1, statement.executeUpdate(String.format("INSERT INTO test VALUES(%d)", i)));
+                assertEquals(1, statement.executeUpdate(String.format("INSERT INTO test_database.test_table VALUES(%d)", i)));
             }
 
-            ResultSet rs = statement.executeQuery("SELECT x FROM test ORDER BY x");
+            ResultSet rs = statement.executeQuery("SELECT x FROM test_database.test_table ORDER BY x");
             for (int i = 0; i < 30; i++) {
                 assertTrue(rs.next());
                 assertEquals(i, rs.getInt(1));
             }
             assertFalse(rs.next());
 
-            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("DROP DATABASE IF EXISTS test_database");
         }, "enable_compression", "true");
     }
 
-    @Test
+    // TODO: Infinite long running test
+    @Ignore
     public void successfullyCompressedInsertBatch() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP TABLE IF EXISTS test");
-            statement.execute("CREATE TABLE test(x Int32) ENGINE=Log");
+            statement.execute("DROP DATABASE IF EXISTS test_database");
+            statement.execute("CREATE DATABASE test_database");
+            statement.execute("CREATE TABLE test_database.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
 
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test(x) VALUES(?)", pstmt -> {
+
+            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table(x) VALUES(?)", pstmt -> {
                 for (int i = 0; i < 30; i++) {
                     pstmt.setInt(1, i);
                     pstmt.addBatch();
@@ -147,14 +138,14 @@ public class ConnectionParamITest extends AbstractITest {
                 pstmt.executeBatch();
             });
 
-            ResultSet rs = statement.executeQuery("SELECT x FROM test ORDER BY x");
+            ResultSet rs = statement.executeQuery("SELECT x FROM test_database.test_table ORDER BY x");
             for (int i = 0; i < 30; i++) {
                 assertTrue(rs.next());
                 assertEquals(i, rs.getInt(1));
             }
             assertFalse(rs.next());
 
-            statement.execute("DROP TABLE IF EXISTS test");
+            statement.execute("DROP DATABASE IF EXISTS test_database");
         }, "enable_compression", "true");
     }
 

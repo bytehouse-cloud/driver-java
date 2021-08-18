@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bytedance.bytehouse.util;
+package com.bytedance.bytehouse.jdbc.scenario;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -156,4 +156,12 @@ public final class GenerateSqlInsertStatementUtil {
         }
         return value;
     }
+
+    public static String loadSqlStatement(final String filepath) throws IOException {
+        final String fullPath = "src/test/resources/sql/" + filepath + ".sql";
+        final byte[] bytes = Files.readAllBytes(Paths.get(fullPath));
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
 }
+
+

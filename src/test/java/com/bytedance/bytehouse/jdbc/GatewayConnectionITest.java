@@ -12,27 +12,24 @@
  * limitations under the License.
  */
 
-package com.bytedance.bytehouse.bhit;
+package com.bytedance.bytehouse.jdbc;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests basic functionalities with ByteHouse.
  */
-public class GatewayConnectionITest extends AbstractBHITEnvironment {
+public class GatewayConnectionITest extends AbstractITest {
 
     @Test
     public void runSimpleQuery_success() throws SQLException {
-        try (Connection connection = getEnvConnection()) {
+        try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT 1");
             assertTrue(rs.next());
@@ -43,7 +40,7 @@ public class GatewayConnectionITest extends AbstractBHITEnvironment {
 
     @Test
     public void runComplexQuery_success() throws SQLException {
-        try (Connection connection = getEnvConnection()) {
+        try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(
                     "SELECT (number % 3 + 1) as n, sum(number) FROM numbers(10000000) GROUP BY n"
@@ -57,7 +54,7 @@ public class GatewayConnectionITest extends AbstractBHITEnvironment {
 
     @Test
     public void showWarehouses_success() throws SQLException {
-        try (Connection connection = getEnvConnection()) {
+        try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
             assertDoesNotThrow(() -> stmt.execute("SHOW WAREHOUSES"));
         }
@@ -65,7 +62,7 @@ public class GatewayConnectionITest extends AbstractBHITEnvironment {
 
     @Test
     public void createDatabase_success() throws SQLException {
-        Connection connection = getEnvConnection();
+        Connection connection = getConnection();
         Statement stmt = connection.createStatement();
         assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
         assertDoesNotThrow(() -> stmt.execute("DROP DATABASE jdbc_test_db"));
@@ -74,7 +71,7 @@ public class GatewayConnectionITest extends AbstractBHITEnvironment {
 
     @Test
     public void createTable_success() throws SQLException {
-        try (Connection connection = getEnvConnection()) {
+        try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
             assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
             assertDoesNotThrow(() -> {
@@ -97,7 +94,7 @@ public class GatewayConnectionITest extends AbstractBHITEnvironment {
 
     @Test
     public void insert_success() throws SQLException {
-        try (Connection connection = getEnvConnection()) {
+        try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
             assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
             assertDoesNotThrow(() -> {

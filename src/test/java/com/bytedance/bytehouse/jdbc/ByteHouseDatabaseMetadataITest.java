@@ -11,9 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bytedance.bytehouse.jdbc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,16 +25,16 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
-import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("PMD")
 class ByteHouseDatabaseMetadataITest extends AbstractITest {
 
     @Test
     void allProceduresAreCallable() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertTrue(dm.allProceduresAreCallable());
+            assertThat(dm.allProceduresAreCallable()).isTrue();
         });
     }
 
@@ -41,7 +42,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void allTablesAreSelectable() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertTrue(dm.allTablesAreSelectable());
+            assertThat(dm.allTablesAreSelectable()).isTrue();
         });
     }
 
@@ -49,11 +50,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getURL() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals(String.format(Locale.ROOT, "jdbc:bytehouse://%s:%s/?query_timeout=0" +
-                            "&connect_timeout=0&charset=UTF-8&tcp_keep_alive=false" +
-                            "&tcp_no_delay=true&secure=false&skip_verification=false" +
-                            "&enable_compression=false", CK_HOST, CK_PORT),
-                    dm.getURL());
+            assertThat(dm.getURL()).contains(getUrl());
         });
     }
 
@@ -61,7 +58,7 @@ class ByteHouseDatabaseMetadataITest extends AbstractITest {
     void getUserName() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertEquals("default", dm.getUserName());
+            assertEquals(getUsername(), dm.getUserName());
         });
     }
 

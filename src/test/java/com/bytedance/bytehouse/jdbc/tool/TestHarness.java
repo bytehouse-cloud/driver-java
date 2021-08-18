@@ -152,7 +152,7 @@ public class TestHarness extends AbstractITest {
     }
 
     public TestHarness(String... allowedDataTypes) {
-        this.tableName = "test_" + (new Random().nextLong() & 0xffffffffL);
+        this.tableName = "test_database." + "test_" + (new Random().nextLong() & 0xffffffffL);
         this.types = ALL_TYPES.stream()
                 .filter(type -> Arrays.stream(allowedDataTypes).anyMatch(allowed -> allowed.equals(type.name)))
                 .toArray(DataTypeApply[]::new);
@@ -160,8 +160,10 @@ public class TestHarness extends AbstractITest {
     }
 
     public void create() throws Exception {
-        String sql = buildCreateTableSQL();
+        String createDatabase = buildCreateDatabaseSQL();
+        withStatement(stmt -> stmt.execute(createDatabase));
 
+        String sql = buildCreateTableSQL();
         withStatement(stmt -> stmt.execute(sql));
     }
 
@@ -229,7 +231,7 @@ public class TestHarness extends AbstractITest {
     }
 
     public void clean() throws Exception {
-        String sql = buildDropTableSQL();
+        String sql = buildDropDatabaseSQL();
         withStatement(stmt -> stmt.execute(sql));
     }
 
@@ -241,6 +243,13 @@ public class TestHarness extends AbstractITest {
         return types;
     }
 
+    private String buildCreateDatabaseSQL() {
+        StringBuilder sb = new StringBuilder("CREATE DATABASE test_database");
+        String sql = sb.toString();
+        LOG.trace("CREATE DATABASE DDL: \n{}", sql);
+        return sql;
+    }
+
     private String buildCreateTableSQL() {
         StringBuilder sb = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (int i = 0; i < types.length; i++) {
@@ -249,7 +258,8 @@ public class TestHarness extends AbstractITest {
             }
             sb.append("col_").append(i).append(" ").append(types[i].name);
         }
-        sb.append(" ) Engine=Memory");
+        sb.append(" ) Engine=CnchMergeTree(");
+        sb.append(" ) order by tuple()");
         String sql = sb.toString();
         LOG.trace("CREATE TABLE DDL: \n{}", sql);
         return sql;
@@ -282,8 +292,8 @@ public class TestHarness extends AbstractITest {
                 tableName);
     }
 
-    private String buildDropTableSQL() {
-        return "DROP TABLE IF EXISTS " + tableName;
+    private String buildDropDatabaseSQL() {
+        return "DROP DATABASE IF EXISTS test_database";
     }
 
     public static class DataTypeApply {
