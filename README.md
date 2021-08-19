@@ -76,7 +76,7 @@ public class SimpleQuery {
     public static void main(String[] args) throws Exception {
         String url = String.format("jdbc:bytehouse://gateway.aws-cn-north-1.bytehouse.cn:19000");
         Properties properties = new Properties();
-        properties.setProperty("account_id", "AWS12345");
+        properties.setProperty("account", "AWS12345");
         properties.setProperty("user", "username");
         properties.setProperty("password", "YOUR_PASSWORD");
         properties.setProperty("secure", "true");
@@ -191,7 +191,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String url = "jdbc:bytehouse://localhost:9000";
         Properties properties = new Properties();
-        properties.setProperty("account_id", "id");
+        properties.setProperty("account", "id");
         properties.setProperty("user", "test");
         properties.setProperty("password", "password");
 

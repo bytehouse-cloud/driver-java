@@ -53,9 +53,10 @@ public final class ByteHouseJdbcUrlParser {
     public static Map<SettingKey, Serializable> parseJdbcUrl(final String jdbcUrl) {
         try {
             final URI uri = new URI(jdbcUrl.substring(JDBC_PREFIX.length()));
-            final String host = parseHost(jdbcUrl);
-            final Integer port = parsePort(jdbcUrl);
-            final String database = parseDatabase(jdbcUrl);
+            final String host = uri.getHost();
+            final Integer port = uri.getPort();
+            String database = uri.getPath() == null ? "" : uri.getPath();
+            database = database.startsWith("/") ? database.substring(1) : database;
             final Map<SettingKey, Serializable> settings = new HashMap<>();
             settings.put(SettingKey.host, host);
             settings.put(SettingKey.port, port);

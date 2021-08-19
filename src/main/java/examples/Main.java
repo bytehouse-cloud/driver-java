@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String url = "jdbc:bytehouse://localhost:9000";
         Properties properties = new Properties();
-        properties.setProperty("account_id", "id");
+        properties.setProperty("account", "id");
         properties.setProperty("user", "test");
         properties.setProperty("password", "password");
 

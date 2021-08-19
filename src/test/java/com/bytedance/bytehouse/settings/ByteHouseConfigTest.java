@@ -31,7 +31,7 @@ class ByteHouseConfigTest {
         ByteHouseConfig cfg = ByteHouseConfig.Builder.builder().build();
         assertEquals("127.0.0.1", cfg.host());
         assertEquals(9000, cfg.port());
-        assertEquals("", cfg.accountId());
+        assertEquals("", cfg.account());
         assertEquals("default", cfg.user());
         assertEquals("default", cfg.fullUsername());
         assertEquals("", cfg.password());
@@ -57,10 +57,10 @@ class ByteHouseConfigTest {
                 .withSetting(SettingKey.allow_distributed_ddl, true)
                 .build()
                 .withCredentials("user", "passWorD")
-                .withAccountId("123");
+                .withAccount("123");
         assertEquals("1.2.3.4", cfg.host());
         assertEquals(8123, cfg.port());
-        assertEquals("123", cfg.accountId());
+        assertEquals("123", cfg.account());
         assertEquals("user", cfg.user());
         assertEquals("123::user", cfg.fullUsername());
         assertEquals("passWorD", cfg.password());
@@ -105,5 +105,52 @@ class ByteHouseConfigTest {
                 .withProperties(props)
                 .build();
         assertEquals("haha", cfg.settings().get(userDefined));
+    }
+
+    @Test
+    void testRegionSetsRequiredSettings() {
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
+                .withSetting(SettingKey.region, "CN-NORTH-1")
+                .build();
+        assertTrue(cfg.secure());
+        assertEquals(ByteHouseRegion.CN_NORTH_1.getHost(), cfg.host());
+        assertEquals(ByteHouseRegion.CN_NORTH_1.getPort(), cfg.port());
+    }
+
+    @Test
+    void testEmptyRegionDoesNotSetRequiredSettings() {
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
+                .host("localhost")
+                .port(9000)
+                .withSetting(SettingKey.region, "")
+                .build();
+        assertFalse(cfg.secure());
+        assertEquals("localhost", cfg.host());
+        assertEquals(9000, cfg.port());
+
+        ByteHouseConfig cfg2 = ByteHouseConfig.Builder.builder()
+                .host("localhost")
+                .port(9000)
+                .region("")
+                .build();
+        assertFalse(cfg2.secure());
+        assertEquals("localhost", cfg2.host());
+        assertEquals(9000, cfg2.port());
+    }
+
+    @Test
+    void testRegionSetsRequiredSettingsFromConfig() {
+        ByteHouseConfig existing = ByteHouseConfig.Builder.builder()
+                .region("CN-NORTH-1")
+                .host("somehost")
+                .port(-1)
+                .secure(false)
+                .build();
+
+        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder(existing).build();
+
+        assertEquals(ByteHouseRegion.CN_NORTH_1.getHost(), cfg.host());
+        assertEquals(ByteHouseRegion.CN_NORTH_1.getPort(), cfg.port());
+        assertTrue(cfg.secure());
     }
 }

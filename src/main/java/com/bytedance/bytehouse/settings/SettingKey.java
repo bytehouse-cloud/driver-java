@@ -1685,6 +1685,11 @@ public class SettingKey implements Serializable {
             .build();
 
     // ----------------------------- NON QUERY SETTINGS -------------------------------------
+    public static SettingKey region = SettingKey.builder()
+            .withName("region")
+            .withType(SettingType.UTF8)
+            .build();
+
     public static SettingKey host = SettingKey.builder()
             .withName("host")
             .withType(SettingType.UTF8)
@@ -1700,8 +1705,8 @@ public class SettingKey implements Serializable {
             .withType(SettingType.UTF8)
             .build();
 
-    public static SettingKey account_id = SettingKey.builder()
-            .withName("account_id")
+    public static SettingKey account = SettingKey.builder()
+            .withName("account")
             .withType(SettingType.UTF8)
             .build();
 

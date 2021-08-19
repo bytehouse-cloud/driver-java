@@ -51,4 +51,10 @@ public class BalancedByteHouseDataSourceTest {
         assertThrows(InvalidValueException.class, () ->
                 BalancedByteHouseDataSource.splitUrl("jdbc:bytehouse://localhost:1234,_0ano^ther-host.com:4321"));
     }
+
+    @Test
+    public void testUrlSplitNoHostName() {
+        assertEquals(Collections.singletonList("jdbc:bytehouse:///?region=CN-NORTH-1"),
+                BalancedByteHouseDataSource.splitUrl("jdbc:bytehouse:///?region=CN-NORTH-1"));
+    }
 }

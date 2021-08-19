@@ -26,9 +26,9 @@ import javax.sql.DataSource;
 public class SimpleQuery {
 
     public static void main(String[] args) throws Exception {
-        String url = String.format("jdbc:bytehouse://gateway.aws-cn-north-1.bytehouse.cn:19000");
+        String url = String.format("jdbc:bytehouse:///?region=CN-NORTH-1-STAGING");
         Properties properties = new Properties();
-        properties.setProperty("account_id", "AWSKUBIO");
+        properties.setProperty("account", "AWSKUBIO");
         properties.setProperty("user", "account.admin");
         properties.setProperty("password", "P@55word");
         properties.setProperty("secure", "true");

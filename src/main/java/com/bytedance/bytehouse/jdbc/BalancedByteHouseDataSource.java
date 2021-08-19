@@ -23,6 +23,8 @@ import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.time.Duration;
@@ -33,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -51,10 +52,10 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
 
     private static final Pattern URL_TEMPLATE = Pattern.compile(
             ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
-                    "//([a-zA-Z0-9_:,.-]+)" +
-                    "((/[a-zA-Z0-9_]+)?" +
-                    "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
-                    ")?");
+            "//([a-zA-Z0-9_:,.-]+)" +
+            "((/[a-zA-Z0-9_]+)?" +
+            "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
+            ")?");
 
     private final List<String> allUrls;
 
@@ -74,7 +75,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      *                                  or error happens when checking host availability
      */
     public BalancedByteHouseDataSource(String url) {
-        this(splitUrl(url), new Properties());
+        this(url, new Properties());
     }
 
     /**
@@ -85,7 +86,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * @see #BalancedByteHouseDataSource(String)
      */
     public BalancedByteHouseDataSource(String url, Properties properties) {
-        this(splitUrl(url), properties);
+        this(url, ByteHouseJdbcUrlParser.parseProperties(properties));
     }
 
     /**
@@ -95,20 +96,11 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * @param settings bytehouse settings
      * @see #BalancedByteHouseDataSource(String)
      */
-    public BalancedByteHouseDataSource(final String url, Map<SettingKey, Serializable> settings) {
-        this(splitUrl(url), settings);
-    }
-
-    private BalancedByteHouseDataSource(final List<String> urls, Properties properties) {
-        this(urls, ByteHouseJdbcUrlParser.parseProperties(properties));
-    }
-
     private BalancedByteHouseDataSource(
-            final List<String> urls,
+            final String url,
             final Map<SettingKey, Serializable> settings
     ) {
-        Validate.ensure(!urls.isEmpty(), "Incorrect ByteHouse jdbc url list. "
-                + "It must be not empty");
+        final List<String> urls = splitUrl(url);
 
         this.cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(urls.get(0))
@@ -118,15 +110,15 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
                 .build();
 
         final List<String> allUrls = new ArrayList<>(urls.size());
-        for (final String url : urls) {
+        for (final String u : urls) {
             try {
-                if (driver.acceptsURL(url)) {
-                    allUrls.add(url);
+                if (driver.acceptsURL(u)) {
+                    allUrls.add(u);
                 } else {
-                    LOG.warn("that url is has not correct format: {}", url);
+                    LOG.warn("that url is has not correct format: {}", u);
                 }
             } catch (Exception e) {
-                throw new InvalidValueException("error while checking url: " + url, e);
+                throw new InvalidValueException("error while checking url: " + u, e);
             }
         }
 
@@ -137,12 +129,23 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
     }
 
     static List<String> splitUrl(final String url) {
-        final Matcher m = URL_TEMPLATE.matcher(url);
-        Validate.ensure(m.matches(), "Incorrect url: " + url);
-        final String database = StrUtil.getOrDefault(m.group(2), "");
-        final String[] hosts = m.group(1).split(",");
+        Validate.ensure(url.startsWith(ByteHouseJdbcUrlParser.JDBC_PREFIX), "not JDBC url: " + url);
+        final String bhUrl = url.substring(ByteHouseJdbcUrlParser.JDBC_PREFIX.length());
+        Validate.ensure(bhUrl.startsWith(ByteHouseJdbcUrlParser.BYTEHOUSE_PREFIX), "not ByteHouse url: " + url);
+
+        final URI uri;
+        try {
+            uri = new URI(bhUrl);
+        } catch (URISyntaxException e) {
+            throw new InvalidValueException("Invalid url: " + url);
+        }
+        final String database = StrUtil.getOrDefault(uri.getPath(), "");
+        final String query = StrUtil.getOrDefault(uri.getQuery(), "");
+        final String queryString = query.isEmpty() ? query : "?" + query;
+        final String[] hosts = StrUtil.getOrDefault(uri.getAuthority(), "").split(",", -1);
+
         return Arrays.stream(hosts)
-                .map(host -> ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX + "//" + host + database)
+                .map(host -> ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX + "//" + host + database + queryString)
                 .collect(Collectors.toList());
     }
 

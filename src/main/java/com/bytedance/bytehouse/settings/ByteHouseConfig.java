@@ -27,13 +27,15 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class ByteHouseConfig implements Serializable {
 
+    private final String region;
+
     private final String host;
 
     private final int port;
 
     private final String database;
 
-    private final String accountId;
+    private final String account;
 
     private final String user;
 
@@ -57,14 +59,15 @@ public class ByteHouseConfig implements Serializable {
 
     private final Map<SettingKey, Serializable> settings;
 
-    private ByteHouseConfig(String host, int port, String database, String accountId, String user, String password,
+    private ByteHouseConfig(String region, String host, int port, String database, String account, String user, String password,
                             Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive, boolean tcpNoDelay,
                             boolean secure, boolean skipVerification, boolean enableCompression, String charset,
                             Map<SettingKey, Serializable> settings) {
+        this.region = region;
         this.host = host;
         this.port = port;
         this.database = database;
-        this.accountId = accountId;
+        this.account = account;
         this.user = user;
         this.password = password;
         this.queryTimeout = queryTimeout;
@@ -76,6 +79,10 @@ public class ByteHouseConfig implements Serializable {
         this.enableCompression = enableCompression;
         this.charset = charset;
         this.settings = settings;
+    }
+
+    public String region() {
+        return this.region;
     }
 
     public String host() {
@@ -90,8 +97,8 @@ public class ByteHouseConfig implements Serializable {
         return this.database;
     }
 
-    public String accountId() {
-        return this.accountId;
+    public String account() {
+        return this.account;
     }
 
     public String user() {
@@ -139,10 +146,10 @@ public class ByteHouseConfig implements Serializable {
     }
 
     public String fullUsername() {
-        if (StrUtil.isBlank(this.accountId)) {
+        if (StrUtil.isBlank(this.account)) {
             return this.user;
         }
-        return String.format("%s::%s", this.accountId, this.user);
+        return String.format("%s::%s", this.account, this.user);
     }
 
     public String jdbcUrl() {
@@ -177,9 +184,9 @@ public class ByteHouseConfig implements Serializable {
                 .build();
     }
 
-    public ByteHouseConfig withAccountId(String accountId) {
+    public ByteHouseConfig withAccount(String account) {
         return Builder.builder(this)
-                .accountId(accountId)
+                .account(account)
                 .build();
     }
 
@@ -265,13 +272,15 @@ public class ByteHouseConfig implements Serializable {
 
     public static final class Builder {
 
+        private String region;
+
         private String host;
 
         private int port;
 
         private String database;
 
-        private String accountId;
+        private String account;
 
         private String user;
 
@@ -307,7 +316,7 @@ public class ByteHouseConfig implements Serializable {
                     .host(cfg.host())
                     .port(cfg.port())
                     .database(cfg.database())
-                    .accountId(cfg.accountId())
+                    .account(cfg.account())
                     .user(cfg.user())
                     .password(cfg.password())
                     .queryTimeout(cfg.queryTimeout())
@@ -318,6 +327,7 @@ public class ByteHouseConfig implements Serializable {
                     .skipVerification(cfg.skipVerification())
                     .enableCompression(cfg.enableCompression())
                     .charset(cfg.charset())
+                    .region(cfg.region())
                     .withSettings(cfg.settings());
         }
 
@@ -328,6 +338,11 @@ public class ByteHouseConfig implements Serializable {
 
         public Builder withSettings(Map<SettingKey, Serializable> settings) {
             CollectionUtil.mergeMapInPlaceKeepLast(this.settings, settings);
+            return this;
+        }
+
+        public Builder region(String region) {
+            this.withSetting(SettingKey.region, region);
             return this;
         }
 
@@ -346,8 +361,8 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
-        public Builder accountId(String accountId) {
-            this.withSetting(SettingKey.account_id, accountId);
+        public Builder account(String account) {
+            this.withSetting(SettingKey.account, account);
             return this;
         }
 
@@ -425,10 +440,13 @@ public class ByteHouseConfig implements Serializable {
         }
 
         public ByteHouseConfig build() {
+            this.region = (String) this.settings.getOrDefault(SettingKey.region, "");
+            handleRegionSettings();
+
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
             this.database = (String) this.settings.getOrDefault(SettingKey.database, "");
-            this.accountId = (String) this.settings.getOrDefault(SettingKey.account_id, "");
+            this.account = (String) this.settings.getOrDefault(SettingKey.account, "");
             this.user = (String) this.settings.getOrDefault(SettingKey.user, "default");
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
             this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.query_timeout, Duration.ZERO);
@@ -444,17 +462,27 @@ public class ByteHouseConfig implements Serializable {
             purgeSettings();
 
             return new ByteHouseConfig(
-                    host, port, database, accountId, user, password, queryTimeout,
+                    region, host, port, database, account, user, password, queryTimeout,
                     connectTimeout, tcpKeepAlive, tcpNoDelay, secure, skipVerification, enableCompression,
                     charset.name(), settings
             );
+        }
+
+        private void handleRegionSettings() {
+            if (StrUtil.isBlank(this.region)) {
+                return;
+            }
+            ByteHouseRegion bhRegion = ByteHouseRegion.fromString(this.region);
+            this.withSetting(SettingKey.host, bhRegion.getHost());
+            this.withSetting(SettingKey.port, bhRegion.getPort());
+            this.withSetting(SettingKey.secure, true);
         }
 
         private void revisit() {
             if (StrUtil.isBlank(this.host)) this.host = "127.0.0.1";
             if (this.port == -1) this.port = 9000;
             if (StrUtil.isBlank(this.database)) this.database = "";
-            if (StrUtil.isBlank(this.accountId)) this.accountId = "";
+            if (StrUtil.isBlank(this.account)) this.account = "";
             if (StrUtil.isBlank(this.user)) this.user = "default";
             if (StrUtil.isBlank(this.password)) this.password = "";
             if (this.queryTimeout.isNegative()) this.queryTimeout = Duration.ZERO;
@@ -462,10 +490,11 @@ public class ByteHouseConfig implements Serializable {
         }
 
         private void purgeSettings() {
+            this.settings.remove(SettingKey.region);
             this.settings.remove(SettingKey.host);
             this.settings.remove(SettingKey.port);
             this.settings.remove(SettingKey.database);
-            this.settings.remove(SettingKey.account_id);
+            this.settings.remove(SettingKey.account);
             this.settings.remove(SettingKey.user);
             this.settings.remove(SettingKey.password);
             this.settings.remove(SettingKey.query_timeout);
