@@ -40,6 +40,10 @@ public final class ByteHouseJdbcUrlParser {
 
     public static final String JDBC_BYTEHOUSE_PREFIX = JDBC_PREFIX + BYTEHOUSE_PREFIX;
 
+    public static final String CNCH_PREFIX = "cnch:";
+
+    public static final String JDBC_CNCH_PREFIX = JDBC_PREFIX + CNCH_PREFIX;
+
     public static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_]+)");
 
     public static final Pattern HOST_PORT_PATH_PATTERN =
@@ -57,7 +61,12 @@ public final class ByteHouseJdbcUrlParser {
             final Integer port = uri.getPort();
             String database = uri.getPath() == null ? "" : uri.getPath();
             database = database.startsWith("/") ? database.substring(1) : database;
+
+            final String scheme = uri.getScheme();
             final Map<SettingKey, Serializable> settings = new HashMap<>();
+            settings.put(SettingKey.isCnch,
+                    scheme != null && scheme.toLowerCase(Locale.ROOT).equals("cnch")
+            );
             settings.put(SettingKey.host, host);
             settings.put(SettingKey.port, port);
             settings.put(SettingKey.database, database);
@@ -143,20 +152,20 @@ public final class ByteHouseJdbcUrlParser {
     private static Map<SettingKey, Serializable> extractQueryParameters(
             final String queryParameters
     ) {
-        Map<SettingKey, Serializable> parameters = new HashMap<>();
-        StringTokenizer tokenizer = new StringTokenizer(
+        final Map<SettingKey, Serializable> parameters = new HashMap<>();
+        final StringTokenizer tokenizer = new StringTokenizer(
                 queryParameters == null ? "" : queryParameters, "&"
         );
 
         while (tokenizer.hasMoreTokens()) {
-            String[] queryParameter = tokenizer.nextToken().split("=", 2);
+            final String[] queryParameter = tokenizer.nextToken().split("=", 2);
             Validate.ensure(queryParameter.length == 2,
                     String.format("ByteHouse JDBC URL Parameter '%s' Error, "
                             + "Expected '='.", queryParameters)
             );
 
-            String name = queryParameter[0];
-            String value = queryParameter[1];
+            final String name = queryParameter[0];
+            final String value = queryParameter[1];
 
             parseSetting(parameters, name, value);
         }

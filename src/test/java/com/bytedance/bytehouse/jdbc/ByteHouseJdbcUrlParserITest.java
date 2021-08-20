@@ -14,14 +14,13 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.settings.SettingKey;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class ByteHouseJdbcUrlParserITest {
 
@@ -31,7 +30,21 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:bytehouse://myhost:8000/database"
         );
 
-        assertEquals(settings.size(), 3);
+        assertEquals(settings.size(), 4);
+        assertEquals(settings.get(SettingKey.isCnch), false);
+        assertEquals(settings.get(SettingKey.host), "myhost");
+        assertEquals(settings.get(SettingKey.port), 8000);
+        assertEquals(settings.get(SettingKey.database), "database");
+    }
+
+    @Test
+    public void parseJdbcUrl_cnchInScheme() {
+        Map<SettingKey, Serializable> settings = ByteHouseJdbcUrlParser.parseJdbcUrl(
+                "jdbc:cnch://myhost:8000/database"
+        );
+
+        assertEquals(settings.size(), 4);
+        assertEquals(settings.get(SettingKey.isCnch), true);
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");
@@ -43,7 +56,8 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:bytehouse://myhost:8000/database?user=person&password=P@ssword"
         );
 
-        assertEquals(settings.size(), 5);
+        assertEquals(settings.size(), 6);
+        assertEquals(settings.get(SettingKey.isCnch), false);
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");
@@ -57,7 +71,8 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:bytehouse://myhost:8000/database?random=string"
         );
 
-        assertEquals(settings.size(), 3 );
+        assertEquals(settings.size(), 4 );
+        assertEquals(settings.get(SettingKey.isCnch), false);
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");
@@ -66,13 +81,13 @@ public class ByteHouseJdbcUrlParserITest {
     @Test
     public void parseProperties_withValidSettingKey_succeed() {
         Properties properties = new Properties();
-        properties.setProperty(SettingKey.skip_verification.name(), "true");
+        properties.setProperty(SettingKey.skipVerification.name(), "true");
         properties.setProperty(SettingKey.user.name(), "username");
 
         Map<SettingKey, Serializable> settings = ByteHouseJdbcUrlParser.parseProperties(properties);
 
         assertEquals(settings.size(), 2);
-        assertEquals(settings.get(SettingKey.skip_verification), true);
+        assertEquals(settings.get(SettingKey.skipVerification), true);
         assertEquals(settings.get(SettingKey.user), "username");
     }
 

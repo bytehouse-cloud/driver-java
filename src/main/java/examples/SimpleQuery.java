@@ -28,28 +28,35 @@ public class SimpleQuery {
     public static void main(String[] args) throws Exception {
         String url = String.format("jdbc:bytehouse:///?region=CN-NORTH-1-STAGING");
         Properties properties = new Properties();
-        properties.setProperty("account", "AWSKUBIO");
-        properties.setProperty("user", "account.admin");
-        properties.setProperty("password", "P@55word");
-        properties.setProperty("secure", "true");
+        properties.setProperty("account", "AWSLJEWV");
+        properties.setProperty("user", "zx");
+        properties.setProperty("password", "P`55word");
 
-        DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
+//        String url = String.format("jdbc:cnch://localhost:9010/dataexpress?secure=false");
+//        Properties properties = new Properties();
+
+        final DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
 
         try (Connection connection = dataSource.getConnection()) {
-            createDatabase(connection);
-            createTable(connection);
-            insertTable(connection);
-            insertBatch(connection);
-            selectTable(connection);
-            dropDatabase(connection);
+            try {
+                createDatabase(connection);
+                createTable(connection);
+                insertTable(connection);
+                insertBatch(connection);
+                selectTable(connection);
+            } finally {
+                dropDatabase(connection);
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
     public static void createDatabase(Connection connection) {
+        final String sql = "CREATE DATABASE IF NOT EXISTS inventory";
+        System.out.println(sql);
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("CREATE DATABASE IF NOT EXISTS inventory");
+            stmt.execute(sql);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -57,17 +64,16 @@ public class SimpleQuery {
 
     public static void createTable(Connection connection) {
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute(
-                    "CREATE TABLE IF NOT EXISTS inventory.orders\n" +
-                            "(" +
-                            "    OrderID String," +
-                            "    OrderName String," +
-                            "    OrderPriority Int8" +
-                            ")" +
-                            "    engine = CnchMergeTree()" +
-                            "    partition by OrderID" +
-                            "    order by OrderID"
-            );
+            final String sql = "CREATE TABLE IF NOT EXISTS inventory.orders (" +
+                    " OrderID String, " +
+                    " OrderName String, " +
+                    " OrderPriority Int8 " +
+                    " ) " +
+                    " engine = CnchMergeTree()" +
+                    " partition by OrderID" +
+                    " order by OrderID";
+            System.out.println(sql);
+            stmt.execute(sql);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -75,19 +81,24 @@ public class SimpleQuery {
 
     public static void insertTable(Connection connection) {
         try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate(
-                    "INSERT INTO inventory.orders VALUES ('54895','Apple',12)"
-            );
+            final String sql = "INSERT INTO inventory.orders "
+                    + " VALUES "
+                    + " ('54895','Apple',12) ";
+            System.out.println(sql);
+            stmt.executeUpdate(sql);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
     public static void insertBatch(Connection connection) {
-        String insertQuery = "INSERT INTO inventory.orders (OrderID, OrderName, OrderPriority) VALUES (?,'Apple',?)";
+        final String insertQuery = "INSERT INTO inventory.orders "
+                + " (OrderID, OrderName, OrderPriority) "
+                + " VALUES "
+                + " (?,'Apple',?) ";
+        System.out.println(insertQuery);
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
             int insertBatchSize = 10;
-
             for (int i = 0; i < insertBatchSize; i++) {
                 pstmt.setString(1, "ID" + i);
                 pstmt.setInt(2, i);
@@ -100,10 +111,13 @@ public class SimpleQuery {
     }
 
     public static void selectTable(Connection connection) {
+        final String sql = "SELECT * FROM inventory.orders";
+        System.out.println(sql);
         try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT * FROM inventory.orders");
+            ResultSet rs = stmt.executeQuery(sql);
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnsNumber = rsmd.getColumnCount();
+            System.out.println("---------------------------------------");
             while (rs.next()) {
                 for (int i = 1; i <= columnsNumber; i++) {
                     if (i > 1) System.out.print(", ");
@@ -112,14 +126,17 @@ public class SimpleQuery {
                 }
                 System.out.println();
             }
+            System.out.println("---------------------------------------");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
     public static void dropDatabase(Connection connection) {
+        final String sql = "DROP DATABASE inventory";
+        System.out.println(sql);
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DROP DATABASE inventory");
+            stmt.execute(sql);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

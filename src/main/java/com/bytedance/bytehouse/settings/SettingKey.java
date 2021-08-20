@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Settings key.
+ */
+@SuppressWarnings("PMD.FieldNamingConventions")
 public class SettingKey implements Serializable {
 
     // key always is lower case
@@ -939,11 +943,7 @@ public class SettingKey implements Serializable {
             .withType(SettingType.Bool)
             .build();
 
-    public static SettingKey connect_timeout = SettingKey.builder()
-            .withName("connect_timeout")
-            .withType(SettingType.Seconds)
-            .withDescription("Connection timeout if there are no replicas.")
-            .build();
+
 
     public static SettingKey connect_timeout_with_failover_ms = SettingKey.builder()
             .withName("connect_timeout_with_failover_ms")
@@ -1684,77 +1684,104 @@ public class SettingKey implements Serializable {
             .withType(SettingType.UTF8)
             .build();
 
-    // ----------------------------- NON QUERY SETTINGS -------------------------------------
+    @ClientConfigKey
+    public static SettingKey isCnch = SettingKey.builder()
+            .withName("is_cnch")
+            .withType(SettingType.Bool)
+            .withDescription("indicating if the driver is running against cnch")
+            .build();
+
+    @ClientConfigKey
     public static SettingKey region = SettingKey.builder()
             .withName("region")
             .withType(SettingType.UTF8)
             .build();
 
+    @ClientConfigKey
     public static SettingKey host = SettingKey.builder()
             .withName("host")
             .withType(SettingType.UTF8)
             .build();
 
+    @ClientConfigKey
     public static SettingKey port = SettingKey.builder()
             .withName("port")
             .withType(SettingType.Int32)
             .build();
 
+    @ClientConfigKey
     public static SettingKey database = SettingKey.builder()
             .withName("database")
             .withType(SettingType.UTF8)
             .build();
 
+    @ClientConfigKey
     public static SettingKey account = SettingKey.builder()
             .withName("account")
             .withType(SettingType.UTF8)
             .build();
 
+    @ClientConfigKey
     public static SettingKey user = SettingKey.builder()
             .withName("user")
             .withType(SettingType.UTF8)
             .build();
 
+    @ClientConfigKey
     public static SettingKey password = SettingKey.builder()
             .withName("password")
             .withType(SettingType.UTF8)
             .isSecret()
             .build();
 
-    public static SettingKey query_timeout = SettingKey.builder()
+    @ClientConfigKey
+    public static SettingKey queryTimeout = SettingKey.builder()
             .withName("query_timeout")
             .withType(SettingType.Seconds)
             .build();
 
-    public static SettingKey tcp_keep_alive = SettingKey.builder()
+    @ClientConfigKey
+    public static SettingKey connectTimeout = SettingKey.builder()
+            .withName("connect_timeout")
+            .withType(SettingType.Seconds)
+            .withDescription("Connection timeout if there are no replicas.")
+            .build();
+
+    @ClientConfigKey
+    public static SettingKey tcpKeepAlive = SettingKey.builder()
             .withName("tcp_keep_alive")
             .withType(SettingType.Bool)
             .build();
 
-    public static SettingKey tcp_no_delay = SettingKey.builder()
+    @ClientConfigKey
+    public static SettingKey tcpNoDelay = SettingKey.builder()
             .withName("tcp_no_delay")
             .withType(SettingType.Bool)
             .withDescription("defines if Nagle's algorithm and Delayed ACK should not be used")
             .build();
 
+    @ClientConfigKey
     public static SettingKey secure = SettingKey.builder()
             .withName("secure")
             .withType(SettingType.Bool)
             .withDescription("defines if secure tcp connection is used")
             .build();
 
-    public static SettingKey skip_verification = SettingKey.builder()
+    @ClientConfigKey
+    public static SettingKey skipVerification = SettingKey.builder()
             .withName("skip_verification")
             .withType(SettingType.Bool)
             .withDescription("defines if skip tls verification")
             .build();
 
+    @ClientConfigKey
     public static SettingKey enableCompression = SettingKey.builder()
             .withName("enable_compression")
             .withType(SettingType.Bool)
             .withDescription("defines if compress data should be used")
             .build();
 
+    @ClientConfigKey
     public static SettingKey charset = SettingKey.builder()
             .withName("charset")
             .withType(SettingType.UTF8)
@@ -1771,12 +1798,25 @@ public class SettingKey implements Serializable {
 
     private final boolean isSecret;
 
-    private SettingKey(String name, SettingType<?> type, String description, Object defaultValue, boolean isSecret) {
+    private SettingKey(
+            final String name,
+            final SettingType<?> type,
+            final String description,
+            final Object defaultValue,
+            final boolean isSecret
+    ) {
         this.name = name;
         this.type = type;
         this.description = description;
         this.defaultValue = defaultValue;
         this.isSecret = isSecret;
+    }
+
+    @Override
+    public String toString() {
+        return "SettingKey{" +
+                "name='" + name + '\'' +
+                '}';
     }
 
     public static Builder builder() {
@@ -1807,6 +1847,9 @@ public class SettingKey implements Serializable {
         return isSecret;
     }
 
+    /**
+     * Builder for the settings key.
+     */
     public static class Builder {
 
         private String name;
@@ -1819,22 +1862,22 @@ public class SettingKey implements Serializable {
 
         private boolean isSecret = false;
 
-        public Builder withName(String name) {
+        public Builder withName(final String name) {
             this.name = name;
             return this;
         }
 
-        public Builder withType(SettingType<?> type) {
+        public Builder withType(final SettingType<?> type) {
             this.type = type;
             return this;
         }
 
-        public Builder withDescription(String description) {
+        public Builder withDescription(final String description) {
             this.description = description;
             return this;
         }
 
-        public Builder withDefaultValue(Object defaultValue) {
+        public Builder withDefaultValue(final Object defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
@@ -1852,9 +1895,14 @@ public class SettingKey implements Serializable {
                 description = name;
             }
 
-            SettingKey settingKey = new SettingKey(name.toLowerCase(Locale.ROOT), type, description, defaultValue, isSecret);
+            final SettingKey settingKey = new SettingKey(
+                    name.toLowerCase(Locale.ROOT),
+                    type,
+                    description,
+                    defaultValue,
+                    isSecret
+            );
             SettingKey.DEFINED_SETTING_KEYS.put(name, settingKey);
-
             return settingKey;
         }
     }

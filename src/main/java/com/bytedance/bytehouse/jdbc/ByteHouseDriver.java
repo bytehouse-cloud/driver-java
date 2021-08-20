@@ -13,6 +13,7 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
+import com.bytedance.bytehouse.exception.ByteHouseClientException;
 import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
@@ -34,7 +35,7 @@ public class ByteHouseDriver implements Driver {
         try {
             DriverManager.registerDriver(new ByteHouseDriver());
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ByteHouseClientException(e);
         }
     }
 
@@ -47,7 +48,8 @@ public class ByteHouseDriver implements Driver {
             // FIXME: 10/8/21 throw internal sql exception
             throw new SQLException("url is null");
         }
-        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX);
+        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
+                || url.startsWith(ByteHouseJdbcUrlParser.JDBC_CNCH_PREFIX);
     }
 
     /**
@@ -75,7 +77,8 @@ public class ByteHouseDriver implements Driver {
             // FIXME: 10/8/21 throw exception
             return null;
         }
-        return ByteHouseConnection.createByteHouseConnection(cfg.withJdbcUrl(url));
+        final ByteHouseConfig newConfig = cfg.withJdbcUrl(url);
+        return ByteHouseConnection.createByteHouseConnection(newConfig);
     }
 
     /**

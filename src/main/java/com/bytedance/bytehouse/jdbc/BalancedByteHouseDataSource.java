@@ -52,10 +52,10 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
 
     private static final Pattern URL_TEMPLATE = Pattern.compile(
             ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
-            "//([a-zA-Z0-9_:,.-]+)" +
-            "((/[a-zA-Z0-9_]+)?" +
-            "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
-            ")?");
+                    "//([a-zA-Z0-9_:,.-]+)" +
+                    "((/[a-zA-Z0-9_]+)?" +
+                    "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
+                    ")?");
 
     private final List<String> allUrls;
 
@@ -105,7 +105,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
         this.cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(urls.get(0))
                 .withSettings(settings)
-                .host("undefined")
+                .host("toBeReplacedLater")
                 .port(0)
                 .build();
 
@@ -128,10 +128,19 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
         this.enabledUrls = this.allUrls;
     }
 
+    /**
+     * This method is kind of pointless. since there is always only 1 url.
+     */
     static List<String> splitUrl(final String url) {
-        Validate.ensure(url.startsWith(ByteHouseJdbcUrlParser.JDBC_PREFIX), "not JDBC url: " + url);
+        Validate.ensure(
+                url.startsWith(ByteHouseJdbcUrlParser.JDBC_PREFIX),
+                "not JDBC url: " + url
+        );
         final String bhUrl = url.substring(ByteHouseJdbcUrlParser.JDBC_PREFIX.length());
-        Validate.ensure(bhUrl.startsWith(ByteHouseJdbcUrlParser.BYTEHOUSE_PREFIX), "not ByteHouse url: " + url);
+        Validate.ensure(
+                bhUrl.startsWith(ByteHouseJdbcUrlParser.BYTEHOUSE_PREFIX)
+                        || bhUrl.startsWith(ByteHouseJdbcUrlParser.CNCH_PREFIX),
+                "not ByteHouse nor CNCH url: " + url);
 
         final URI uri;
         try {
@@ -145,7 +154,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
         final String[] hosts = StrUtil.getOrDefault(uri.getAuthority(), "").split(",", -1);
 
         return Arrays.stream(hosts)
-                .map(host -> ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX + "//" + host + database + queryString)
+                .map(host -> "jdbc:" + uri.getScheme() + "://" + host + database + queryString)
                 .collect(Collectors.toList());
     }
 

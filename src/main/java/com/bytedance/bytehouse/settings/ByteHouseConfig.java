@@ -13,19 +13,30 @@
  */
 package com.bytedance.bytehouse.settings;
 
+import com.bytedance.bytehouse.exception.InvalidValueException;
 import com.bytedance.bytehouse.jdbc.ByteHouseJdbcUrlParser;
 import com.bytedance.bytehouse.misc.CollectionUtil;
 import com.bytedance.bytehouse.misc.StrUtil;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * Immutable Configuration.
+ */
 @Immutable
 public class ByteHouseConfig implements Serializable {
+
+    private final boolean isCnch;
 
     private final String region;
 
@@ -59,10 +70,26 @@ public class ByteHouseConfig implements Serializable {
 
     private final Map<SettingKey, Serializable> settings;
 
-    private ByteHouseConfig(String region, String host, int port, String database, String account, String user, String password,
-                            Duration queryTimeout, Duration connectTimeout, boolean tcpKeepAlive, boolean tcpNoDelay,
-                            boolean secure, boolean skipVerification, boolean enableCompression, String charset,
-                            Map<SettingKey, Serializable> settings) {
+    private ByteHouseConfig(
+            final boolean isCnch,
+            final String region,
+            final String host,
+            final int port,
+            final String database,
+            final String account,
+            final String user,
+            final String password,
+            final Duration queryTimeout,
+            final Duration connectTimeout,
+            final boolean tcpKeepAlive,
+            final boolean tcpNoDelay,
+            final boolean secure,
+            final boolean skipVerification,
+            final boolean enableCompression,
+            final String charset,
+            final Map<SettingKey, Serializable> settings
+    ) {
+        this.isCnch = isCnch;
         this.region = region;
         this.host = host;
         this.port = port;
@@ -79,6 +106,10 @@ public class ByteHouseConfig implements Serializable {
         this.enableCompression = enableCompression;
         this.charset = charset;
         this.settings = settings;
+    }
+
+    public boolean isCnch() {
+        return this.isCnch;
     }
 
     public String region() {
@@ -153,124 +184,180 @@ public class ByteHouseConfig implements Serializable {
     }
 
     public String jdbcUrl() {
-        final StringBuilder builder = new StringBuilder(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
-                .append("//").append(host).append(":").append(port)
-                .append("/").append(database)
-                .append("?").append(SettingKey.query_timeout.name()).append("=").append(queryTimeout.getSeconds())
-                .append("&").append(SettingKey.connect_timeout.name()).append("=").append(connectTimeout.getSeconds())
-                .append("&").append(SettingKey.charset.name()).append("=").append(charset)
-                .append("&").append(SettingKey.tcp_keep_alive.name()).append("=").append(tcpKeepAlive)
-                .append("&").append(SettingKey.tcp_no_delay.name()).append("=").append(tcpNoDelay)
-                .append("&").append(SettingKey.secure.name()).append("=").append(secure)
-                .append("&").append(SettingKey.skip_verification.name()).append("=").append(skipVerification)
-                .append("&").append(SettingKey.enableCompression.name()).append("=").append(enableCompression);
+        final StringBuilder builder = new StringBuilder(
+                this.isCnch ? ByteHouseJdbcUrlParser.JDBC_CNCH_PREFIX :
+                        ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX
+        )
+                .append("//").append(host).append(':').append(port).append('/').append(database)
+                .append('?').append(SettingKey.queryTimeout.name()).append('=').append(queryTimeout.getSeconds())
+                .append('&').append(SettingKey.connectTimeout.name()).append('=').append(connectTimeout.getSeconds())
+                .append('&').append(SettingKey.charset.name()).append('=').append(charset)
+                .append('&').append(SettingKey.tcpKeepAlive.name()).append('=').append(tcpKeepAlive)
+                .append('&').append(SettingKey.tcpNoDelay.name()).append('=').append(tcpNoDelay)
+                .append('&').append(SettingKey.secure.name()).append('=').append(secure)
+                .append('&').append(SettingKey.skipVerification.name()).append('=').append(skipVerification)
+                .append('&').append(SettingKey.enableCompression.name()).append('=').append(enableCompression);
 
-        for (Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
-            builder.append("&").append(entry.getKey().name()).append("=").append(entry.getValue());
+        for (final Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
+            builder.append('&').append(entry.getKey().name()).append('=').append(entry.getValue());
         }
         return builder.toString();
     }
 
-    public ByteHouseConfig withHostPort(String host, int port) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withHostPort(final String host, final int port) {
         return Builder.builder(this)
                 .host(host)
                 .port(port)
                 .build();
     }
 
-    public ByteHouseConfig withDatabase(String database) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withDatabase(final String database) {
         return Builder.builder(this)
                 .database(database)
                 .build();
     }
 
-    public ByteHouseConfig withAccount(String account) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withAccount(final String account) {
         return Builder.builder(this)
                 .account(account)
                 .build();
     }
 
-    public ByteHouseConfig withCredentials(String user, String password) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withCredentials(final String user, final String password) {
         return Builder.builder(this)
                 .user(user)
                 .password(password)
                 .build();
     }
 
-    public ByteHouseConfig withQueryTimeout(Duration timeout) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withQueryTimeout(final Duration timeout) {
         return Builder.builder(this)
                 .queryTimeout(timeout)
                 .build();
     }
 
-    public ByteHouseConfig withConnectTimeout(Duration timeout) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withConnectTimeout(final Duration timeout) {
         return Builder.builder(this)
                 .connectTimeout(timeout)
                 .build();
     }
 
-    public ByteHouseConfig withTcpKeepAlive(boolean enable) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withTcpKeepAlive(final boolean enable) {
         return Builder.builder(this)
                 .tcpKeepAlive(enable)
                 .build();
     }
 
-    public ByteHouseConfig withTcpNoDelay(boolean tcpNoDelay) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withTcpNoDelay(final boolean tcpNoDelay) {
         return Builder.builder(this)
                 .tcpNoDelay(tcpNoDelay)
                 .build();
     }
 
-    public ByteHouseConfig withSecure(boolean secure) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withSecure(final boolean secure) {
         return Builder.builder(this)
                 .secure(secure)
                 .build();
     }
 
-    public ByteHouseConfig withSkipVerification(boolean skipVerification) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withSkipVerification(final boolean skipVerification) {
         return Builder.builder(this)
                 .skipVerification(skipVerification)
                 .build();
     }
 
-    public ByteHouseConfig withEnableCompression(boolean enableCompression) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withEnableCompression(final boolean enableCompression) {
         return Builder.builder(this)
                 .enableCompression(enableCompression)
                 .build();
     }
 
-    public ByteHouseConfig withCharset(Charset charset) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withCharset(final Charset charset) {
         return Builder.builder(this)
                 .charset(charset)
                 .build();
     }
 
-    public ByteHouseConfig withSettings(Map<SettingKey, Serializable> settings) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withSettings(final Map<SettingKey, Serializable> settings) {
         return Builder.builder(this)
                 .withSettings(settings)
                 .build();
     }
 
-    public ByteHouseConfig withJdbcUrl(String url) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withJdbcUrl(final String url) {
         return Builder.builder(this)
                 .withJdbcUrl(url)
                 .build();
     }
 
-    public ByteHouseConfig withProperties(Properties properties) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withProperties(final Properties properties) {
         return Builder.builder(this)
                 .withProperties(properties)
                 .build();
     }
 
-    public ByteHouseConfig with(String url, Properties properties) {
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig with(final String url, final Properties properties) {
         return Builder.builder(this)
                 .withJdbcUrl(url)
                 .withProperties(properties)
                 .build();
     }
 
+    /**
+     * Builder class.
+     */
+    @SuppressWarnings("PMD.CommentRequired")
     public static final class Builder {
+
+        private boolean isCnch;
 
         private String region;
 
@@ -307,12 +394,20 @@ public class ByteHouseConfig implements Serializable {
         private Builder() {
         }
 
+        /**
+         * creating a builder class.
+         */
         public static Builder builder() {
             return new Builder();
         }
 
-        public static Builder builder(ByteHouseConfig cfg) {
+        /**
+         * Copy a {@link ByteHouseConfig}.
+         */
+        public static Builder builder(final ByteHouseConfig cfg) {
             return new Builder()
+                    .isCnch(cfg.isCnch())
+                    .region(cfg.region())
                     .host(cfg.host())
                     .port(cfg.port())
                     .database(cfg.database())
@@ -327,17 +422,11 @@ public class ByteHouseConfig implements Serializable {
                     .skipVerification(cfg.skipVerification())
                     .enableCompression(cfg.enableCompression())
                     .charset(cfg.charset())
-                    .region(cfg.region())
                     .withSettings(cfg.settings());
         }
 
-        public Builder withSetting(SettingKey key, Serializable value) {
-            this.settings.put(key, value);
-            return this;
-        }
-
-        public Builder withSettings(Map<SettingKey, Serializable> settings) {
-            CollectionUtil.mergeMapInPlaceKeepLast(this.settings, settings);
+        public Builder isCnch(final boolean isCnch) {
+            this.withSetting(SettingKey.isCnch, isCnch);
             return this;
         }
 
@@ -346,82 +435,92 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
-        public Builder host(String host) {
+        public Builder withSetting(final SettingKey key, final Serializable value) {
+            this.settings.put(key, value);
+            return this;
+        }
+
+        public Builder withSettings(final Map<SettingKey, Serializable> settings) {
+            CollectionUtil.mergeMapInPlaceKeepLast(this.settings, settings);
+            return this;
+        }
+
+        public Builder host(final String host) {
             this.withSetting(SettingKey.host, host);
             return this;
         }
 
-        public Builder port(int port) {
+        public Builder port(final int port) {
             this.withSetting(SettingKey.port, port);
             return this;
         }
 
-        public Builder database(String database) {
+        public Builder database(final String database) {
             this.withSetting(SettingKey.database, database);
             return this;
         }
 
-        public Builder account(String account) {
+        public Builder account(final String account) {
             this.withSetting(SettingKey.account, account);
             return this;
         }
 
-        public Builder user(String user) {
+        public Builder user(final String user) {
             this.withSetting(SettingKey.user, user);
             return this;
         }
 
-        public Builder password(String password) {
+        public Builder password(final String password) {
             this.withSetting(SettingKey.password, password);
             return this;
         }
 
-        public Builder queryTimeout(Duration queryTimeout) {
-            this.withSetting(SettingKey.query_timeout, queryTimeout);
+        public Builder queryTimeout(final Duration queryTimeout) {
+            this.withSetting(SettingKey.queryTimeout, queryTimeout);
             return this;
         }
 
-        public Builder connectTimeout(Duration connectTimeout) {
-            this.withSetting(SettingKey.connect_timeout, connectTimeout);
+        public Builder connectTimeout(final Duration connectTimeout) {
+            this.withSetting(SettingKey.connectTimeout, connectTimeout);
             return this;
         }
 
-        public Builder tcpKeepAlive(boolean tcpKeepAlive) {
-            this.withSetting(SettingKey.tcp_keep_alive, tcpKeepAlive);
+        public Builder tcpKeepAlive(final boolean tcpKeepAlive) {
+            this.withSetting(SettingKey.tcpKeepAlive, tcpKeepAlive);
             return this;
         }
 
-        public Builder tcpNoDelay(boolean tcpNoDelay) {
-            this.withSetting(SettingKey.tcp_no_delay, tcpNoDelay);
+        public Builder tcpNoDelay(final boolean tcpNoDelay) {
+            this.withSetting(SettingKey.tcpNoDelay, tcpNoDelay);
             return this;
         }
 
-        public Builder secure(boolean secure) {
+        public Builder secure(final boolean secure) {
             this.withSetting(SettingKey.secure, secure);
             return this;
         }
 
-        public Builder skipVerification(boolean skipVerification) {
-            this.withSetting(SettingKey.skip_verification, skipVerification);
+        public Builder skipVerification(final boolean skipVerification) {
+            this.withSetting(SettingKey.skipVerification, skipVerification);
             return this;
         }
 
-        public Builder enableCompression(boolean enableCompression) {
+        public Builder enableCompression(final boolean enableCompression) {
             this.withSetting(SettingKey.enableCompression, enableCompression);
             return this;
         }
 
-        public Builder charset(String charset) {
+        public Builder charset(final String charset) {
             this.withSetting(SettingKey.charset, charset);
             return this;
         }
 
-        public Builder charset(Charset charset) {
+        public Builder charset(final Charset charset) {
             this.withSetting(SettingKey.charset, charset.name());
             return this;
         }
 
-        public Builder settings(Map<SettingKey, Serializable> settings) {
+        public Builder settings(final Map<SettingKey, Serializable> settings) {
             this.settings = settings;
             return this;
         }
@@ -431,17 +530,18 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
-        public Builder withJdbcUrl(String jdbcUrl) {
+        public Builder withJdbcUrl(final String jdbcUrl) {
             return this.withSettings(ByteHouseJdbcUrlParser.parseJdbcUrl(jdbcUrl));
         }
 
-        public Builder withProperties(Properties properties) {
+        public Builder withProperties(final Properties properties) {
             return this.withSettings(ByteHouseJdbcUrlParser.parseProperties(properties));
         }
 
         public ByteHouseConfig build() {
             this.region = (String) this.settings.getOrDefault(SettingKey.region, "");
             handleRegionSettings();
+            this.isCnch = (boolean) this.settings.getOrDefault(SettingKey.isCnch, false);
 
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
@@ -449,22 +549,36 @@ public class ByteHouseConfig implements Serializable {
             this.account = (String) this.settings.getOrDefault(SettingKey.account, "");
             this.user = (String) this.settings.getOrDefault(SettingKey.user, "default");
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
-            this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.query_timeout, Duration.ZERO);
-            this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connect_timeout, Duration.ZERO);
-            this.tcpKeepAlive = (boolean) this.settings.getOrDefault(SettingKey.tcp_keep_alive, false);
-            this.tcpNoDelay = (boolean) this.settings.getOrDefault(SettingKey.tcp_no_delay, true);
+            this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.queryTimeout, Duration.ZERO);
+            this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connectTimeout, Duration.ZERO);
+            this.tcpKeepAlive = (boolean) this.settings.getOrDefault(SettingKey.tcpKeepAlive, false);
+            this.tcpNoDelay = (boolean) this.settings.getOrDefault(SettingKey.tcpNoDelay, true);
             this.secure = (boolean) this.settings.getOrDefault(SettingKey.secure, false);
-            this.skipVerification = (boolean) this.settings.getOrDefault(SettingKey.skip_verification, false);
+            this.skipVerification = (boolean) this.settings.getOrDefault(SettingKey.skipVerification, false);
             this.enableCompression = (boolean) this.settings.getOrDefault(SettingKey.enableCompression, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
 
-            revisit();
-            purgeSettings();
+            useDefaultIfNotSet();
+            purgeClientSettings();
 
             return new ByteHouseConfig(
-                    region, host, port, database, account, user, password, queryTimeout,
-                    connectTimeout, tcpKeepAlive, tcpNoDelay, secure, skipVerification, enableCompression,
-                    charset.name(), settings
+                    isCnch,
+                    region,
+                    host,
+                    port,
+                    database,
+                    account,
+                    user,
+                    password,
+                    queryTimeout,
+                    connectTimeout,
+                    tcpKeepAlive,
+                    tcpNoDelay,
+                    secure,
+                    skipVerification,
+                    enableCompression,
+                    charset.name(),
+                    settings
             );
         }
 
@@ -472,13 +586,13 @@ public class ByteHouseConfig implements Serializable {
             if (StrUtil.isBlank(this.region)) {
                 return;
             }
-            ByteHouseRegion bhRegion = ByteHouseRegion.fromString(this.region);
+            final ByteHouseRegion bhRegion = ByteHouseRegion.fromString(this.region);
             this.withSetting(SettingKey.host, bhRegion.getHost());
             this.withSetting(SettingKey.port, bhRegion.getPort());
             this.withSetting(SettingKey.secure, true);
         }
 
-        private void revisit() {
+        private void useDefaultIfNotSet() {
             if (StrUtil.isBlank(this.host)) this.host = "127.0.0.1";
             if (this.port == -1) this.port = 9000;
             if (StrUtil.isBlank(this.database)) this.database = "";
@@ -489,22 +603,44 @@ public class ByteHouseConfig implements Serializable {
             if (this.connectTimeout.isNegative()) this.connectTimeout = Duration.ZERO;
         }
 
-        private void purgeSettings() {
-            this.settings.remove(SettingKey.region);
-            this.settings.remove(SettingKey.host);
-            this.settings.remove(SettingKey.port);
-            this.settings.remove(SettingKey.database);
-            this.settings.remove(SettingKey.account);
-            this.settings.remove(SettingKey.user);
-            this.settings.remove(SettingKey.password);
-            this.settings.remove(SettingKey.query_timeout);
-            this.settings.remove(SettingKey.connect_timeout);
-            this.settings.remove(SettingKey.tcp_keep_alive);
-            this.settings.remove(SettingKey.tcp_no_delay);
-            this.settings.remove(SettingKey.secure);
-            this.settings.remove(SettingKey.skip_verification);
-            this.settings.remove(SettingKey.enableCompression);
-            this.settings.remove(SettingKey.charset);
+        /**
+         * Remove {@link ClientConfigKey} from the {@link ByteHouseConfig#settings}
+         * so that they won't be sent to the server.
+         */
+        private void purgeClientSettings() {
+            try {
+
+                final Set<String> bhConfigFields = Arrays
+                        .stream(ByteHouseConfig.class.getDeclaredFields())
+                        .map(Field::getName)
+                        .collect(Collectors.toSet());
+
+                final Field[] declaredFields = SettingKey.class.getDeclaredFields();
+                for (final Field declaredField : declaredFields) {
+                    if (
+                            Modifier.isStatic(declaredField.getModifiers())
+                                    && (declaredField.getType() == SettingKey.class)
+                                    && declaredField.getAnnotation(ClientConfigKey.class) != null
+                    ) {
+                        // get static field can pass null.
+                        this.settings.remove(declaredField.get(null));
+
+                        if (!bhConfigFields.contains(declaredField.getName())) {
+                            throw new InvalidValueException(
+                                    String.format("field %s in %s.class does "
+                                                    + "not have corresponding key in"
+                                                    + " %s.class. This is a programmer error",
+                                            declaredField.getName(),
+                                            SettingKey.class.getSimpleName(),
+                                            ByteHouseConfig.class.getSimpleName()
+                                    )
+                            );
+                        }
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                throw new InvalidValueException(e);
+            }
         }
     }
 }

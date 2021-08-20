@@ -22,7 +22,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
-public class CollectionUtil {
+/**
+ * provide convenient methods on Java Collections.
+ */
+public final class CollectionUtil {
+
+    private CollectionUtil() {
+        // no instantiation
+    }
 
     public static <T> List<T> concat(List<T> first, List<T> second) {
         return Stream.concat(first.stream(), second.stream()).collect(Collectors.toList());
@@ -76,14 +83,20 @@ public class CollectionUtil {
                         (former, latter) -> latter));
     }
 
-    public static <K, V> void mergeMapInPlaceKeepFirst(Map<K, V> one, @Nullable Map<K, V> other) {
-        if (other != null)
-            other.forEach(one::putIfAbsent);
+    public static <K, V> void mergeMapInPlaceKeepFirst(
+            final Map<K, V> into,
+            final @Nullable Map<K, V> from
+    ) {
+        if (from != null)
+            from.forEach(into::putIfAbsent);
     }
 
-    public static <K, V> void mergeMapInPlaceKeepLast(Map<K, V> one, @Nullable Map<K, V> other) {
-        if (other != null)
-            other.forEach(one::put);
+    public static <K, V> void mergeMapInPlaceKeepLast(
+            final Map<K, V> into,
+            final @Nullable Map<K, V> from
+    ) {
+        if (from != null)
+            from.forEach(into::put);
     }
 
     public static boolean isNotEmpty(Collection<?> collection) {
