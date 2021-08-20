@@ -68,9 +68,9 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyHostNameOnly() {
-        String url = "jdbc:bytehouse://my_bytehouse_sever_host_name/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        String url = "jdbc:bytehouse://bytehouse-hostname/system?min_insert_block_size_rows=1000&connect_timeout=50";
         ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
-        assertEquals("my_bytehouse_sever_host_name", config.host());
+        assertEquals("bytehouse-hostname", config.host());
         assertEquals(9000, config.port());
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));
@@ -79,9 +79,9 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyHostNameWithDefaultPort() {
-        String url = "jdbc:bytehouse://my_bytehouse_sever_host_name:9000/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        String url = "jdbc:bytehouse://bytehouse-hostname:9000/system?min_insert_block_size_rows=1000&connect_timeout=50";
         ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
-        assertEquals("my_bytehouse_sever_host_name", config.host());
+        assertEquals("bytehouse-hostname", config.host());
         assertEquals(9000, config.port());
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));
@@ -90,9 +90,9 @@ public class ConnectionParamITest extends AbstractITest {
 
     @Test
     public void successfullyHostNameWithCustomPort() {
-        String url = "jdbc:bytehouse://my_bytehouse_sever_host_name:1940/system?min_insert_block_size_rows=1000&connect_timeout=50";
+        String url = "jdbc:bytehouse://bytehouse-hostname:1940/system?min_insert_block_size_rows=1000&connect_timeout=50";
         ByteHouseConfig config = ByteHouseConfig.Builder.builder().withJdbcUrl(url).build();
-        assertEquals("my_bytehouse_sever_host_name", config.host());
+        assertEquals("bytehouse-hostname", config.host());
         assertEquals(1940, config.port());
         assertEquals("system", config.database());
         assertEquals(1000L, config.settings().get(SettingKey.min_insert_block_size_rows));
