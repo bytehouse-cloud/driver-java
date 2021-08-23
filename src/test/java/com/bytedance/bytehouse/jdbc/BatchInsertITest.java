@@ -184,7 +184,7 @@ public class BatchInsertITest extends AbstractITest {
         });
     }
 
-    // TODO: unknown query setting: allow_experimental_map_type
+    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3303
     @Ignore
     public void successfullyBatchInsertMap() throws Exception {
         withStatement(statement -> {

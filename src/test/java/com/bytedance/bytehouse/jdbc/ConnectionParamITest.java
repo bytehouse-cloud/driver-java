@@ -24,7 +24,6 @@ import com.bytedance.bytehouse.settings.SettingKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class ConnectionParamITest extends AbstractITest {
@@ -121,8 +120,7 @@ public class ConnectionParamITest extends AbstractITest {
         }, "enable_compression", "true");
     }
 
-    // TODO: Infinite long running test
-    @Ignore
+    @Test
     public void successfullyCompressedInsertBatch() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");
@@ -130,7 +128,7 @@ public class ConnectionParamITest extends AbstractITest {
             statement.execute("CREATE TABLE test_database.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
 
 
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table(x) VALUES(?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table(x) VALUES(?)", pstmt -> {
                 for (int i = 0; i < 30; i++) {
                     pstmt.setInt(1, i);
                     pstmt.addBatch();

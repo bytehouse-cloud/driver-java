@@ -14,7 +14,7 @@
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.exception.InvalidValueException;
-import com.bytedance.bytehouse.jdbc.wrapper.SQLWrapper;
+import com.bytedance.bytehouse.jdbc.wrapper.BHDataSource;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.StrUtil;
@@ -35,9 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 
 /**
  * <p> Database for bytehouse jdbc connections.
@@ -46,24 +44,14 @@ import javax.sql.DataSource;
  * Furthermore, this class has method { #scheduleActualization(int, TimeUnit) scheduleActualization}
  * which test hosts for availability. By default, this option is turned off.
  */
-public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BalancedByteHouseDataSource.class);
-
-    private static final Pattern URL_TEMPLATE = Pattern.compile(
-            ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX +
-                    "//([a-zA-Z0-9_:,.-]+)" +
-                    "((/[a-zA-Z0-9_]+)?" +
-                    "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]*)*)?" +
-                    ")?");
-
-    private final List<String> allUrls;
+public final class ByteHouseDataSource implements BHDataSource {
+    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseDataSource.class);
 
     private final ByteHouseConfig cfg;
 
     private final ByteHouseDriver driver = new ByteHouseDriver();
 
-    private volatile List<String> enabledUrls;
+    private final List<String> enabledUrls;
 
     /**
      * create Datasource for bytehouse JDBC connections
@@ -74,7 +62,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * @throws IllegalArgumentException if param have not correct format,
      *                                  or error happens when checking host availability
      */
-    public BalancedByteHouseDataSource(String url) {
+    public ByteHouseDataSource(String url) {
         this(url, new Properties());
     }
 
@@ -83,9 +71,9 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      *
      * @param url        address for connection to the database
      * @param properties database properties
-     * @see #BalancedByteHouseDataSource(String)
+     * @see #ByteHouseDataSource(String)
      */
-    public BalancedByteHouseDataSource(String url, Properties properties) {
+    public ByteHouseDataSource(String url, Properties properties) {
         this(url, ByteHouseJdbcUrlParser.parseProperties(properties));
     }
 
@@ -94,9 +82,9 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      *
      * @param url      address for connection to the database
      * @param settings bytehouse settings
-     * @see #BalancedByteHouseDataSource(String)
+     * @see #ByteHouseDataSource(String)
      */
-    private BalancedByteHouseDataSource(
+    private ByteHouseDataSource(
             final String url,
             final Map<SettingKey, Serializable> settings
     ) {
@@ -124,8 +112,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
 
         Validate.ensure(!allUrls.isEmpty(), "there are no correct urls");
 
-        this.allUrls = Collections.unmodifiableList(allUrls);
-        this.enabledUrls = this.allUrls;
+        this.enabledUrls = Collections.unmodifiableList(allUrls);
     }
 
     /**
@@ -158,34 +145,13 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
                 .collect(Collectors.toList());
     }
 
-    private boolean ping(final String url) {
-        try (ByteHouseConnection connection = driver.connect(url, cfg)) {
-            return connection.ping(Duration.ofSeconds(1));
+    @Override
+    public boolean ping(int timeoutSecond) {
+        try (ByteHouseConnection connection = getConnection()) {
+            return connection.ping(Duration.ofSeconds(timeoutSecond));
         } catch (Exception e) {
             return false;
         }
-    }
-
-    /**
-     * Checks if bytehouse on url is alive, if it isn't, disable url, else enable.
-     *
-     * @return number of available bytehouse urls
-     */
-    synchronized int actualize() {
-        final List<String> enabledUrls = new ArrayList<>(allUrls.size());
-
-        for (final String url : allUrls) {
-            LOG.debug("Pinging disabled url: {}", url);
-            if (ping(url)) {
-                LOG.debug("Url is alive now: {}", url);
-                enabledUrls.add(url);
-            } else {
-                LOG.warn("Url is dead now: {}", url);
-            }
-        }
-
-        this.enabledUrls = Collections.unmodifiableList(enabledUrls);
-        return enabledUrls.size();
     }
 
     private String getAnyUrl() throws SQLException {
@@ -244,7 +210,7 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
      * Not supported. Consider using connectTimeout instead.
      */
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
+    public void setLoginTimeout(final int seconds) throws SQLException {
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -254,28 +220,6 @@ public final class BalancedByteHouseDataSource implements DataSource, SQLWrapper
     @Override
     public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException();
-    }
-
-    public List<String> getAllByteHouseUrls() {
-        return allUrls;
-    }
-
-    public List<String> getEnabledByteHouseUrls() {
-        return enabledUrls;
-    }
-
-    public List<String> getDisabledUrls() {
-        if (!hasDisabledUrls()) {
-            return Collections.emptyList();
-        }
-        final List<String> enabledUrls = this.enabledUrls;
-        final List<String> disabledUrls = new ArrayList<>(allUrls);
-        disabledUrls.removeAll(enabledUrls);
-        return disabledUrls;
-    }
-
-    public boolean hasDisabledUrls() {
-        return allUrls.size() != enabledUrls.size();
     }
 
     public ByteHouseConfig getCfg() {

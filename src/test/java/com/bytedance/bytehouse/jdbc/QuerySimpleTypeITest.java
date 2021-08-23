@@ -14,7 +14,6 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
@@ -165,20 +164,19 @@ public class QuerySimpleTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: Infinite running test case
-    @Ignore
+    @Test
     public void successfullyStringDataTypeWithSingleQuote() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");
             statement.execute("CREATE DATABASE test_database");
             statement.execute("CREATE TABLE test_database.test_table(test String)ENGINE=CnchMergeTree() order by tuple()");
 
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table VALUES(?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table VALUES(?)", pstmt -> {
                 pstmt.setString(1, "test_string with ' character");
                 assertEquals(1, pstmt.executeUpdate());
             });
 
-            withPreparedStatement(statement.getConnection(), "SELECT * FROM test_database.test_table WHERE test=?", pstmt -> {
+            withPreparedStatement(getConnection(), "SELECT * FROM test_database.test_table WHERE test=?", pstmt -> {
                 pstmt.setString(1, "test_string with ' character");
                 try (ResultSet rs = pstmt.executeQuery()) {
                     assertTrue(rs.next());

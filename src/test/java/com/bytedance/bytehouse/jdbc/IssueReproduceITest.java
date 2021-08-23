@@ -16,8 +16,7 @@ package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.annotation.Issue;
 import com.google.common.base.Strings;
-import org.junit.Ignore;
-
+import org.junit.jupiter.api.Test;
 import java.sql.ResultSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IssueReproduceITest extends AbstractITest {
 
-    //TODO: test case infinite time running
-    @Ignore
+    @Test
     @Issue("63")
     public void testIssue63() throws Exception {
         withStatement(statement -> {
@@ -42,7 +40,7 @@ public class IssueReproduceITest extends AbstractITest {
                 columnTypes.append("t_").append(i).append(" String");
             }
             statement.execute("CREATE TABLE test_database.test_table( " + columnTypes + ")ENGINE=CnchMergeTree() order by tuple()");
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table values(" + params.substring(0, params.length() - 2) + ")", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table values(" + params.substring(0, params.length() - 2) + ")", pstmt -> {
                 for (int i = 0; i < 100; ++i) {
                     for (int j = 0; j < columnNum; j++) {
                         pstmt.setString(j + 1, "String" + j);

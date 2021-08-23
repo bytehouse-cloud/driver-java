@@ -17,7 +17,6 @@ package com.bytedance.bytehouse.jdbc;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.time.LocalDate;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,8 +79,7 @@ public class InsertSimpleTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: IPv4 -> failed to validate column data type: unknown datatype: IPv4
-    @Ignore
+    @Test
     public void successfullyIPv4DataType() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");
@@ -91,7 +89,7 @@ public class InsertSimpleTypeITest extends AbstractITest {
             long minIp = 0L;
             long maxIp = (1L << 32) - 1;
 
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table(min_ip, max_ip) VALUES(?, ?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table(min_ip, max_ip) VALUES(?, ?)", pstmt -> {
                 for (int i = 0; i < 1; i++) {
                     pstmt.setLong(1, minIp);
                     pstmt.setLong(2, maxIp);
@@ -109,8 +107,7 @@ public class InsertSimpleTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: failed to validate column data type: unknown datatype: IPv6
-    @Ignore
+    @Test
     public void successfullyIPv6DataType() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");
@@ -130,8 +127,7 @@ public class InsertSimpleTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: failed to validate column data type: unknown datatype: IPv6
-    @Ignore
+    @Test
     public void successfullyIPv6DataTypeBatch() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");
@@ -144,7 +140,7 @@ public class InsertSimpleTypeITest extends AbstractITest {
                     "/0:0:0:0:0:0:0:0", "/2001:44c8:129:2632:33:0:252:2", "/2a02:aa08:e000:3100:0:0:0:2"
             };
 
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table(ip) VALUES(?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table(ip) VALUES(?)", pstmt -> {
                 for (String testIp : testIps) {
                     pstmt.setString(1, testIp);
                     pstmt.addBatch();
@@ -261,12 +257,11 @@ public class InsertSimpleTypeITest extends AbstractITest {
         });
     }
 
-    // TODO: syntax error near: .test_table Expected:  `UUID`  `COMMENT`  `ENGINE`  `;`
-    @Ignore
+    @Test
     public void successfullyUUIDDataType() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database.test_table");
+            statement.execute("CREATE DATABASE test_database");
             statement.execute("CREATE TABLE test_database.test_table(test UUID)ENGINE=CnchMergeTree() order by tuple()");
 
             statement.executeQuery("INSERT INTO test_database.test_table VALUES('01234567-89ab-cdef-0123-456789abcdef')");

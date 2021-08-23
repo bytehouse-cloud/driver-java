@@ -6,6 +6,11 @@ plugins {
     id "jacoco"
     id "pmd"
     id 'application'
+    id 'maven-publish'
+    id 'java'
+}
+java {
+    withSourcesJar()
 }
 
 application {
@@ -37,6 +42,7 @@ compileJava {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url "https://maven.byted.org/repository/public"
     }
@@ -47,6 +53,13 @@ repositories {
         url "https://maven.byted.org/repository/snapshots"
     }
 }
+publishing {
+    publications {
+        myCoolLibrary(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 dependencies {
     implementation "io.airlift:aircompressor:0.18"
@@ -54,6 +67,7 @@ dependencies {
     implementation "org.slf4j:slf4j-simple:1.7.30"
     implementation "com.google.code.findbugs:jsr305:3.0.2"
     implementation 'com.github.RoaringBitmap.RoaringBitmap:RoaringBitmap:0.9.15'
+    api "com.bytedance:commons:0.0.14" // consul service discovery
 
     testImplementation "org.mockito:mockito-core:3.6.28"
     testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
@@ -76,13 +90,17 @@ shadowJar {
 }
 
 tasks.named("test") {
-    useJUnitPlatform{}
+    useJUnitPlatform {}
 }
 
 jar {
     from {
         configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    manifest {
+        attributes 'Main-Class': 'examples.CnchQuery'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 checkstyle {

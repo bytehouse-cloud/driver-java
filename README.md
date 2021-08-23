@@ -54,7 +54,7 @@ They are the DriverManager and DataSource.
 Implements           | Class
 ---                  | ---
 java.sql.Driver      | com.bytedance.bytehouse.jdbc.ByteHouseDriver
-javax.sql.DataSource | com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource 
+javax.sql.DataSource | com.bytedance.bytehouse.jdbc.ByteHouseDataSource
 
 ### Connecting using the DataSource (Recommended)
 ```bash
@@ -62,7 +62,7 @@ javax.sql.DataSource | com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource
 ./gradlew -PmainClass=examples.SimpleQuery run
 ```
 ```java
-import com.bytedance.bytehouse.jdbc.BalancedByteHouseDataSource;
+import com.bytedance.bytehouse.jdbc.ByteHouseDataSource;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

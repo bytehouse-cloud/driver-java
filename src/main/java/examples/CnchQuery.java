@@ -13,7 +13,7 @@
  */
 package examples;
 
-import com.bytedance.bytehouse.jdbc.ByteHouseDataSource;
+import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,32 +21,52 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import javax.sql.DataSource;
 
-public class SimpleQuery {
+public class CnchQuery {
 
     public static void main(String[] args) throws Exception {
-        String url = String.format("jdbc:bytehouse:///?region=CN-NORTH-1-STAGING");
-        Properties properties = new Properties();
-        properties.setProperty("account", "AWSLJEWV");
-        properties.setProperty("user", "zx");
-        properties.setProperty("password", "P`55word");
 
-//        String url = String.format("jdbc:cnch://localhost:9010");
-//        Properties properties = new Properties();
+        final String url = "jdbc:cnch:///dataexpress?secure=false";
+        final Properties properties = new Properties();
 
-        final DataSource dataSource = new ByteHouseDataSource(url, properties);
+        final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
 
         try (Connection connection = dataSource.getConnection()) {
-            try {
-                createDatabase(connection);
-                createTable(connection);
-                insertTable(connection);
-                insertBatch(connection);
-                selectTable(connection);
-            } finally {
-                dropDatabase(connection);
+            createDatabase(connection);
+            createTable(connection);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        String uuid = "";
+        try (Connection connection = dataSource.getConnection()) {
+            final ResultSet resultSet = connection
+                    .createStatement()
+                    .executeQuery("select uuid from system.cnch_tables where database = 'inventory' and name = 'orders'");
+            if (resultSet.next()) {
+                uuid = resultSet.getString("uuid");
             }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        System.out.println(uuid);
+
+        try (Connection connection = dataSource.getConnection(uuid)) {
+            createDatabase(connection);
+            createTable(connection);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            selectTable(connection);
+            createTable(connection);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (Connection connection = dataSource.getConnection(uuid)) {
+            dropDatabase(connection);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

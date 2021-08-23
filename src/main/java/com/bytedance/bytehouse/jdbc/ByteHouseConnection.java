@@ -393,8 +393,11 @@ public class ByteHouseConnection implements BHConnection {
         final Map<SettingKey, Serializable> settings = cfg.settings();
         final Duration queryTimeout = cfg.queryTimeout();
 
-        nativeClient.sendQuery(query, nativeCtx.clientCtx(), settings, enableCompression);
-        return nativeClient.receiveQuery(queryTimeout, nativeCtx.serverCtx());
+        try {
+            nativeClient.sendQuery(query, nativeCtx.clientCtx(), settings, enableCompression);
+        } finally {
+            return nativeClient.receiveQuery(queryTimeout, nativeCtx.serverCtx());
+        }
     }
 
     /**
@@ -403,12 +406,16 @@ public class ByteHouseConnection implements BHConnection {
     public int sendInsertRequest(final Block block) throws SQLException {
         Validate.isTrue(this.state.get() == SessionState.WAITING_INSERT,
                 "Call getSampleBlock before insert.");
-
-        final NativeClient nativeClient = getNativeClient();
-        nativeClient.sendData(block);
-        nativeClient.sendData(Block.empty());
-        nativeClient.receiveEndOfStream(cfg.get().queryTimeout(), nativeCtx.serverCtx());
-        Validate.isTrue(this.state.compareAndSet(SessionState.WAITING_INSERT, SessionState.IDLE));
+        try {
+            final NativeClient nativeClient = getNativeClient();
+            nativeClient.sendData(block);
+            nativeClient.sendData(Block.empty());
+            nativeClient.receiveEndOfStream(cfg.get().queryTimeout(), nativeCtx.serverCtx());
+        } finally {
+            Validate.isTrue(this.state.compareAndSet(
+                    SessionState.WAITING_INSERT, SessionState.IDLE
+            ));
+        }
         return block.rowCnt();
     }
 

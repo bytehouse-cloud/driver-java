@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.Struct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
@@ -62,7 +63,7 @@ public class InsertComplexTypeITest extends AbstractITest {
 
             statement.executeQuery("INSERT INTO test_database.test_table VALUES('abc')");
 
-            withPreparedStatement(statement.getConnection(), "INSERT INTO test_database.test_table VALUES(?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table VALUES(?)", pstmt -> {
                 pstmt.setObject(1, "abc");
                 pstmt.executeUpdate();
             });
@@ -100,7 +101,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: failed to validate column data type: unknown datatype: DateTime('UTC')
+    // TODO: Can be verified after CNCH bug is resolved
     @Ignore
     public void successfullyDateTimeDataType() throws Exception {
         withStatement(statement -> {
@@ -112,6 +113,7 @@ public class InsertComplexTypeITest extends AbstractITest {
             ResultSet rs = statement.executeQuery("SELECT * FROM test_database.test_table");
             assertTrue(rs.next());
 
+            ZoneId zoneId = ZoneId.systemDefault();
             assertEquals(
                     Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
                     rs.getTimestamp(1).getTime());
@@ -126,7 +128,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    //TODO: failed to validate column data type: unknown datatype: DateTime64(9, 'UTC')
+    // CNCH does not support DateTime64 as data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Ignore
     public void successfullyDateTime64DataType() throws Exception {
         withStatement(statement -> {
@@ -150,7 +152,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    //TODO: failed to validate column data type: unknown datatype: DateTime64(9, 'UTC')
+    // CNCH does not support DateTime64 as data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Ignore
     public void successfullyMinDateTime64DataType() throws Exception {
         withStatement(statement -> {
@@ -170,7 +172,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    //TODO: failed to validate column data type: unknown datatype: DateTime64(9, 'UTC')
+    // CNCH does not support DateTime64 as data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Ignore
     public void successfullyMaxDateTime64DataType() throws Exception {
         withStatement(statement -> {
@@ -191,7 +193,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    // TODO: failed to validate column data type: unknown datatype: Tuple(String, UInt8)
+    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3286
     @Ignore
     public void successfullyTupleDataType() throws Exception {
         withStatement(statement -> {
@@ -228,7 +230,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    // TODO: unknown query setting: allow_experimental_map_type
+    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3303
     @Ignore
     public void successfullyMapDataType() throws Exception {
         withStatement(statement -> {
@@ -264,7 +266,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    // TODO: unknown query setting: allow_experimental_map_type
+    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3303
     @Ignore
     public void successfullyMapDataTypeNested() throws Exception {
         withStatement(statement -> {
@@ -295,8 +297,7 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: invalid datatype argument: invalid inner data type FixedString(6)
-    @Ignore
+    @Test
     public void successfullyLowCardinalityDataType() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_database");

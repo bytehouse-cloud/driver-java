@@ -12,7 +12,7 @@ trap kill_subprocess EXIT
 
 namespace=cnch
 server_name='default-server'
-pod_name=$(kubectl --namespace=${namespace} get pod | grep $server_name | awk 'NR==2{print $1}')
+pod_name=$(kubectl --namespace=${namespace} get pod | grep $server_name | awk 'NR==1{print $1}')
 echo "forwarding ${pod_name}"
 (
   set -x

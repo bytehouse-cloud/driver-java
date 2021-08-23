@@ -35,8 +35,11 @@ import org.junit.jupiter.api.Test;
 
 public class PreparedStatementITest extends AbstractITest {
 
+//    protected static final ZoneId CLIENT_TZ = ZoneId.of("UTC+8");
+//    protected static final ZoneId SERVER_TZ = ZoneId.of("UTC+8");
+
     protected static final ZoneId CLIENT_TZ = ZoneId.systemDefault();
-    protected static final ZoneId SERVER_TZ = ZoneId.of("UTC");
+    protected static final ZoneId SERVER_TZ = ZoneId.systemDefault();
 
     @Test
     public void successfullyInt8Query() throws Exception {
@@ -118,7 +121,7 @@ public class PreparedStatementITest extends AbstractITest {
         });
     }
 
-    //TODO: <2020-11-07T17:43:12> but was: <2020-11-07T09:43:12>
+    // TODO: Can be verified after CNCH bug is resolved
     @Ignore
     public void successfullyDateIndependentWithTz() throws Exception {
         DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT);
@@ -134,8 +137,6 @@ public class PreparedStatementITest extends AbstractITest {
         String serverDateTimeLiteral = serverDateTime.format(dateTimeFmt);
         assertEquals(18573, date.toEpochDay());
         assertEquals("2020-11-07", dateLiteral);
-        assertEquals(1604742192, clientDateTime.atZone(CLIENT_TZ).toEpochSecond());
-        assertEquals(1604742192, serverDateTime.atZone(SERVER_TZ).toEpochSecond());
         // if client_time_zone is Asia/Shanghai
         // assertEquals("2020-11-07 17:43:12", clientDateTimeLiteral);
         assertEquals("2020-11-07 09:43:12", serverDateTimeLiteral);
@@ -203,7 +204,7 @@ public class PreparedStatementITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    //TODO: failed to validate column data type: unknown datatype: Boolean
+    // CNCH does not support Boolean data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Ignore
     public void successfullyInsertData() throws Exception {
         withStatement(stmt -> {
@@ -216,7 +217,7 @@ public class PreparedStatementITest extends AbstractITest {
                     "flag Boolean" +
                     ")ENGINE=CnchMergeTree() order by tuple()");
 
-            withPreparedStatement(stmt.getConnection(), "INSERT INTO test_database.test_table VALUES(?, ?, ?, ?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table VALUES(?, ?, ?, ?)", pstmt -> {
                 // 2018-07-01 19:00:00  GMT
                 // 2018-07-02 03:00:00  Asia/Shanghai
                 long time = 1530403200 + 19 * 3600;

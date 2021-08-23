@@ -85,7 +85,7 @@ public final class ByteHouseJdbcUrlParser {
         final Map<SettingKey, Serializable> settings = new HashMap<>();
 
         for (final String name : properties.stringPropertyNames()) {
-            String value = properties.getProperty(name);
+            final String value = properties.getProperty(name);
 
             parseSetting(settings, name, value);
         }

@@ -281,7 +281,7 @@ public class QueryComplexTypeITest extends AbstractITest {
         });
     }
 
-    //TODO: expected: java.math.BigInteger@246be5d1<0> but was: java.lang.Long@61e2a1bf<0>
+    // Bug from CNCH side https://jira-sg.bytedance.net/browse/BYT-3310
     @Ignore
     public void successfullyMap() throws Exception {
         withStatement(statement -> {

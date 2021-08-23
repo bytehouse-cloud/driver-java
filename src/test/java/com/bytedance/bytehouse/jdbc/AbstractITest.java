@@ -51,14 +51,14 @@ public class AbstractITest implements Serializable {
 
     protected Connection getConnection(Object... params) throws SQLException {
         loadTestConfigs(params);
-        final DataSource dataSource = new BalancedByteHouseDataSource(getUrl(), TestConfigs);
+        final DataSource dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
         return dataSource.getConnection();
     }
 
-    protected BalancedByteHouseDataSource getDataSource(String url, Object... params) throws SQLException {
+    protected ByteHouseDataSource getDataSource(String url, Object... params) throws SQLException {
         loadTestConfigs(params);
-        final DataSource dataSource = new BalancedByteHouseDataSource(url, TestConfigs);
-        return (BalancedByteHouseDataSource) dataSource;
+        final DataSource dataSource = new ByteHouseDataSource(url, TestConfigs);
+        return (ByteHouseDataSource) dataSource;
     }
 
     private void loadTestConfigs(Object... params) {

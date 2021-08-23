@@ -11,26 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.bytedance.bytehouse.jdbc.wrapper;
 
-package com.bytedance.bytehouse.jdbc;
-
-import com.bytedance.bytehouse.jdbc.tool.TestHarness;
-import org.junit.jupiter.api.Test;
+import javax.sql.DataSource;
 
 /**
- * Implements to test all supported DataTypes
+ * Abstraction that all {@link java.sql.Driver} from this project should implement.
  */
-public class GenericSimpleInsertITest extends AbstractITest {
+public interface BHDataSource extends DataSource, SQLWrapper {
 
-    // TODO: This test case runs for 2^17 times, need to optimize
-    @Test
-    public void runGeneric() throws Exception {
-        TestHarness helper = new TestHarness();
-        helper.clean();
-        helper.create();
-        helper.insert();
-        helper.checkItem();
-        helper.checkAgg();
-        helper.clean();
-    }
+    /**
+     * ping with timeout
+     */
+    boolean ping(int timeoutSecond);
 }

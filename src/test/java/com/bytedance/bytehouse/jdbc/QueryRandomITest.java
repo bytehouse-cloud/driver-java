@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class QueryRandomITest extends AbstractITest {
 
-    //TODO: unknown engine: GenerateRandom(1, 8, 8)()
+    // CNCH does not support GenerateRandom as engine
     @Ignore
     public void successfullyDateTime64DataType() throws Exception {
         withStatement(statement -> {

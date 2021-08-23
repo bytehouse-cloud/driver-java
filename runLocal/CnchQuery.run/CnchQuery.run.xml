@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="CnchQuery" type="Application" factoryName="Application"
+                   nameIsGenerated="true">
+        <envs>
+            <env name="CONSUL_HTTP_PORT" value="2280"/>
+            <env name="CONSUL_HTTP_HOST" value="10.231.243.98"/>
+        </envs>
+        <option name="MAIN_CLASS_NAME" value="examples.CnchQuery"/>
+        <module name="driver-java.main"/>
+        <extension name="coverage">
+            <pattern>
+                <option name="PATTERN" value="examples.*"/>
+                <option name="ENABLED" value="true"/>
+            </pattern>
+        </extension>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
+</component>
