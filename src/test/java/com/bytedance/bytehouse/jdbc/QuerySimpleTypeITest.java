@@ -167,16 +167,16 @@ public class QuerySimpleTypeITest extends AbstractITest {
     @Test
     public void successfullyStringDataTypeWithSingleQuote() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table(test String)ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table(test String)ENGINE=CnchMergeTree() order by tuple()");
 
-            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table VALUES(?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table VALUES(?)", pstmt -> {
                 pstmt.setString(1, "test_string with ' character");
                 assertEquals(1, pstmt.executeUpdate());
             });
 
-            withPreparedStatement(getConnection(), "SELECT * FROM test_database.test_table WHERE test=?", pstmt -> {
+            withPreparedStatement(getConnection(), "SELECT * FROM test_db.test_table WHERE test=?", pstmt -> {
                 pstmt.setString(1, "test_string with ' character");
                 try (ResultSet rs = pstmt.executeQuery()) {
                     assertTrue(rs.next());
@@ -185,7 +185,7 @@ public class QuerySimpleTypeITest extends AbstractITest {
                 }
             });
 
-            statement.execute("DROP DATABASE test_database");
+            statement.execute("DROP DATABASE test_db");
         });
     }
 }

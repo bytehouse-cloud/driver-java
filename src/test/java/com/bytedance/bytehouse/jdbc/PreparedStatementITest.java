@@ -208,16 +208,16 @@ public class PreparedStatementITest extends AbstractITest {
     @Ignore
     public void successfullyInsertData() throws Exception {
         withStatement(stmt -> {
-            stmt.execute("DROP DATABASE IF EXISTS test_database");
-            stmt.execute("CREATE DATABASE test_database");
-            stmt.execute("CREATE TABLE test_database.test_table(" +
+            stmt.execute("DROP DATABASE IF EXISTS test_db");
+            stmt.execute("CREATE DATABASE test_db");
+            stmt.execute("CREATE TABLE test_db.test_table(" +
                     "id UInt8, " +
                     "day Date, " +
                     "time DateTime, " +
                     "flag Boolean" +
                     ")ENGINE=CnchMergeTree() order by tuple()");
 
-            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table VALUES(?, ?, ?, ?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table VALUES(?, ?, ?, ?)", pstmt -> {
                 // 2018-07-01 19:00:00  GMT
                 // 2018-07-02 03:00:00  Asia/Shanghai
                 long time = 1530403200 + 19 * 3600;

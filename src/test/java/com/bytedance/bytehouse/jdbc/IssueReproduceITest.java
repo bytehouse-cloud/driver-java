@@ -29,8 +29,8 @@ public class IssueReproduceITest extends AbstractITest {
     public void testIssue63() throws Exception {
         withStatement(statement -> {
             int columnNum = 5;
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
             String params = Strings.repeat("?, ", columnNum);
             StringBuilder columnTypes = new StringBuilder();
             for (int i = 0; i < columnNum; i++) {
@@ -39,8 +39,8 @@ public class IssueReproduceITest extends AbstractITest {
                 }
                 columnTypes.append("t_").append(i).append(" String");
             }
-            statement.execute("CREATE TABLE test_database.test_table( " + columnTypes + ")ENGINE=CnchMergeTree() order by tuple()");
-            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table values(" + params.substring(0, params.length() - 2) + ")", pstmt -> {
+            statement.execute("CREATE TABLE test_db.test_table( " + columnTypes + ")ENGINE=CnchMergeTree() order by tuple()");
+            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table values(" + params.substring(0, params.length() - 2) + ")", pstmt -> {
                 for (int i = 0; i < 100; ++i) {
                     for (int j = 0; j < columnNum; j++) {
                         pstmt.setString(j + 1, "String" + j);
@@ -50,11 +50,11 @@ public class IssueReproduceITest extends AbstractITest {
                 pstmt.executeBatch();
             });
 
-            ResultSet rs = statement.executeQuery("SELECT count(1) FROM test_database.test_table limit 1");
+            ResultSet rs = statement.executeQuery("SELECT count(1) FROM test_db.test_table limit 1");
             assertTrue(rs.next());
             assertEquals(100, rs.getInt(1));
 
-            statement.execute("DROP DATABASE test_database");
+            statement.execute("DROP DATABASE test_db");
         });
     }
 }

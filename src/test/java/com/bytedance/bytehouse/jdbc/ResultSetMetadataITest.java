@@ -26,12 +26,12 @@ public class ResultSetMetadataITest extends AbstractITest {
     @Test
     public void successfullyMetaData() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table (a UInt8, b UInt64, c FixedString(3))ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table (a UInt8, b UInt64, c FixedString(3))ENGINE=CnchMergeTree() order by tuple()");
 
-            statement.executeQuery("INSERT INTO test_database.test_table VALUES (1, 2, '4' )");
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_database.test_table");
+            statement.executeQuery("INSERT INTO test_db.test_table VALUES (1, 2, '4' )");
+            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
             ResultSetMetaData metadata = rs.getMetaData();
 
             assertEquals("test_table", metadata.getTableName(1));
@@ -41,7 +41,7 @@ public class ResultSetMetadataITest extends AbstractITest {
             assertEquals(19, metadata.getPrecision(2));
             assertEquals(3, metadata.getPrecision(3));
 
-            statement.execute("DROP DATABASE IF EXISTS test_database");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
         });
     }
 }

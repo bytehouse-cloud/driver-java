@@ -152,7 +152,7 @@ public class TestHarness extends AbstractITest {
     }
 
     public TestHarness(String... allowedDataTypes) {
-        this.tableName = "test_database." + "test_" + (new Random().nextLong() & 0xffffffffL);
+        this.tableName = "test_db." + "test_" + (new Random().nextLong() & 0xffffffffL);
         this.types = ALL_TYPES.stream()
                 .filter(type -> Arrays.stream(allowedDataTypes).anyMatch(allowed -> allowed.equals(type.name)))
                 .toArray(DataTypeApply[]::new);
@@ -244,7 +244,7 @@ public class TestHarness extends AbstractITest {
     }
 
     private String buildCreateDatabaseSQL() {
-        StringBuilder sb = new StringBuilder("CREATE DATABASE test_database");
+        StringBuilder sb = new StringBuilder("CREATE DATABASE test_db");
         String sql = sb.toString();
         LOG.trace("CREATE DATABASE DDL: \n{}", sql);
         return sql;
@@ -293,7 +293,7 @@ public class TestHarness extends AbstractITest {
     }
 
     private String buildDropDatabaseSQL() {
-        return "DROP DATABASE IF EXISTS test_database";
+        return "DROP DATABASE IF EXISTS test_db";
     }
 
     public static class DataTypeApply {

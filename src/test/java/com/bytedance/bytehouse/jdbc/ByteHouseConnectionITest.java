@@ -14,7 +14,6 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import java.sql.*;
 
@@ -95,34 +94,39 @@ public class ByteHouseConnectionITest extends AbstractITest {
         });
     }
 
-    // TODO: Hanging Test - DEBUG NativeClient - expect pong, skip response: RESPONSE_END_OF_STREAM
-    @Ignore
+    @Test
     public void testReuseConnectionPreparedStatement() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table(id String) ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table(id String) ENGINE=CnchMergeTree() order by tuple()");
 
-            PreparedStatement pstmt = statement.getConnection().prepareStatement("INSERT INTO test_database.test_table VALUES (?)");
+            PreparedStatement pstmt = statement.getConnection().prepareStatement("INSERT INTO test_db.test_table VALUES (?)");
             pstmt.setString(1, "id-01");
+            pstmt.addBatch();
             pstmt.executeBatch();
 
-            statement.execute("DROP DATABASE test_database");
+            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
+            assertTrue(rs.next());
+            assertEquals(rs.getString(1), "id-01");
+            assertFalse(rs.next());
+
+            statement.execute("DROP DATABASE test_db");
         });
     }
 
     @Test
     public void testNewConnectionPreparedStatement() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table(id String) ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table(id String) ENGINE=CnchMergeTree() order by tuple()");
 
-            PreparedStatement pstmt = getConnection().prepareStatement("INSERT INTO test_database.test_table VALUES (?)");
+            PreparedStatement pstmt = getConnection().prepareStatement("INSERT INTO test_db.test_table VALUES (?)");
             pstmt.setString(1, "id-01");
             pstmt.executeBatch();
 
-            statement.execute("DROP DATABASE test_database");
+            statement.execute("DROP DATABASE test_db");
         });
     }
 }

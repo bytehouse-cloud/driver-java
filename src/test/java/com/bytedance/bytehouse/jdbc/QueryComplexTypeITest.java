@@ -248,36 +248,36 @@ public class QueryComplexTypeITest extends AbstractITest {
     @Test
     public void successfullyEnum8() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table(test Enum8('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table(test Enum8('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()");
 
-            statement.execute("INSERT INTO test_database.test_table VALUES('a')");
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_database.test_table");
+            statement.execute("INSERT INTO test_db.test_table VALUES('a')");
+            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
 
             assertTrue(rs.next());
             assertEquals("a", rs.getString(1));
             assertFalse(rs.next());
 
-            statement.execute("DROP DATABASE test_database");
+            statement.execute("DROP DATABASE test_db");
         });
     }
 
     @Test
     public void successfullyEnum16() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table(test Enum16('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table(test Enum16('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()");
 
-            statement.execute("INSERT INTO test_database.test_table VALUES('a')");
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_database.test_table");
+            statement.execute("INSERT INTO test_db.test_table VALUES('a')");
+            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
 
             assertTrue(rs.next());
             assertEquals("a", rs.getString(1));
             assertFalse(rs.next());
 
-            statement.execute("DROP DATABASE test_database");
+            statement.execute("DROP DATABASE test_db");
         });
     }
 

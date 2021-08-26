@@ -15,7 +15,7 @@
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.jdbc.tool.TestHarness;
-import org.junit.jupiter.api.Test;
+import org.junit.Ignore;
 
 /**
  * Implements to test all supported DataTypes
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class GenericSimpleInsertITest extends AbstractITest {
 
     // TODO: This test case runs for 2^17 times, need to optimize
-    @Test
+    @Ignore
     public void runGeneric() throws Exception {
         TestHarness helper = new TestHarness();
         helper.clean();

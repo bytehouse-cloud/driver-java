@@ -101,34 +101,34 @@ public class ConnectionParamITest extends AbstractITest {
     @Test
     public void successfullyCompressedInsert() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
 
             for (int i = 0; i < 30; i++) {
-                assertEquals(1, statement.executeUpdate(String.format("INSERT INTO test_database.test_table VALUES(%d)", i)));
+                assertEquals(1, statement.executeUpdate(String.format("INSERT INTO test_db.test_table VALUES(%d)", i)));
             }
 
-            ResultSet rs = statement.executeQuery("SELECT x FROM test_database.test_table ORDER BY x");
+            ResultSet rs = statement.executeQuery("SELECT x FROM test_db.test_table ORDER BY x");
             for (int i = 0; i < 30; i++) {
                 assertTrue(rs.next());
                 assertEquals(i, rs.getInt(1));
             }
             assertFalse(rs.next());
 
-            statement.execute("DROP DATABASE IF EXISTS test_database");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
         }, "enable_compression", "true");
     }
 
     @Test
     public void successfullyCompressedInsertBatch() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
 
 
-            withPreparedStatement(getConnection(), "INSERT INTO test_database.test_table(x) VALUES(?)", pstmt -> {
+            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table(x) VALUES(?)", pstmt -> {
                 for (int i = 0; i < 30; i++) {
                     pstmt.setInt(1, i);
                     pstmt.addBatch();
@@ -136,14 +136,14 @@ public class ConnectionParamITest extends AbstractITest {
                 pstmt.executeBatch();
             });
 
-            ResultSet rs = statement.executeQuery("SELECT x FROM test_database.test_table ORDER BY x");
+            ResultSet rs = statement.executeQuery("SELECT x FROM test_db.test_table ORDER BY x");
             for (int i = 0; i < 30; i++) {
                 assertTrue(rs.next());
                 assertEquals(i, rs.getInt(1));
             }
             assertFalse(rs.next());
 
-            statement.execute("DROP DATABASE IF EXISTS test_database");
+            statement.execute("DROP DATABASE IF EXISTS test_db");
         }, "enable_compression", "true");
     }
 

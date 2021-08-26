@@ -29,13 +29,13 @@ public class QueryRandomITest extends AbstractITest {
     @Ignore
     public void successfullyDateTime64DataType() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_database");
-            statement.execute("CREATE DATABASE test_database");
-            statement.execute("CREATE TABLE test_database.test_table("
+            statement.execute("DROP DATABASE IF EXISTS test_db");
+            statement.execute("CREATE DATABASE test_db");
+            statement.execute("CREATE TABLE test_db.test_table("
                     + "name String, value UInt32, arr Array(Float64), day Date, time DateTime,"
                     + " dc Decimal(7,2)) ENGINE=GenerateRandom(1, 8, 8)() order by tuple()");
 
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_database.test_table limit 10000");
+            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table limit 10000");
 
             int i = 0;
             while (rs.next()) {
@@ -57,7 +57,7 @@ public class QueryRandomITest extends AbstractITest {
             }
             assertEquals(i , 10000);
 
-            statement.execute("DROP DATABASE test_database");
+            statement.execute("DROP DATABASE test_db");
         }, "use_client_time_zone", true);
     }
 }
