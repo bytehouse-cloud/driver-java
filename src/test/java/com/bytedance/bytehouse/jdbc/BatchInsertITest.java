@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class BatchInsertITest extends AbstractITest {
@@ -184,12 +183,9 @@ public class BatchInsertITest extends AbstractITest {
         });
     }
 
-    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3303
-    @Ignore
+    @Test
     public void successfullyBatchInsertMap() throws Exception {
         withStatement(statement -> {
-            statement.execute("SET allow_experimental_map_type=1;");
-
             statement.execute("DROP DATABASE IF EXISTS test_db");
             statement.execute("CREATE DATABASE test_db");
             statement.execute("CREATE TABLE test_db.test (a Map(Int32, Int32), b Map(String, String)) ENGINE=CnchMergeTree() order by tuple()");

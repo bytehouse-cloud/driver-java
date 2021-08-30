@@ -1643,11 +1643,6 @@ public class SettingKey implements Serializable {
             .withType(SettingType.Bool)
             .build();
 
-    public static SettingKey allow_experimental_map_type = SettingKey.builder()
-            .withName("allow_experimental_map_type")
-            .withType(SettingType.Bool)
-            .build();
-
     public static SettingKey allow_introspection_functions = SettingKey.builder()
             .withName("allow_introspection_functions")
             .withType(SettingType.Bool)

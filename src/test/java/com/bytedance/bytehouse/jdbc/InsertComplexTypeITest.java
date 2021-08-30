@@ -230,20 +230,16 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3303
-    @Ignore
+    @Test
     public void successfullyMapDataType() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_db");
             statement.execute("CREATE DATABASE test_db");
             statement.execute("CREATE TABLE test_db.test_table(a Map(UInt32, UInt32), b Map(String, String))ENGINE=CnchMergeTree() order by tuple()");
 
-            statement.execute("SET allow_experimental_map_type=1;");
-
             statement.executeUpdate(
                     "INSERT INTO test_db.test_table VALUES ({1 : 1, 2 : 2}, {'a': 'b'}), ({},{})"
             );
-
 
             ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
 
@@ -266,15 +262,12 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3303
-    @Ignore
+    @Test
     public void successfullyMapDataTypeNested() throws Exception {
         withStatement(statement -> {
             statement.execute("DROP DATABASE IF EXISTS test_db");
             statement.execute("CREATE DATABASE test_db");
             statement.execute("CREATE TABLE test_db.test_table(a Map(Int32, Array(Int32)), b Map(String, Array(Array(String))))ENGINE=CnchMergeTree() order by tuple()");
-
-            statement.execute("SET allow_experimental_map_type=1;");
 
             statement.executeUpdate(
                     "INSERT INTO test_db.test_table VALUES ({1: [1, 2, 3]}, {'a': [['b', 'c'], ['d']]})"
