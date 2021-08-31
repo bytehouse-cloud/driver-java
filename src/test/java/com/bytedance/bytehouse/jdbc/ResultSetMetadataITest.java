@@ -14,34 +14,38 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class ResultSetMetadataITest extends AbstractITest {
 
     @Test
     public void successfullyMetaData() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table (a UInt8, b UInt64, c FixedString(3))ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            statement.executeQuery("INSERT INTO test_db.test_table VALUES (1, 2, '4' )");
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
-            ResultSetMetaData metadata = rs.getMetaData();
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (a UInt8, b UInt64, c FixedString(3))ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-            assertEquals("test_table", metadata.getTableName(1));
-            assertEquals("default", metadata.getCatalogName(1));
+                statement.executeQuery(String.format("INSERT INTO %s VALUES (1, 2, '4' )", tableName));
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
+                ResultSetMetaData metadata = rs.getMetaData();
 
-            assertEquals(3, metadata.getPrecision(1));
-            assertEquals(19, metadata.getPrecision(2));
-            assertEquals(3, metadata.getPrecision(3));
+                assertEquals("test_table", metadata.getTableName(1));
+                assertEquals("default", metadata.getCatalogName(1));
 
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+                assertEquals(3, metadata.getPrecision(1));
+                assertEquals(19, metadata.getPrecision(2));
+                assertEquals(3, metadata.getPrecision(3));
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 }

@@ -40,30 +40,37 @@ public class BatchInsertITest extends AbstractITest {
     @Test
     public void successfullyBatchInsert() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test(id Int8, age UInt8, name String, name2 String) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?, 1, ?, ?)", pstmt -> {
-                for (int i = 0; i < Byte.MAX_VALUE; i++) {
-                    pstmt.setByte(1, (byte) i);
-                    pstmt.setString(2, "Zhang San" + i);
-                    pstmt.setString(3, "张三" + i);
-                    pstmt.addBatch();
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id Int8, age UInt8, name String, name2 String)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, 1, ?, ?)", tableName), pstmt -> {
+                    for (int i = 0; i < Byte.MAX_VALUE; i++) {
+                        pstmt.setByte(1, (byte) i);
+                        pstmt.setString(2, "Zhang San" + i);
+                        pstmt.setString(3, "张三" + i);
+                        pstmt.addBatch();
+                    }
+                    assertBatchInsertResult(pstmt.executeBatch(), Byte.MAX_VALUE);
+                });
+                ResultSet rs = statement.executeQuery(String.format("select * from %s", tableName));
+                boolean hasResult = false;
+                for (int i = 0; i < Byte.MAX_VALUE && rs.next(); i++) {
+                    hasResult = true;
+                    assertEquals(i, rs.getByte(1));
+                    assertEquals(1, rs.getByte(2));
+                    assertEquals("Zhang San" + i, rs.getString(3));
+                    assertEquals("张三" + i, rs.getString(4));
                 }
-                assertBatchInsertResult(pstmt.executeBatch(), Byte.MAX_VALUE);
-            });
-            ResultSet rs = statement.executeQuery("select * from test_db.test");
-            boolean hasResult = false;
-            for (int i = 0; i < Byte.MAX_VALUE && rs.next(); i++) {
-                hasResult = true;
-                assertEquals(i, rs.getByte(1));
-                assertEquals(1, rs.getByte(2));
-                assertEquals("Zhang San" + i, rs.getString(3));
-                assertEquals("张三" + i, rs.getString(4));
+                assertTrue(hasResult);
             }
-            assertTrue(hasResult);
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
 
     }
@@ -71,28 +78,35 @@ public class BatchInsertITest extends AbstractITest {
     @Test
     public void successfullyMultipleBatchInsert() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (id Int8, age UInt8, name String) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?, 1, ?)", pstmt -> {
-                int insertBatchSize = 100;
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id Int8, age UInt8, name String)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-                for (int i = 0; i < insertBatchSize; i++) {
-                    pstmt.setByte(1, (byte) i);
-                    pstmt.setString(2, "Zhang San" + i);
-                    pstmt.addBatch();
-                }
-                assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, 1, ?)", tableName), pstmt -> {
+                    int insertBatchSize = 100;
 
-                for (int i = 0; i < insertBatchSize; i++) {
-                    pstmt.setByte(1, (byte) i);
-                    pstmt.setString(2, "Zhang San" + i);
-                    pstmt.addBatch();
-                }
-                assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
-            });
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+                    for (int i = 0; i < insertBatchSize; i++) {
+                        pstmt.setByte(1, (byte) i);
+                        pstmt.setString(2, "Zhang San" + i);
+                        pstmt.addBatch();
+                    }
+                    assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
+
+                    for (int i = 0; i < insertBatchSize; i++) {
+                        pstmt.setByte(1, (byte) i);
+                        pstmt.setString(2, "Zhang San" + i);
+                        pstmt.addBatch();
+                    }
+                    assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
 
     }
@@ -100,52 +114,59 @@ public class BatchInsertITest extends AbstractITest {
     @Test
     public void successfullyNullableDataType() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (day Date, name Nullable(String), name2 Nullable(FixedString(10))) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            int insertBatchSize = 100;
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?, ?, ?)", pstmt -> {
-                for (int i = 0; i < insertBatchSize; i++) {
-                    pstmt.setDate(1, new Date(System.currentTimeMillis()));
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (day Date, name Nullable(String), name2 Nullable(FixedString(10))) "
+                        + "ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-                    if (i % 2 == 0) {
-                        pstmt.setString(2, "String");
-                        pstmt.setString(3, "String");
-                    } else {
-                        pstmt.setString(2, null);
-                        pstmt.setString(3, null);
+                int insertBatchSize = 10;
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, ?, ?)", tableName), pstmt -> {
+                    for (int i = 0; i < insertBatchSize; i++) {
+                        pstmt.setDate(1, new Date(System.currentTimeMillis()));
+
+                        if (i % 2 == 0) {
+                            pstmt.setString(2, "String");
+                            pstmt.setString(3, "String");
+                        } else {
+                            pstmt.setString(2, null);
+                            pstmt.setString(3, null);
+                        }
+                        pstmt.addBatch();
                     }
-                    pstmt.addBatch();
-                }
-                assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
-            });
+                    assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
+                });
 
-            ResultSet rs = statement.executeQuery("select name, name2 from test_db.test order by name");
-            int i = 0;
-            while (rs.next()) {
-                String name1 = rs.getString(1);
-                String name2 = rs.getString(2);
+                ResultSet rs = statement.executeQuery(String.format("select name, name2 from %s order by name", tableName));
+                int i = 0;
+                while (rs.next()) {
+                    String name1 = rs.getString(1);
+                    String name2 = rs.getString(2);
 
-                if (i * 2 >= insertBatchSize) {
-                    assertNull(name1);
-                } else {
-                    assertEquals("String", name1);
-                    assertTrue(name2.contains("String"));
-                    assertEquals(10, name2.length());
+                    if (i * 2 >= insertBatchSize) {
+                        assertNull(name1);
+                    } else {
+                        assertEquals("String", name1);
+                        assertTrue(name2.contains("String"));
+                        assertEquals(10, name2.length());
+                    }
+                    i++;
                 }
-                i++;
+
+                rs = statement.executeQuery(
+                        String.format("select countIf(isNull(name)), countIf(isNotNull(name)), countIf(isNotNull(name2))  from %s;", tableName));
+                assertTrue(rs.next());
+                assertEquals(insertBatchSize / 2, rs.getInt(1));
+                assertEquals(insertBatchSize / 2, rs.getInt(2));
+                assertEquals(insertBatchSize / 2, rs.getInt(3));
             }
-
-            rs = statement.executeQuery(
-                    "select countIf(isNull(name)), countIf(isNotNull(name)), countIf(isNotNull(name2))  from test_db.test;");
-            assertTrue(rs.next());
-            assertEquals(insertBatchSize / 2, rs.getInt(1));
-            assertEquals(insertBatchSize / 2, rs.getInt(2));
-            assertEquals(insertBatchSize / 2, rs.getInt(3));
-
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
+
     }
 
     @Test
@@ -153,150 +174,180 @@ public class BatchInsertITest extends AbstractITest {
         System.setProperty("illegal-access", "allow");
 
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (value0 Array(String), value1 Array(Float64), value2 Array(Array(Int32)), array3 Array(Nullable(Float64))) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?, ?, [[1,2,3]], ?)", pstmt -> {
-                List<String> array0 = Arrays.asList("aa", "bb", "cc");
-                List<Double> array1 = Arrays.asList(1.2, 2.2, 3.2);
-                List<Double> array3 = Arrays.asList(1.2, 2.2, 3.2, null);
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (value0 Array(String), value1 Array(Float64), value2 Array(Array(Int32)), array3 Array(Nullable(Float64))) "
+                        + "ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-                for (int i = 0; i < Byte.MAX_VALUE; i++) {
-                    pstmt.setArray(1, pstmt.getConnection().createArrayOf("String", array0.toArray()));
-                    pstmt.setArray(2, pstmt.getConnection().createArrayOf("Float64", array1.toArray()));
-                    pstmt.setArray(3, pstmt.getConnection().createArrayOf("Nullable(Float64)", array3.toArray()));
-                    pstmt.addBatch();
-                }
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, ?, [[1,2,3]], ?)", tableName), pstmt -> {
+                    List<String> array0 = Arrays.asList("aa", "bb", "cc");
+                    List<Double> array1 = Arrays.asList(1.2, 2.2, 3.2);
+                    List<Double> array3 = Arrays.asList(1.2, 2.2, 3.2, null);
 
-                assertBatchInsertResult(pstmt.executeBatch(), Byte.MAX_VALUE);
+                    int insertBatchSize = 10;
+                    for (int i = 0; i < insertBatchSize; i++) {
+                        pstmt.setArray(1, pstmt.getConnection().createArrayOf("String", array0.toArray()));
+                        pstmt.setArray(2, pstmt.getConnection().createArrayOf("Float64", array1.toArray()));
+                        pstmt.setArray(3, pstmt.getConnection().createArrayOf("Nullable(Float64)", array3.toArray()));
+                        pstmt.addBatch();
+                    }
 
-                ResultSet rs = statement.executeQuery("select * from test_db.test");
-                while (rs.next()) {
-                    assertArrayEquals(array0.toArray(), (Object[]) rs.getArray(1).getArray());
-                    assertArrayEquals(array1.toArray(), (Object[]) rs.getArray(2).getArray());
-                    assertArrayEquals(array3.toArray(), (Object[]) rs.getArray(4).getArray());
-                }
-            });
+                    assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
 
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+                    ResultSet rs = statement.executeQuery(String.format("select * from test_db.test", tableName));
+                    while (rs.next()) {
+                        assertArrayEquals(array0.toArray(), (Object[]) rs.getArray(1).getArray());
+                        assertArrayEquals(array1.toArray(), (Object[]) rs.getArray(2).getArray());
+                        assertArrayEquals(array3.toArray(), (Object[]) rs.getArray(4).getArray());
+                    }
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
     @Test
     public void successfullyBatchInsertMap() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (a Map(Int32, Int32), b Map(String, String)) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?, ?)", pstmt -> {
-                Map<Integer, Integer> row1col1 = new HashMap<>();
-                Map<String, String> row1col2 = new HashMap<>();
-                row1col1.put(1, 1);
-                row1col1.put(2, 2);
-                row1col2.put("a", "b");
-                pstmt.setObject(1, row1col1);
-                pstmt.setObject(2, row1col2);
-                pstmt.addBatch();
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (a Map(Int32, Int32), b Map(String, String)) "
+                        + "ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-                Map<Integer, Integer> row2col1 = new HashMap<>();
-                Map<String, String> row2col2 = new HashMap<>();
-                row2col1.put(3, 3);
-                row2col2.put("b", "c");
-                pstmt.setObject(1, row2col1);
-                pstmt.setObject(2, row2col2);
-                pstmt.addBatch();
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, ?)", tableName), pstmt -> {
+                    Map<Integer, Integer> row1col1 = new HashMap<>();
+                    Map<String, String> row1col2 = new HashMap<>();
+                    row1col1.put(1, 1);
+                    row1col1.put(2, 2);
+                    row1col2.put("a", "b");
+                    pstmt.setObject(1, row1col1);
+                    pstmt.setObject(2, row1col2);
+                    pstmt.addBatch();
 
-                assertBatchInsertResult(pstmt.executeBatch(), 2);
+                    Map<Integer, Integer> row2col1 = new HashMap<>();
+                    Map<String, String> row2col2 = new HashMap<>();
+                    row2col1.put(3, 3);
+                    row2col2.put("b", "c");
+                    pstmt.setObject(1, row2col1);
+                    pstmt.setObject(2, row2col2);
+                    pstmt.addBatch();
 
-                ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test");
+                    assertBatchInsertResult(pstmt.executeBatch(), 2);
 
-                assertTrue(rs.next());
-                Map<Integer, Integer> map1 = (Map<Integer, Integer>) rs.getObject(1);
-                assertEquals(1, map1.get(1));
-                assertEquals(2, map1.get(2));
-                Map<String, String> map2 = (Map<String, String>) rs.getObject(2);
-                assertEquals("b", map2.get("a"));
+                    ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
 
-                assertTrue(rs.next());
-                Map<Integer, Integer> map3 = (Map<Integer, Integer>) rs.getObject(1);
-                assertEquals(3, map3.get(3));
-                Map<String, String> map4 = (Map<String, String>) rs.getObject(2);
-                assertEquals("c", map4.get("b"));
+                    assertTrue(rs.next());
+                    Map<Integer, Integer> map1 = (Map<Integer, Integer>) rs.getObject(1);
+                    assertEquals(1, map1.get(1));
+                    assertEquals(2, map1.get(2));
+                    Map<String, String> map2 = (Map<String, String>) rs.getObject(2);
+                    assertEquals("b", map2.get("a"));
 
-                assertFalse(rs.next());
-            });
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+                    assertTrue(rs.next());
+                    Map<Integer, Integer> map3 = (Map<Integer, Integer>) rs.getObject(1);
+                    assertEquals(3, map3.get(3));
+                    Map<String, String> map4 = (Map<String, String>) rs.getObject(2);
+                    assertEquals("c", map4.get("b"));
+
+                    assertFalse(rs.next());
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
     @Test
     public void successfullyBatchInsertDateTime() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (time DateTime) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            // 2018-07-01 00:00:00 Asia/Shanghai
-            long time = 1530374400;
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (time DateTime) ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?)", pstmt -> {
-                long insertTime = time;
-                for (int i = 0; i < 24; i++) {
-                    pstmt.setTimestamp(1, new Timestamp(insertTime * 1000));
-                    pstmt.addBatch();
-                    insertTime += 3600;
+                // 2018-07-01 00:00:00 Asia/Shanghai
+                long time = 1530374400;
+
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?)", tableName), pstmt -> {
+                    long insertTime = time;
+                    for (int i = 0; i < 24; i++) {
+                        pstmt.setTimestamp(1, new Timestamp(insertTime * 1000));
+                        pstmt.addBatch();
+                        insertTime += 3600;
+                    }
+                    assertBatchInsertResult(pstmt.executeBatch(), 24);
+                });
+
+                long selectTime = time;
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s ORDER BY time ASC", tableName));
+                while (rs.next()) {
+                    assertEquals(selectTime * 1000, rs.getTimestamp(1).getTime());
+                    selectTime += 3600;
                 }
-                assertBatchInsertResult(pstmt.executeBatch(), 24);
-            });
-
-            long selectTime = time;
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test ORDER BY time ASC");
-            while (rs.next()) {
-                assertEquals(selectTime * 1000, rs.getTimestamp(1).getTime());
-                selectTime += 3600;
             }
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
     @Test
     public void successfullyBatchInsertLowCardinality() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (i LowCardinality(String)) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?)", pstmt -> {
-                pstmt.setObject(1, "test");
-                pstmt.addBatch();
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (i LowCardinality(String)) ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-                assertBatchInsertResult(pstmt.executeBatch(), 1);
-            });
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test");
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?)", tableName), pstmt -> {
+                    pstmt.setObject(1, "test");
+                    pstmt.addBatch();
 
-            assertTrue(rs.next());
-            assertEquals("test", rs.getObject(1));
+                    assertBatchInsertResult(pstmt.executeBatch(), 1);
+                });
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
 
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+                assertTrue(rs.next());
+                assertEquals("test", rs.getObject(1));
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
     @Test
     public void batchInsert_withoutAllParameters_throwSqlException() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test (id Int8, age UInt8, name String, name2 String) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement("INSERT INTO test_db.test VALUES(?, 1, ?, ?)", pstmt -> {
-                pstmt.setByte(1, (byte) 1);
-                pstmt.setString(2, "Zhang San" + 1);
-                assertThrows(SQLException.class, () -> pstmt.addBatch());
-            });
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (id Int8, age UInt8, name String, name2 String) ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, 1, ?, ?)", tableName), pstmt -> {
+                    pstmt.setByte(1, (byte) 1);
+                    pstmt.setString(2, "Zhang San" + 1);
+                    assertThrows(SQLException.class, () -> pstmt.addBatch());
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 }

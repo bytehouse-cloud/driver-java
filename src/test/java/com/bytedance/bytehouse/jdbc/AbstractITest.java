@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.Random;
 import javax.sql.DataSource;
 
 public class AbstractITest implements Serializable {
@@ -47,6 +48,14 @@ public class AbstractITest implements Serializable {
 
     protected String getUsername() {
         return TestConfigs.getProperty(USER);
+    }
+
+    protected String getDatabaseName() {
+        return "jdbc_test_db_" + generateRandomString();
+    }
+
+    protected String getTableName() {
+        return "jdbc_test_db_" + generateRandomString();
     }
 
     protected Connection getConnection(Object... params) throws SQLException {
@@ -82,6 +91,20 @@ public class AbstractITest implements Serializable {
         for (int i = 0; i + 1 < params.length; i = i + 2) {
             TestConfigs.setProperty(params[i].toString(), params[i+1].toString());
         }
+    }
+
+    private String generateRandomString() {
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+
+        String generatedString = random.ints(leftLimit, rightLimit + 1)
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+
+        return generatedString;
     }
 
     protected void withNewConnection(WithConnection withConnection, Object... args) throws Exception {

@@ -14,50 +14,54 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.Ignore;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Disabled;
 
 public class QueryRandomITest extends AbstractITest {
 
     // CNCH does not support GenerateRandom as engine
-    @Ignore
+    @Disabled
     public void successfullyDateTime64DataType() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table("
-                    + "name String, value UInt32, arr Array(Float64), day Date, time DateTime,"
-                    + " dc Decimal(7,2)) ENGINE=GenerateRandom(1, 8, 8)() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table limit 10000");
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s("
+                        + "name String, value UInt32, arr Array(Float64), day Date, time DateTime,"
+                        + " dc Decimal(7,2)) ENGINE=GenerateRandom(1, 8, 8)() order by tuple()", tableName));
 
-            int i = 0;
-            while (rs.next()) {
-                Object name = rs.getObject(1);
-                Object value = rs.getObject(2);
-                Object arr = rs.getObject(3);
-                Object day = rs.getObject(4);
-                Object time = rs.getObject(5);
-                Object dc = rs.getObject(6);
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s limit 10000", tableName));
 
-                assertEquals(String.class, name.getClass());
-                assertEquals(Long.class, value.getClass());
-                assertEquals(ByteHouseArray.class, arr.getClass());
-                assertEquals(Date.class, day.getClass());
-                assertEquals(Timestamp.class, time.getClass());
-                assertEquals(BigDecimal.class, dc.getClass());
+                int i = 0;
+                while (rs.next()) {
+                    Object name = rs.getObject(1);
+                    Object value = rs.getObject(2);
+                    Object arr = rs.getObject(3);
+                    Object day = rs.getObject(4);
+                    Object time = rs.getObject(5);
+                    Object dc = rs.getObject(6);
 
-                i ++;
+                    assertEquals(String.class, name.getClass());
+                    assertEquals(Long.class, value.getClass());
+                    assertEquals(ByteHouseArray.class, arr.getClass());
+                    assertEquals(Date.class, day.getClass());
+                    assertEquals(Timestamp.class, time.getClass());
+                    assertEquals(BigDecimal.class, dc.getClass());
+
+                    i ++;
+                }
+                assertEquals(i , 10000);
             }
-            assertEquals(i , 10000);
-
-            statement.execute("DROP DATABASE test_db");
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         }, "use_client_time_zone", true);
     }
 }

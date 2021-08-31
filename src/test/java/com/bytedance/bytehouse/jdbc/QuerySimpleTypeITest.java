@@ -14,12 +14,13 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class QuerySimpleTypeITest extends AbstractITest {
 
@@ -167,25 +168,30 @@ public class QuerySimpleTypeITest extends AbstractITest {
     @Test
     public void successfullyStringDataTypeWithSingleQuote() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table(test String)ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table VALUES(?)", pstmt -> {
-                pstmt.setString(1, "test_string with ' character");
-                assertEquals(1, pstmt.executeUpdate());
-            });
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (test String)ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-            withPreparedStatement(getConnection(), "SELECT * FROM test_db.test_table WHERE test=?", pstmt -> {
-                pstmt.setString(1, "test_string with ' character");
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    assertTrue(rs.next());
-                    assertEquals("test_string with ' character", rs.getString(1));
-                    assertFalse(rs.next());
-                }
-            });
+                withPreparedStatement(getConnection(), String.format("INSERT INTO %s VALUES(?)", tableName), pstmt -> {
+                    pstmt.setString(1, "test_string with ' character");
+                    assertEquals(1, pstmt.executeUpdate());
+                });
 
-            statement.execute("DROP DATABASE test_db");
+                withPreparedStatement(getConnection(), String.format("SELECT * FROM %s WHERE test=?", tableName), pstmt -> {
+                    pstmt.setString(1, "test_string with ' character");
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        assertTrue(rs.next());
+                        assertEquals("test_string with ' character", rs.getString(1));
+                        assertFalse(rs.next());
+                    }
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 }

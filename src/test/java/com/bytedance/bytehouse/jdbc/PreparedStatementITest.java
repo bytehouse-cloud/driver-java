@@ -20,9 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -204,30 +206,21 @@ public class PreparedStatementITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    // CNCH does not support Boolean data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
-    @Ignore
-    public void successfullyInsertData() throws Exception {
+    @Test
+    public void checkBooleanNotSupported() throws Exception {
         withStatement(stmt -> {
-            stmt.execute("DROP DATABASE IF EXISTS test_db");
-            stmt.execute("CREATE DATABASE test_db");
-            stmt.execute("CREATE TABLE test_db.test_table(" +
-                    "id UInt8, " +
-                    "day Date, " +
-                    "time DateTime, " +
-                    "flag Boolean" +
-                    ")ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table VALUES(?, ?, ?, ?)", pstmt -> {
-                // 2018-07-01 19:00:00  GMT
-                // 2018-07-02 03:00:00  Asia/Shanghai
-                long time = 1530403200 + 19 * 3600;
-                // FIXME support setByte on UInt8
-                pstmt.setByte(1, (byte) 1);
-                pstmt.setDate(2, new Date(time * 1000));
-                pstmt.setTimestamp(3, new Timestamp(time * 1000));
-                pstmt.setBoolean(4, true);
-                assertEquals(1, pstmt.executeUpdate());
-            });
+            try {
+                stmt.execute(String.format("CREATE DATABASE %s", databaseName));
+                stmt.execute(String.format("CREATE TABLE %s (flag Boolean) ENGINE=CnchMergeTree() order by tuple()", tableName));
+            } catch (SQLException e) {
+                assertTrue(e instanceof ByteHouseSQLException);
+            }
+            finally {
+                stmt.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 }

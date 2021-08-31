@@ -14,47 +14,52 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import com.bytedance.bytehouse.annotation.Issue;
-import com.google.common.base.Strings;
-import org.junit.jupiter.api.Test;
-import java.sql.ResultSet;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.bytedance.bytehouse.annotation.Issue;
+import com.google.common.base.Strings;
+import java.sql.ResultSet;
+import org.junit.jupiter.api.Test;
 
 public class IssueReproduceITest extends AbstractITest {
 
     @Test
     @Issue("63")
     public void testIssue63() throws Exception {
+        String databaseName = getDatabaseName();
+        String tableName = databaseName + "." + getTableName();
+
         withStatement(statement -> {
-            int columnNum = 5;
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            String params = Strings.repeat("?, ", columnNum);
-            StringBuilder columnTypes = new StringBuilder();
-            for (int i = 0; i < columnNum; i++) {
-                if (i != 0) {
-                    columnTypes.append(", ");
-                }
-                columnTypes.append("t_").append(i).append(" String");
-            }
-            statement.execute("CREATE TABLE test_db.test_table( " + columnTypes + ")ENGINE=CnchMergeTree() order by tuple()");
-            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table values(" + params.substring(0, params.length() - 2) + ")", pstmt -> {
-                for (int i = 0; i < 100; ++i) {
-                    for (int j = 0; j < columnNum; j++) {
-                        pstmt.setString(j + 1, "String" + j);
+            try {
+                int columnNum = 5;
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                String params = Strings.repeat("?, ", columnNum);
+                StringBuilder columnTypes = new StringBuilder();
+                for (int i = 0; i < columnNum; i++) {
+                    if (i != 0) {
+                        columnTypes.append(", ");
                     }
-                    pstmt.addBatch();
+                    columnTypes.append("t_").append(i).append(" String");
                 }
-                pstmt.executeBatch();
-            });
+                statement.execute(String.format("CREATE TABLE %s ( " + columnTypes + ")ENGINE=CnchMergeTree() order by tuple()", tableName));
+                withPreparedStatement(getConnection(), String.format("INSERT INTO %s values(" + params.substring(0, params.length() - 2) + ")", tableName), pstmt -> {
+                    for (int i = 0; i < 100; ++i) {
+                        for (int j = 0; j < columnNum; j++) {
+                            pstmt.setString(j + 1, "String" + j);
+                        }
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch();
+                });
 
-            ResultSet rs = statement.executeQuery("SELECT count(1) FROM test_db.test_table limit 1");
-            assertTrue(rs.next());
-            assertEquals(100, rs.getInt(1));
-
-            statement.execute("DROP DATABASE test_db");
+                ResultSet rs = statement.executeQuery(String.format("SELECT count(1) FROM %s limit 1", tableName));
+                assertTrue(rs.next());
+                assertEquals(100, rs.getInt(1));
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 }

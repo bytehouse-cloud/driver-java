@@ -14,8 +14,12 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigInteger;
 import java.sql.Array;
@@ -24,8 +28,7 @@ import java.sql.Struct;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class QueryComplexTypeITest extends AbstractITest {
 
@@ -248,41 +251,50 @@ public class QueryComplexTypeITest extends AbstractITest {
     @Test
     public void successfullyEnum8() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table(test Enum8('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            statement.execute("INSERT INTO test_db.test_table VALUES('a')");
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (test Enum8('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-            assertTrue(rs.next());
-            assertEquals("a", rs.getString(1));
-            assertFalse(rs.next());
+                statement.execute(String.format("INSERT INTO %s VALUES('a')", tableName));
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
 
-            statement.execute("DROP DATABASE test_db");
+                assertTrue(rs.next());
+                assertEquals("a", rs.getString(1));
+                assertFalse(rs.next());
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
     @Test
     public void successfullyEnum16() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table(test Enum16('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            statement.execute("INSERT INTO test_db.test_table VALUES('a')");
-            ResultSet rs = statement.executeQuery("SELECT * FROM test_db.test_table");
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (test Enum16('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-            assertTrue(rs.next());
-            assertEquals("a", rs.getString(1));
-            assertFalse(rs.next());
+                statement.execute(String.format("INSERT INTO %s VALUES('a')", tableName));
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
 
-            statement.execute("DROP DATABASE test_db");
+                assertTrue(rs.next());
+                assertEquals("a", rs.getString(1));
+                assertFalse(rs.next());
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
-    // Bug from CNCH side https://jira-sg.bytedance.net/browse/BYT-3310
-    @Ignore
+    @Test
     public void successfullyMap() throws Exception {
         withStatement(statement -> {
             ResultSet rs = statement.executeQuery(

@@ -101,49 +101,59 @@ public class ConnectionParamITest extends AbstractITest {
     @Test
     public void successfullyCompressedInsert() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
 
-            for (int i = 0; i < 30; i++) {
-                assertEquals(1, statement.executeUpdate(String.format("INSERT INTO test_db.test_table VALUES(%d)", i)));
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (x Int32) ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                for (int i = 0; i < 10; i++) {
+                    assertEquals(1, statement.executeUpdate(String.format("INSERT INTO %s VALUES(%d)", tableName, i)));
+                }
+
+                ResultSet rs = statement.executeQuery(String.format("SELECT x FROM %s ORDER BY x", tableName));
+                for (int i = 0; i < 10; i++) {
+                    assertTrue(rs.next());
+                    assertEquals(i, rs.getInt(1));
+                }
+                assertFalse(rs.next());
             }
-
-            ResultSet rs = statement.executeQuery("SELECT x FROM test_db.test_table ORDER BY x");
-            for (int i = 0; i < 30; i++) {
-                assertTrue(rs.next());
-                assertEquals(i, rs.getInt(1));
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
             }
-            assertFalse(rs.next());
-
-            statement.execute("DROP DATABASE IF EXISTS test_db");
         }, "enable_compression", "true");
     }
 
     @Test
     public void successfullyCompressedInsertBatch() throws Exception {
         withStatement(statement -> {
-            statement.execute("DROP DATABASE IF EXISTS test_db");
-            statement.execute("CREATE DATABASE test_db");
-            statement.execute("CREATE TABLE test_db.test_table (x Int32) ENGINE=CnchMergeTree() order by tuple()");
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (x Int32) ENGINE=CnchMergeTree() order by tuple()", tableName));
 
 
-            withPreparedStatement(getConnection(), "INSERT INTO test_db.test_table(x) VALUES(?)", pstmt -> {
-                for (int i = 0; i < 30; i++) {
-                    pstmt.setInt(1, i);
-                    pstmt.addBatch();
+                withPreparedStatement(getConnection(), String.format("INSERT INTO %s(x) VALUES(?)", tableName), pstmt -> {
+                    for (int i = 0; i < 10; i++) {
+                        pstmt.setInt(1, i);
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch();
+                });
+
+                ResultSet rs = statement.executeQuery(String.format("SELECT x FROM %s ORDER BY x", tableName));
+                for (int i = 0; i < 10; i++) {
+                    assertTrue(rs.next());
+                    assertEquals(i, rs.getInt(1));
                 }
-                pstmt.executeBatch();
-            });
-
-            ResultSet rs = statement.executeQuery("SELECT x FROM test_db.test_table ORDER BY x");
-            for (int i = 0; i < 30; i++) {
-                assertTrue(rs.next());
-                assertEquals(i, rs.getInt(1));
+                assertFalse(rs.next());
             }
-            assertFalse(rs.next());
-
-            statement.execute("DROP DATABASE IF EXISTS test_db");
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         }, "enable_compression", "true");
     }
 

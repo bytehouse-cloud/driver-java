@@ -14,13 +14,16 @@
 
 package com.bytedance.bytehouse.jdbc;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests basic functionalities with ByteHouse.
@@ -62,33 +65,42 @@ public class GatewayConnectionITest extends AbstractITest {
 
     @Test
     public void createDatabase_success() throws SQLException {
-        Connection connection = getConnection();
-        Statement stmt = connection.createStatement();
-        assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
-        assertDoesNotThrow(() -> stmt.execute("DROP DATABASE jdbc_test_db"));
-        connection.close();
+        try (Connection connection = getConnection()) {
+            Statement stmt = connection.createStatement();
+            String databaseName = getDatabaseName();
+
+            assertDoesNotThrow(() -> stmt.execute(String.format("CREATE DATABASE %s", databaseName)));
+            assertDoesNotThrow(() -> stmt.execute(String.format("DROP DATABASE %s", databaseName)));
+        }
     }
 
     @Test
     public void createTable_success() throws SQLException {
         try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
-            assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
-            assertDoesNotThrow(() -> {
-                stmt.execute(
-                        "CREATE TABLE IF NOT EXISTS jdbc_test_db.npc_cases\n" +
-                                "(" +
-                                "    year Int16," +
-                                "    npc String," +
-                                "    offence String," +
-                                "    case_no Int32" +
-                                ")" +
-                                "    engine = CnchMergeTree()" +
-                                "    partition by year" +
-                                "    order by year"
-                );
-            });
-            assertDoesNotThrow(() -> stmt.execute("DROP DATABASE jdbc_test_db"));
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                assertDoesNotThrow(() -> stmt.execute(String.format("CREATE DATABASE %s", databaseName)));
+                assertDoesNotThrow(() -> {
+                    stmt.execute(
+                            String.format("CREATE TABLE %s\n" +
+                                    "(" +
+                                    "    year Int16," +
+                                    "    npc String," +
+                                    "    offence String," +
+                                    "    case_no Int32" +
+                                    ")" +
+                                    "    engine = CnchMergeTree()" +
+                                    "    partition by year" +
+                                    "    order by year", tableName)
+                    );
+                });
+            }
+            finally {
+                assertDoesNotThrow(() -> stmt.execute(String.format("DROP DATABASE %s", databaseName)));
+            }
         }
     }
 
@@ -96,36 +108,42 @@ public class GatewayConnectionITest extends AbstractITest {
     public void insert_success() throws SQLException {
         try (Connection connection = getConnection()) {
             Statement stmt = connection.createStatement();
-            assertDoesNotThrow(() -> stmt.execute("CREATE DATABASE IF NOT EXISTS jdbc_test_db"));
-            assertDoesNotThrow(() -> {
-                stmt.execute(
-                        "CREATE TABLE IF NOT EXISTS jdbc_test_db.npc_cases\n" +
-                                "(" +
-                                "    year Int16," +
-                                "    npc String," +
-                                "    offence String," +
-                                "    case_no Int32" +
-                                ")" +
-                                "    engine = CnchMergeTree()" +
-                                "    partition by year" +
-                                "    order by year"
+
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+            try {
+                assertDoesNotThrow(() -> stmt.execute(String.format("CREATE DATABASE %s", databaseName)));
+                assertDoesNotThrow(() -> {
+                    stmt.execute(
+                            String.format("CREATE TABLE %s\n" +
+                                    "(" +
+                                    "    year Int16," +
+                                    "    npc String," +
+                                    "    offence String," +
+                                    "    case_no Int32" +
+                                    ")" +
+                                    "    engine = CnchMergeTree()" +
+                                    "    partition by year" +
+                                    "    order by year", tableName)
+                    );
+                });
+
+                int numUpdated = stmt.executeUpdate(
+                        String.format("INSERT INTO %s VALUES " +
+                                "(2011,'Central firemen Division - Total','Unlicensed Moneylending',242)", tableName)
                 );
-            });
+                assertEquals(1, numUpdated);
 
-            int numUpdated = stmt.executeUpdate(
-                    "INSERT INTO jdbc_test_db.npc_cases VALUES " +
-                            "(2011,'Central firemen Division - Total','Unlicensed Moneylending',242)"
-            );
-            assertEquals(1, numUpdated);
-
-            ResultSet rs = stmt.executeQuery("SELECT * FROM jdbc_test_db.npc_cases");
-            assertTrue(rs.next());
-            assertEquals(2011, rs.getInt(1));
-            assertEquals("Central firemen Division - Total", rs.getString(2));
-            assertEquals("Unlicensed Moneylending", rs.getString(3));
-            assertEquals(242, rs.getInt(4));
-
-            assertDoesNotThrow(() -> stmt.execute("DROP DATABASE jdbc_test_db"));
+                ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s", tableName));
+                assertTrue(rs.next());
+                assertEquals(2011, rs.getInt(1));
+                assertEquals("Central firemen Division - Total", rs.getString(2));
+                assertEquals("Unlicensed Moneylending", rs.getString(3));
+                assertEquals(242, rs.getInt(4));
+            }
+            finally {
+                assertDoesNotThrow(() -> stmt.execute(String.format("DROP DATABASE %s", databaseName)));
+            }
         }
     }
 }
