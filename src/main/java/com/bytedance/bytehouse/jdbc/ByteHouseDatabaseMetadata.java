@@ -736,9 +736,11 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                                              Values are "SYSTEM", "USER", "DERIVED". (may be null)
          */
 
-        return getTablesForBytehouse(schemaPattern, tableNamePattern, types);
-        // TODO: 16/8/21 bring back support for cnch below
-        // return getTablesForCnch(schemaPattern, tableNamePattern, types);
+        if (this.connection.cfg().isCnch()) {
+            return getTablesForCnch(schemaPattern, tableNamePattern, types);
+        } else {
+            return getTablesForBytehouse(schemaPattern, tableNamePattern, types);
+        }
     }
 
     private ByteHouseResultSet getTablesForBytehouse(
@@ -825,7 +827,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String tableNamePattern,
             final String[] types
     ) throws SQLException {
-        String sql = "select database, name, engine from system.cnch_tables where 1=1";
+        String sql = "select database, name from system.cnch_tables where 1=1";
         if (schemaPattern != null) {
             sql += " and database like '" + schemaPattern + "'";
         }
@@ -868,24 +870,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                 row.add(BHConstants.DEFAULT_CATALOG);
                 row.add(result.getString(1));
                 row.add(result.getString(2));
-                final String type, e = result.getString(3).intern();
-                switch (e) {
-                    case "View":
-                    case "MaterializedView":
-                    case "Merge":
-                    case "Distributed":
-                    case "Null":
-                        type = "VIEW"; // some kind of view
-                        break;
-                    case "Set":
-                    case "Join":
-                    case "Buffer":
-                        type = "OTHER"; // not a real table
-                        break;
-                    default:
-                        type = "TABLE";
-                        break;
-                }
+                String type = "TABLE";
                 row.add(type);
                 for (int i = 3; i < 9; i++) {
                     row.add(null);
@@ -914,7 +899,11 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String catalog,
             final String schemaPattern
     ) throws SQLException {
-        return getSchemasForBytehouse(catalog, schemaPattern);
+        if (this.connection.cfg().isCnch()) {
+            return getSchemasForCnch(catalog, schemaPattern);
+        } else {
+            return getSchemasForBytehouse(catalog, schemaPattern);
+        }
     }
 
     private ResultSet getSchemasForBytehouse(
@@ -1004,7 +993,11 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String tableNamePattern,
             final String columnNamePattern
     ) throws SQLException {
-        return getColumnsForBytehouse(schemaPattern, tableNamePattern, columnNamePattern);
+        if (this.connection.cfg().isCnch()) {
+            return getColumnsForCnch(schemaPattern, tableNamePattern, columnNamePattern);
+        } else {
+            return getColumnsForBytehouse(schemaPattern, tableNamePattern, columnNamePattern);
+        }
     }
 
     private ByteHouseResultSet getColumnsForBytehouse(
@@ -1192,7 +1185,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             query = new StringBuilder(
                     "SELECT database, table, name, type, default_type, default_expression ");
         }
-        query.append("FROM system.columns ");
+        query.append("FROM system.cnch_columns ");
         final List<String> predicates = new ArrayList<>();
         if (schemaPattern != null) {
             predicates.add("database LIKE '" + schemaPattern + "' ");

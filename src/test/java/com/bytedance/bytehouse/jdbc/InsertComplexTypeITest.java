@@ -118,7 +118,8 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    @Test
+    // TODO: https://jira-sg.bytedance.net/browse/BYT-3499
+    @Ignore
     public void successfullyDateTimeDataType() throws Exception {
         withStatement(statement -> {
             String databaseName = getDatabaseName();

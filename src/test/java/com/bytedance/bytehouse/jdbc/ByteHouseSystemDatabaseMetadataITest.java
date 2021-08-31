@@ -14,7 +14,6 @@
 package com.bytedance.bytehouse.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,7 +27,7 @@ import java.sql.RowIdLifetime;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD")
-class ByteHouseDatabaseMetadataITest extends AbstractITest {
+class ByteHouseSystemDatabaseMetadataITest extends AbstractITest {
 
     @Test
     void allProceduresAreCallable() throws Exception {

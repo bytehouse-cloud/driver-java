@@ -90,6 +90,8 @@ shadowJar {
 }
 
 tasks.named("test") {
+    environment "CONSUL_HTTP_HOST", "10.231.243.98"
+    environment "CONSUL_HTTP_PORT", "2280"
     useJUnitPlatform {}
 }
 

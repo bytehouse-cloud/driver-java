@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
@@ -32,7 +33,13 @@ public class AbstractITest implements Serializable {
     private static final String PORT = "PORT";
     private static final String USER = "USER";
 
+    private static final String SERVER = "server";
+
     private Properties TestConfigs;
+    private Properties EnvConfigs;
+    private DataSource dataSource;
+    private String lastUsedDatabaseName;
+    private String lastUsedTableName;
 
     protected String getHost() {
         return TestConfigs.getProperty(HOST);
@@ -46,22 +53,73 @@ public class AbstractITest implements Serializable {
         return String.format("jdbc:bytehouse://%s:%s", getHost(), getPort());
     }
 
+    protected String getCnchUrl() {
+        return "jdbc:cnch:///dataexpress?secure=false";
+    }
+
     protected String getUsername() {
         return TestConfigs.getProperty(USER);
     }
 
     protected String getDatabaseName() {
-        return "jdbc_test_db_" + generateRandomString();
+        lastUsedDatabaseName = "jdbc_test_db_" + generateRandomString();
+        return lastUsedDatabaseName;
     }
 
     protected String getTableName() {
-        return "jdbc_test_db_" + generateRandomString();
+        lastUsedTableName = "jdbc_test_db_" + generateRandomString();
+        return lastUsedTableName;
+    }
+
+    protected String getServerName() {
+        return EnvConfigs.getProperty(SERVER);
+    }
+
+    protected DataSource getDataSource() {
+        return dataSource;
+    }
+
+    protected void setDataSource(DataSource ds) {
+        this.dataSource = ds;
     }
 
     protected Connection getConnection(Object... params) throws SQLException {
         loadTestConfigs(params);
-        final DataSource dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
-        return dataSource.getConnection();
+
+        if (getServerName().equals("gateway")) {
+            final DataSource dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
+            setDataSource(dataSource);
+        }
+        else if (getServerName().equals("cnch")) {
+            final DataSource dataSource = new CnchRoutingDataSource(getCnchUrl(), TestConfigs);
+            setDataSource(dataSource);
+        }
+        else {
+            throw new SQLException("Server is not supported");
+        }
+
+        return getDataSource().getConnection();
+    }
+
+    protected String getUuid(Connection connection, String database, String table) throws SQLException {
+        final ResultSet resultSet = connection
+                .createStatement()
+                .executeQuery(String.format("select uuid from system.cnch_tables where database = '%s' and name = '%s'", database, table));
+
+        if (resultSet.next()) {
+            return resultSet.getString("uuid");
+        } else {
+            throw new SQLException("Failed to get uuid from resultset");
+        }
+    }
+
+    protected Statement getStatement(Statement statement) throws SQLException {
+        if (getServerName().equals("cnch")) {
+            String uuid = getUuid(statement.getConnection(), lastUsedDatabaseName, lastUsedTableName);
+            CnchRoutingDataSource dataSource = (CnchRoutingDataSource) getDataSource();
+            statement = dataSource.getConnection(uuid).createStatement();
+        }
+        return statement;
     }
 
     protected ByteHouseDataSource getDataSource(String url, Object... params) throws SQLException {
@@ -71,21 +129,24 @@ public class AbstractITest implements Serializable {
     }
 
     private void loadTestConfigs(Object... params) {
-        Properties envProperty = new Properties();
+        EnvConfigs = new Properties();
+        TestConfigs = new Properties();
         try (InputStream input = Files.newInputStream(Paths
                 .get("src/test/resources/env.properties"))) {
-            envProperty.load(input);
+            EnvConfigs.load(input);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
 
-        String envName = envProperty.getProperty("env");
-        try (InputStream input = Files.newInputStream(Paths
-                .get("src/test/resources/" + envName + "-config.properties"))) {
-            TestConfigs = new Properties();
-            TestConfigs.load(input);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+        if (getServerName().equals("gateway")) {
+            String envName = EnvConfigs.getProperty("env");
+
+            try (InputStream input = Files.newInputStream(Paths
+                    .get("src/test/resources/" + envName + "-config.properties"))) {
+                TestConfigs.load(input);
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
         }
 
         for (int i = 0; i + 1 < params.length; i = i + 2) {

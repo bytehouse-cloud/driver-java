@@ -26,17 +26,18 @@ public class ResultSetMetadataITest extends AbstractITest {
     public void successfullyMetaData() throws Exception {
         withStatement(statement -> {
             String databaseName = getDatabaseName();
-            String tableName = databaseName + "." + getTableName();
+            String tableName = getTableName();
+            String resourceName = databaseName + "." + tableName;
 
             try {
                 statement.execute(String.format("CREATE DATABASE %s", databaseName));
-                statement.execute(String.format("CREATE TABLE %s (a UInt8, b UInt64, c FixedString(3))ENGINE=CnchMergeTree() order by tuple()", tableName));
+                statement.execute(String.format("CREATE TABLE %s (a UInt8, b UInt64, c FixedString(3))ENGINE=CnchMergeTree() order by tuple()", resourceName));
 
-                statement.executeQuery(String.format("INSERT INTO %s VALUES (1, 2, '4' )", tableName));
-                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
+                statement.executeQuery(String.format("INSERT INTO %s VALUES (1, 2, '4' )", resourceName));
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", resourceName));
                 ResultSetMetaData metadata = rs.getMetaData();
 
-                assertEquals("test_table", metadata.getTableName(1));
+                assertEquals(tableName, metadata.getTableName(1));
                 assertEquals("default", metadata.getCatalogName(1));
 
                 assertEquals(3, metadata.getPrecision(1));
