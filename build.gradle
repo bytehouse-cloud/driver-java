@@ -17,6 +17,14 @@ application {
     mainClassName = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "NULL"
 }
 
+sourceSets {
+    benchmark {
+        java.srcDirs = ['benchmark/java']
+        resources.srcDirs = ['benchmark/resources']
+        compileClasspath += sourceSets.main.runtimeClasspath
+    }
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true
@@ -41,8 +49,13 @@ compileJava {
     targetCompatibility = '1.8'
 }
 
+compileTestJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
+
 repositories {
-    mavenLocal()
+    mavenCentral()
     maven {
         url "https://maven.byted.org/repository/public"
     }
@@ -75,6 +88,15 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter:1.15.1"
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
 
+    benchmarkImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
+    benchmarkImplementation 'org.testcontainers:clickhouse:1.15.1'
+    benchmarkImplementation "com.bytedance:commons:0.0.14" // consul service discovery
+    benchmarkImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    benchmarkImplementation "com.google.guava:guava:16.0.1"
+    benchmarkImplementation "org.testcontainers:junit-jupiter:1.15.1"
+    benchmarkImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
+    benchmarkImplementation 'org.openjdk.jmh:jmh-core:1.27'
+    benchmarkAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
 }
 
 configurations {
@@ -119,3 +141,11 @@ pmd {
     ignoreFailures = true
 }
 
+task benchmark(type: JavaExec, dependsOn: benchmarkClasses) {
+    environment "CONSUL_HTTP_HOST", "10.231.243.98"
+    environment "CONSUL_HTTP_PORT", "2280"
+    main = 'com.bytedance.bytehouse.Benchmark'
+    classpath = sourceSets.benchmark.compileClasspath + sourceSets.benchmark.runtimeClasspath
+}
+
+classes.finalizedBy(benchmarkClasses)
