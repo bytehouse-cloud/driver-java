@@ -1,5 +1,5 @@
-Benchmark                                               (batchSize)  (rowSizeInBytes)  Mode  Cnt       Score   Error  Units
-SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert          500                20  avgt          951.191          ms/op
-SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert         5000                20  avgt         3851.203          ms/op
-SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert        50000                20  avgt        25079.305          ms/op
-SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert       500000                20  avgt       296251.610          ms/op
+Benchmark                                               (batchSize)  (rowSizeInBytes)  Mode  Cnt      Score   Error  Units
+SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert          500                20  avgt          94.889          ms/op
+SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert         5000                20  avgt         636.069          ms/op
+SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert        50000                20  avgt        5033.588          ms/op
+SampleBatchInsertIBenchmark.benchmarkSampleBatchInsert       500000                20  avgt       50947.249          ms/op

@@ -78,6 +78,13 @@ public class AbstractIBenchmark {
         String createDatabaseSql = "CREATE DATABASE " + databaseName;
         statement.execute(dropDatabaseSql);
         statement.execute(createDatabaseSql);
+
+        if (getServerName().equals(CLICKHOUSE)) {
+            createTableSql += "Engine = Log";
+        }
+        else {
+            createTableSql += "ENGINE=CnchMergeTree() order by tuple()";
+        }
         statement.execute(createTableSql);
 
         if (getServerName().equals(CNCH)) {
@@ -113,6 +120,7 @@ public class AbstractIBenchmark {
             dataSource = new CnchRoutingDataSource(getUrl(), TestConfigs);
         }
         else if (getServerName().equals(CLICKHOUSE)) {
+            dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
             //TODO: Throwing Exception Error sql: select timezone()
         }
         else {
@@ -156,8 +164,8 @@ public class AbstractIBenchmark {
             case CLICKHOUSE:
                 extractContainerInfo();
                 StringBuilder sb = new StringBuilder();
-                int port = container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
-                sb.append("jdbc:clickhouse://").append(container.getHost()).append(":").append(port);
+                int port = CK_PORT;
+                sb.append("jdbc:bytehouse://").append(container.getHost()).append(":").append(port);
                 if (StrUtil.isNotEmpty(CLICKHOUSE_DB)) {
                     sb.append("/").append(container.getDatabaseName());
                 }

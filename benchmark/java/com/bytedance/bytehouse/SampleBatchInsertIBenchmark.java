@@ -39,8 +39,8 @@ public class SampleBatchInsertIBenchmark extends AbstractIBenchmark {
     public void setup() throws Exception {
         databaseName = "sample_insert_db";
         tableName = "sample_insert_table";
-        String createTableSql = String.format("CREATE TABLE %s.%s(id Int, name String, location String, age UInt8)"
-                + " ENGINE=CnchMergeTree() order by tuple()", databaseName, tableName);
+        String createTableSql = String.format("CREATE TABLE %s.%s(id Int, name String, location String, age UInt8)",
+                databaseName, tableName);
         init(databaseName, tableName, createTableSql);
 
         String insertTableSql = String.format("INSERT INTO %s.%s VALUES (?, 'Rafsan', 'Singapore', 10)", databaseName, tableName);
