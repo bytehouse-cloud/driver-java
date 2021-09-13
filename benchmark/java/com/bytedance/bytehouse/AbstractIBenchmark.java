@@ -79,13 +79,15 @@ public class AbstractIBenchmark {
         statement.execute(dropDatabaseSql);
         statement.execute(createDatabaseSql);
 
-        if (getServerName().equals(CLICKHOUSE)) {
-            createTableSql += "Engine = Log";
+        if (!createTableSql.equals("")) {
+            if (getServerName().equals(CLICKHOUSE)) {
+                createTableSql += "Engine = Log";
+            }
+            else {
+                createTableSql += "ENGINE=CnchMergeTree() order by tuple()";
+            }
+            statement.execute(createTableSql);
         }
-        else {
-            createTableSql += "ENGINE=CnchMergeTree() order by tuple()";
-        }
-        statement.execute(createTableSql);
 
         if (getServerName().equals(CNCH)) {
             uuid = getUuid(connection, databaseName, tableName);

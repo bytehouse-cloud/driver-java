@@ -1,0 +1,16 @@
+Benchmark                                                    (batchSize)  (columnNum)  Mode  Cnt      Score   Error  Units
+InsertClickHouseBenchmark.benchInsertNative                       200000           20  avgt        6739.486          ms/op
+InsertClickHouseBenchmark.benchInsertNative                       200000           50  avgt        7860.647          ms/op
+InsertClickHouseBenchmark.benchInsertNative                       500000           20  avgt        8776.475          ms/op
+InsertClickHouseBenchmark.benchInsertNative                       500000           50  avgt        7651.701          ms/op
+WideColumnDoubleInsertClickHouseBenchmark.benchInsertNative       200000           20  avgt       10118.288          ms/op
+WideColumnDoubleInsertClickHouseBenchmark.benchInsertNative       200000           50  avgt       11399.258          ms/op
+WideColumnDoubleInsertClickHouseBenchmark.benchInsertNative       500000           20  avgt       11099.866          ms/op
+WideColumnIntInsertClickHouseBenchmark.benchInsertNative          200000           20  avgt        5700.570          ms/op
+WideColumnIntInsertClickHouseBenchmark.benchInsertNative          200000           50  avgt        6944.155          ms/op
+WideColumnIntInsertClickHouseBenchmark.benchInsertNative          500000           20  avgt       14208.122          ms/op
+WideColumnIntInsertClickHouseBenchmark.benchInsertNative          500000           50  avgt       13456.793          ms/op
+WideColumnStringInsertClickHouseBenchmark.benchInsertNative       200000           20  avgt        7997.133          ms/op
+WideColumnStringInsertClickHouseBenchmark.benchInsertNative       200000           50  avgt        8411.515          ms/op
+WideColumnStringInsertClickHouseBenchmark.benchInsertNative       500000           20  avgt        8604.535          ms/op
+WideColumnStringInsertClickHouseBenchmark.benchInsertNative       500000           50  avgt       12082.474          ms/op

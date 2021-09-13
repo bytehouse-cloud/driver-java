@@ -23,6 +23,12 @@ sourceSets {
         resources.srcDirs = ['benchmark/resources']
         compileClasspath += sourceSets.main.runtimeClasspath
     }
+
+    clickhouseBenchmark {
+        java.srcDirs = ['benchmark/java']
+        resources.srcDirs = ['benchmark/resources']
+        compileClasspath += sourceSets.main.runtimeClasspath
+    }
 }
 
 jacocoTestReport {
@@ -97,6 +103,16 @@ dependencies {
     benchmarkImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
     benchmarkImplementation 'org.openjdk.jmh:jmh-core:1.27'
     benchmarkAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
+
+    clickhouseBenchmarkImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
+    clickhouseBenchmarkImplementation 'org.testcontainers:clickhouse:1.15.1'
+    clickhouseBenchmarkImplementation "com.bytedance:commons:0.0.14" // consul service discovery
+    clickhouseBenchmarkImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    clickhouseBenchmarkImplementation "com.google.guava:guava:16.0.1"
+    clickhouseBenchmarkImplementation "org.testcontainers:junit-jupiter:1.15.1"
+    clickhouseBenchmarkImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
+    clickhouseBenchmarkImplementation 'org.openjdk.jmh:jmh-core:1.27'
+    clickhouseBenchmarkAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
 }
 
 configurations {
@@ -146,6 +162,11 @@ task benchmark(type: JavaExec, dependsOn: benchmarkClasses) {
     environment "CONSUL_HTTP_PORT", "2280"
     main = 'com.bytedance.bytehouse.Benchmark'
     classpath = sourceSets.benchmark.compileClasspath + sourceSets.benchmark.runtimeClasspath
+}
+
+task clickhouseBenchmark(type: JavaExec, dependsOn: clickhouseBenchmarkClasses) {
+    main = 'com.bytedance.bytehouse.clickhouse.ClickHouseBenchmark'
+    classpath = sourceSets.clickhouseBenchmark.compileClasspath + sourceSets.clickhouseBenchmark.runtimeClasspath
 }
 
 classes.finalizedBy(benchmarkClasses)
