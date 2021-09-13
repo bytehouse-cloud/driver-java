@@ -15,7 +15,6 @@ package com.bytedance.bytehouse;
 
 import com.bytedance.bytehouse.jdbc.ByteHouseDataSource;
 import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
-import com.bytedance.bytehouse.misc.StrUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -35,7 +34,6 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.junit.jupiter.Container;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -51,15 +49,11 @@ public class AbstractIBenchmark {
     private static final String POD = "pod";
     private static final String ENV = "env";
     private static final String SERVER = "server";
+    private static final String DRIVER = "driver";
+    private static final String BYTEHOUSE = "bytehouse";
 
     private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:21.3";
-    private static final String CLICKHOUSE_USER = "default";
-    private static final String CLICKHOUSE_PASSWORD = "";
-    private static final String CLICKHOUSE_DB = "";
-
-    protected static String CK_HOST;
-    protected static String CK_IP;
-    protected static int CK_PORT;
+    private static final ClickHouseContainer container;
 
     private Properties EnvConfigs;
     private Properties TestConfigs;
@@ -68,6 +62,11 @@ public class AbstractIBenchmark {
     private DataSource dataSource;
     private Statement statement;
     private String uuid;
+
+    static {
+        container = new ClickHouseContainer(CLICKHOUSE_IMAGE);
+        container.start();
+    }
 
     protected void init(String databaseName, String tableName, String createTableSql) throws SQLException {
         loadTestConfigs();
@@ -118,15 +117,20 @@ public class AbstractIBenchmark {
     }
 
     private Connection getNewConnection() throws SQLException {
-        if (getServerName().equals(CNCH)) {
-            dataSource = new CnchRoutingDataSource(getUrl(), TestConfigs);
+        if (getDriverName().equals(CLICKHOUSE)) {
+            dataSource = new com.github.housepower.jdbc.BalancedClickhouseDataSource(getUrl(), TestConfigs);
         }
-        else if (getServerName().equals(CLICKHOUSE)) {
-            dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
-            //TODO: Throwing Exception Error sql: select timezone()
-        }
-        else {
-            dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
+        else if (getDriverName().equals(BYTEHOUSE)) {
+            if (getServerName().equals(CNCH)) {
+                dataSource = new CnchRoutingDataSource(getUrl(), TestConfigs);
+            }
+            else if (getServerName().equals(CLICKHOUSE)) {
+                dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
+                //TODO: Throwing Exception Error sql: select timezone()
+            }
+            else {
+                dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
+            }
         }
         return dataSource.getConnection();
     }
@@ -164,43 +168,19 @@ public class AbstractIBenchmark {
             case CNCH:
                 return "jdbc:cnch:///dataexpress?secure=false";
             case CLICKHOUSE:
-                extractContainerInfo();
-                StringBuilder sb = new StringBuilder();
-                int port = CK_PORT;
-                sb.append("jdbc:bytehouse://").append(container.getHost()).append(":").append(port);
-                if (StrUtil.isNotEmpty(CLICKHOUSE_DB)) {
-                    sb.append("/").append(container.getDatabaseName());
-                }
-                sb.append("user=").append(container.getUsername());
-                if (!StrUtil.isBlank(CLICKHOUSE_PASSWORD)) {
-                    sb.append("&password=").append(container.getPassword());
-                }
-                return sb.toString();
+                return "jdbc:" + getDriverName() + "://" + container.getHost() + ":" + container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
             default:
                 return String.format("jdbc:bytehouse://%s:%s", getHost(), getPort());
 
         }
     }
 
-    @Container
-    private static ClickHouseContainer container = (ClickHouseContainer) new ClickHouseContainer(CLICKHOUSE_IMAGE)
-            .withEnv("CLICKHOUSE_USER", CLICKHOUSE_USER)
-            .withEnv("CLICKHOUSE_PASSWORD", CLICKHOUSE_PASSWORD)
-            .withEnv("CLICKHOUSE_DB", CLICKHOUSE_DB);
-
-    public static void extractContainerInfo() {
-        ClickHouseContainer container = (ClickHouseContainer) new ClickHouseContainer(CLICKHOUSE_IMAGE)
-                .withEnv("CLICKHOUSE_USER", CLICKHOUSE_USER)
-                .withEnv("CLICKHOUSE_PASSWORD", CLICKHOUSE_PASSWORD)
-                .withEnv("CLICKHOUSE_DB", CLICKHOUSE_DB);
-        container.start();
-        CK_HOST = container.getHost();
-        CK_IP = container.getContainerIpAddress();
-        CK_PORT = container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
-    }
-
     private String getServerName() {
         return EnvConfigs.getProperty(SERVER);
+    }
+
+    private String getDriverName() {
+        return EnvConfigs.getProperty(DRIVER);
     }
 
     private void loadTestConfigs() {

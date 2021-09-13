@@ -94,6 +94,7 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter:1.15.1"
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
 
+    benchmarkImplementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
     benchmarkImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
     benchmarkImplementation 'org.testcontainers:clickhouse:1.15.1'
     benchmarkImplementation "com.bytedance:commons:0.0.14" // consul service discovery
@@ -104,6 +105,7 @@ dependencies {
     benchmarkImplementation 'org.openjdk.jmh:jmh-core:1.27'
     benchmarkAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
 
+    clickhouseBenchmarkImplementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
     clickhouseBenchmarkImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
     clickhouseBenchmarkImplementation 'org.testcontainers:clickhouse:1.15.1'
     clickhouseBenchmarkImplementation "com.bytedance:commons:0.0.14" // consul service discovery
