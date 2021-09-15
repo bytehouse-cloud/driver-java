@@ -9,6 +9,7 @@ plugins {
     id 'maven-publish'
     id 'java'
 }
+
 java {
     withSourcesJar()
 }
@@ -25,6 +26,12 @@ sourceSets {
     }
 
     clickhouseBenchmark {
+        java.srcDirs = ['benchmark/java']
+        resources.srcDirs = ['benchmark/resources']
+        compileClasspath += sourceSets.main.runtimeClasspath
+    }
+
+    tpcdsBenchmark {
         java.srcDirs = ['benchmark/java']
         resources.srcDirs = ['benchmark/resources']
         compileClasspath += sourceSets.main.runtimeClasspath
@@ -86,6 +93,7 @@ dependencies {
     implementation "org.slf4j:slf4j-simple:1.7.30"
     implementation "com.google.code.findbugs:jsr305:3.0.2"
     implementation 'com.github.RoaringBitmap.RoaringBitmap:RoaringBitmap:0.9.15'
+    implementation 'com.opencsv:opencsv:5.5'
     api "com.bytedance:commons:0.0.14" // consul service discovery
 
     testImplementation "org.mockito:mockito-core:3.6.28"
@@ -115,6 +123,17 @@ dependencies {
     clickhouseBenchmarkImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
     clickhouseBenchmarkImplementation 'org.openjdk.jmh:jmh-core:1.27'
     clickhouseBenchmarkAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
+
+    tpcdsBenchmarkImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
+    tpcdsBenchmarkImplementation 'org.testcontainers:clickhouse:1.15.1'
+    tpcdsBenchmarkImplementation "com.bytedance:commons:0.0.14" // consul service discovery
+    tpcdsBenchmarkImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    tpcdsBenchmarkImplementation "com.google.guava:guava:16.0.1"
+    tpcdsBenchmarkImplementation "org.testcontainers:junit-jupiter:1.15.1"
+    tpcdsBenchmarkImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
+    tpcdsBenchmarkImplementation 'org.openjdk.jmh:jmh-core:1.27'
+    tpcdsBenchmarkImplementation 'com.opencsv:opencsv:5.5'
+    tpcdsBenchmarkAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
 }
 
 configurations {
@@ -169,6 +188,13 @@ task benchmark(type: JavaExec, dependsOn: benchmarkClasses) {
 task clickhouseBenchmark(type: JavaExec, dependsOn: clickhouseBenchmarkClasses) {
     main = 'com.bytedance.bytehouse.clickhouse.ClickHouseBenchmark'
     classpath = sourceSets.clickhouseBenchmark.compileClasspath + sourceSets.clickhouseBenchmark.runtimeClasspath
+}
+
+task tpcdsBenchmark(type: JavaExec, dependsOn: benchmarkClasses) {
+    environment "CONSUL_HTTP_HOST", "10.231.243.98"
+    environment "CONSUL_HTTP_PORT", "2280"
+    main = 'com.bytedance.bytehouse.tpcds.TpcdsBenchmarkRunner'
+    classpath = sourceSets.benchmark.compileClasspath + sourceSets.benchmark.runtimeClasspath
 }
 
 classes.finalizedBy(benchmarkClasses)

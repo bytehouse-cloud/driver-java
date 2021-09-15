@@ -24,7 +24,7 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.infra.Blackhole;
 
 @BenchmarkMode(Mode.AverageTime)
-public class SampleBatchInsertIBenchmark extends AbstractIBenchmark {
+public class SampleBatchInsertIBenchmark extends AbstractBenchmark {
     private String databaseName;
     private String tableName;
     private PreparedStatement preparedStatement;

@@ -38,7 +38,7 @@ import org.testcontainers.containers.ClickHouseContainer;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
-public class AbstractIBenchmark {
+public class AbstractBenchmark {
     private static final String HOST = "HOST";
     private static final String PORT = "PORT";
 
