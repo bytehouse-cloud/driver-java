@@ -171,8 +171,6 @@ public class BatchInsertITest extends AbstractITest {
 
     @Test
     public void successfullyBatchInsertArray() throws Exception {
-        System.setProperty("illegal-access", "allow");
-
         withStatement(statement -> {
             String databaseName = getDatabaseName();
             String tableName = databaseName + "." + getTableName();
@@ -197,7 +195,7 @@ public class BatchInsertITest extends AbstractITest {
 
                     assertBatchInsertResult(pstmt.executeBatch(), insertBatchSize);
 
-                    ResultSet rs = statement.executeQuery(String.format("select * from test_db.test", tableName));
+                    ResultSet rs = statement.executeQuery(String.format("select * from %s", tableName));
                     while (rs.next()) {
                         assertArrayEquals(array0.toArray(), (Object[]) rs.getArray(1).getArray());
                         assertArrayEquals(array1.toArray(), (Object[]) rs.getArray(2).getArray());
