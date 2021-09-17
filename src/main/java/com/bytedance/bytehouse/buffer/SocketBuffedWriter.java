@@ -13,6 +13,7 @@
  */
 package com.bytedance.bytehouse.buffer;
 
+import com.bytedance.bytehouse.settings.BHConstants;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -23,12 +24,22 @@ import java.net.Socket;
 public class SocketBuffedWriter implements BuffedWriter {
 
     private final OutputStream out;
+    private final int capacity;
+    private final byte[] writtenBuf;
+    private int position;
 
     /**
      * constructor.
      */
     public SocketBuffedWriter(final Socket socket) throws IOException {
+        this(BHConstants.SOCKET_SEND_BUFFER_BYTES, socket);
+    }
+
+    public SocketBuffedWriter(final int capacity, final Socket socket) throws IOException {
+        this.capacity = capacity;
         this.out = socket.getOutputStream();
+        this.writtenBuf = new byte[capacity];
+        this.position = 0;
     }
 
     /**
@@ -36,7 +47,10 @@ public class SocketBuffedWriter implements BuffedWriter {
      */
     @Override
     public void writeBinary(final byte byt) throws IOException {
-        out.write(byt);
+        if (position == capacity) {
+            flushToTarget(true);
+        }
+        writtenBuf[position++] = byt;
     }
 
     /**
@@ -44,7 +58,7 @@ public class SocketBuffedWriter implements BuffedWriter {
      */
     @Override
     public void writeBinary(final byte[] bytes) throws IOException {
-        out.write(bytes);
+        writeBinary(bytes, 0, bytes.length);
     }
 
     /**
@@ -53,10 +67,21 @@ public class SocketBuffedWriter implements BuffedWriter {
     @Override
     public void writeBinary(
             final byte[] bytes,
-            final int offset,
-            final int length
+            int offset,
+            int length
     ) throws IOException {
-        out.write(bytes, offset, length);
+        while (remaining() < length) {
+            final int num = remaining();
+            System.arraycopy(bytes, offset, writtenBuf, position, num);
+            position += num;
+
+            flushToTarget(true);
+            offset += num;
+            length -= num;
+        }
+
+        System.arraycopy(bytes, offset, writtenBuf, position, length);
+        position += length;
     }
 
     /**
@@ -64,6 +89,12 @@ public class SocketBuffedWriter implements BuffedWriter {
      */
     @Override
     public void flushToTarget(final boolean force) throws IOException {
+        out.write(writtenBuf, 0, position);
         out.flush();
+        this.position = 0;
+    }
+
+    private int remaining() {
+        return capacity - position;
     }
 }

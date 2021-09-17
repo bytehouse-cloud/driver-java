@@ -24,35 +24,45 @@ import java.util.List;
  */
 public class ByteArrayWriter implements BuffedWriter {
 
-    private final int blockSize;
+    private final List<byte[]> byteBufferList = new LinkedList<>();
 
-    private final List<ByteBuffer> byteBufferList = new LinkedList<>();
+    private final int byteBufferCapacity;
 
-    private ByteBuffer buffer;
+    private int byteBufferCurrentSize;
+
+    private int byteBufferPtr;
+
+    private byte[] byteBuffer;
+
+    private boolean byteBufferMaxSizeReached;
 
     /**
      * Create a {@link ByteBuffer} with block size.
      */
-    public ByteArrayWriter(final int blockSizeInByte) {
-        this.blockSize = blockSizeInByte;
-        this.buffer = ByteBuffer.allocate(blockSizeInByte);
-        this.byteBufferList.add(buffer);
+    public ByteArrayWriter(final int byteBufferCapacity) {
+        this.byteBufferCapacity = byteBufferCapacity;
+        this.byteBufferCurrentSize = 1;
+        this.byteBufferPtr = 0;
+        this.byteBuffer = new byte[byteBufferCurrentSize];
+        this.byteBufferMaxSizeReached = false;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void writeBinary(final byte byt) throws IOException {
-        buffer.put(byt);
-        flushToTarget(false);
+    public void writeBinary(final byte byt) {
+        if (remaining() == 0) {
+            resizeByteArray();
+        }
+        byteBuffer[byteBufferPtr++] = byt;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void writeBinary(final byte[] bytes) throws IOException {
+    public void writeBinary(final byte[] bytes) {
         writeBinary(bytes, 0, bytes.length);
     }
 
@@ -60,24 +70,18 @@ public class ByteArrayWriter implements BuffedWriter {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("PMD.AvoidReassigningParameters")
-    public void writeBinary(
-            final byte[] bytes,
-            int offset,
-            int length
-    ) throws IOException {
-
-        while (buffer.remaining() < length) {
-            final int num = buffer.remaining();
-            buffer.put(bytes, offset, num);
-            flushToTarget(true);
-
+    public void writeBinary(final byte[] bytes, int offset, int length) {
+        while (remaining() < length) {
+            final int num = remaining();
+            System.arraycopy(bytes, offset, byteBuffer, byteBufferPtr, num);
+            byteBufferPtr += num;
             offset += num;
             length -= num;
+            resizeByteArray();
         }
 
-        buffer.put(bytes, offset, length);
-        flushToTarget(false);
+        System.arraycopy(bytes, offset, byteBuffer, byteBufferPtr, length);
+        byteBufferPtr += length;
     }
 
     /**
@@ -85,18 +89,42 @@ public class ByteArrayWriter implements BuffedWriter {
      */
     @Override
     public void flushToTarget(final boolean force) throws IOException {
-        if (buffer.hasRemaining() && !force) {
-            return;
+        if (force) {
+            byte[] bytes = new byte[byteBufferPtr];
+            System.arraycopy(byteBuffer, 0, bytes, 0, byteBufferPtr);
+            byteBufferList.add(bytes);
         }
-        // the current buffer is already added to the list. Hence, we can directly dereference
-        buffer = ByteBuffer.allocate(blockSize);
-        byteBufferList.add(buffer);
     }
 
     /**
      * Get the accumulated content.
      */
-    public List<ByteBuffer> getBufferList() {
+    public List<byte[]> getBufferList() throws IOException {
+        flushToTarget(true);
         return byteBufferList;
+    }
+
+    private int remaining() {
+        return byteBufferCurrentSize - byteBufferPtr;
+    }
+
+    private void resizeByteArray() {
+        if (byteBufferCurrentSize * 2 > byteBufferCapacity) {
+            byteBufferMaxSizeReached = true;
+        }
+
+        if (byteBufferMaxSizeReached) {
+            byte[] bytes = new byte[byteBufferPtr];
+            System.arraycopy(byteBuffer, 0, bytes, 0, byteBufferPtr);
+            byteBufferList.add(bytes);
+
+            byteBufferPtr = 0;
+        }
+        else {
+            byte[] bytes = new byte[byteBufferCurrentSize*2];
+            System.arraycopy(byteBuffer, 0, bytes, 0, byteBufferCurrentSize);
+            byteBuffer = bytes;
+            byteBufferCurrentSize = byteBufferCurrentSize*2;
+        }
     }
 }

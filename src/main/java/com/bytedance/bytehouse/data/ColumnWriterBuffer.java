@@ -17,8 +17,7 @@ import com.bytedance.bytehouse.buffer.ByteArrayWriter;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.BHConstants;
 import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
+import java.util.List;
 
 public class ColumnWriterBuffer {
 
@@ -31,17 +30,10 @@ public class ColumnWriterBuffer {
         this.column = new BinarySerializer(columnWriter, false);
     }
 
-    @SuppressWarnings("RedundantCast")
     public void writeTo(final BinarySerializer serializer) throws IOException {
-        // FIXME: 11/8/21 double check if this is a source of memory leak. since this class
-        //  reads the buffer list but it never clears it.
-        for (final ByteBuffer buffer : columnWriter.getBufferList()) {
-            // upcast is necessary, see detail at:
-            // https://bitbucket.org/ijabz/jaudiotagger/issues/313/java-8-javalangnosuchmethoderror
-            ((Buffer) buffer).flip();
-            while (buffer.hasRemaining()) {
-                serializer.writeByte(buffer.get());
-            }
+        List<byte[]> byteBufferList = columnWriter.getBufferList();
+        for (final byte[] bytes: byteBufferList) {
+            serializer.writeBytes(bytes);
         }
     }
 }
