@@ -10,8 +10,38 @@ plugins {
     id 'java'
 }
 
+group = 'com.bytedance.bytehouse'
+version = '0.1.0-SNAPSHOT'
+
 java {
     withSourcesJar()
+}
+
+publishing {
+    repositories {
+        maven {
+            name "nexus"
+            def releasesRepoUrl = "https://maven.byted.org/repository/releases"
+            def snapshotsRepoUrl = "https://maven.byted.org/repository/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = "$bytedanceRepoUser"
+                password = "$bytedanceRepoPassword"
+            }
+        }
+    }
+    publications {
+        bytedanceNexus(MavenPublication) {
+            artifactId = 'driver-java'
+            from components.java
+            pom {
+                name = 'Bytehouse JDBC Driver'
+                description = 'JDBC Driver for Bytehouse'
+            }
+        }
+    }
+    // validation
+    // https://luban.bytedance.net/maven/source/search-artifacts/?name=driver-java
 }
 
 application {
@@ -77,13 +107,6 @@ repositories {
     }
     maven {
         url "https://maven.byted.org/repository/snapshots"
-    }
-}
-publishing {
-    publications {
-        myCoolLibrary(MavenPublication) {
-            from components.java
-        }
     }
 }
 
