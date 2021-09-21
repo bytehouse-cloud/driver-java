@@ -26,7 +26,7 @@ stages:
 #gradle build
 build:
   stage: build
-  script: ./gradlew build shadowJar --info
+  script: ./gradlew build shadowJar --debug
   image: ${HUB}/openjdk:11-jdk-slim
   extends: .init
   artifacts:

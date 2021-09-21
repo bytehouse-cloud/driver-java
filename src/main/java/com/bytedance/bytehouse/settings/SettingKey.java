@@ -1656,7 +1656,7 @@ public class SettingKey implements Serializable {
 
     public static SettingKey ansi_sql = SettingKey.builder()
             .withName("ansi_sql")
-            .withType(SettingType.Int32)
+            .withType(SettingType.Bool)
             .build();
 
     public static SettingKey enable_query_metadata = SettingKey.builder()
