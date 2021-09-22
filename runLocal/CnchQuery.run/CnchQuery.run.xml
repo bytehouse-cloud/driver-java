@@ -3,7 +3,8 @@
                    nameIsGenerated="true">
         <envs>
             <env name="CONSUL_HTTP_PORT" value="2280"/>
-            <env name="CONSUL_HTTP_HOST" value="10.231.243.98"/>
+            <env name="CONSUL_HTTP_HOST" value="10.227.28.219" for="boe"/>
+            <!--            <env name="CONSUL_HTTP_HOST" value="10.231.243.98" for="boei18n"/>-->
         </envs>
         <option name="MAIN_CLASS_NAME" value="examples.CnchQuery"/>
         <module name="driver-java.main"/>

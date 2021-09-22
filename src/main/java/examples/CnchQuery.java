@@ -27,7 +27,8 @@ public class CnchQuery {
 
     public static void main(String[] args) throws Exception {
 
-        final String url = "jdbc:cnch:///dataexpress";
+//        final String url = "jdbc:cnch://default/dataexpress";
+        final String url = "jdbc:cnch://post-1-0/dataexpress";
         final Properties properties = new Properties();
 
         final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);

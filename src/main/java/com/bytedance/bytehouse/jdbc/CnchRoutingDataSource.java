@@ -94,8 +94,6 @@ public class CnchRoutingDataSource implements BHDataSource {
         this.cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(url)
                 .withSettings(settings)
-                .host("toBeReplacedLater")
-                .port(0)
                 .build();
     }
 
@@ -146,9 +144,11 @@ public class CnchRoutingDataSource implements BHDataSource {
             final String tableUuid
     ) throws SQLException {
         if (!isTopologyLoaded()) {
-            this.loadTopology();
-        }
+            String clusterName = this.cfg.host();
+            if (clusterName.isEmpty()) clusterName = "default";
 
+            this.loadTopology(clusterName);
+        }
         topologyLock.readLock().lock();
         try {
             if (tableUuid == null) {
@@ -176,7 +176,7 @@ public class CnchRoutingDataSource implements BHDataSource {
         return getConnection(null);
     }
 
-    public void loadTopology() throws SQLException {
+    public void loadTopology(final String clusterName) throws SQLException {
         LOG.info("Lazy initializing topology");
         topologyLock.writeLock().lock();
         try {
@@ -186,7 +186,7 @@ public class CnchRoutingDataSource implements BHDataSource {
             List<ConnCreator> generators;
             try {
                 generators = initializeWithConsul(
-                        "consul:data.cnch.server:default",
+                        "consul:data.cnch.server:" + clusterName,
                         cfg.user(),
                         cfg.password()
                 );

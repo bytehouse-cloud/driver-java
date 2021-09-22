@@ -78,6 +78,8 @@ public class ConsulDiscovery implements Discovery {
 
         overrideAddr();
         getLocation();
+
+        LOGGER.info("using consul at {}:{}", this.agentIp, this.agentPort);
     }
 
     /**
