@@ -32,7 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Locale;
-import org.junit.jupiter.api.Disabled;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class PreparedStatementITest extends AbstractITest {
@@ -123,8 +123,8 @@ public class PreparedStatementITest extends AbstractITest {
         });
     }
 
-    // This testcase is hardcoded for dockerised clickhouse container and can be disabled
-    @Disabled
+    // TODO: Can be verified after CNCH bug is resolved
+    @Ignore
     public void successfullyDateIndependentWithTz() throws Exception {
         DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT);
         DateTimeFormatter dateTimeFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT);

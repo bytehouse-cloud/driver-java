@@ -118,7 +118,8 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    @Test
+    // TODO: https://jira-sg.bytedance.net/browse/BYT-3499
+    @Ignore
     public void successfullyDateTimeDataType() throws Exception {
         withStatement(statement -> {
             String databaseName = getDatabaseName();
@@ -134,17 +135,12 @@ public class InsertComplexTypeITest extends AbstractITest {
                 assertTrue(rs.next());
 
                 ZoneId zoneId = ZoneId.systemDefault();
-                int hour = 0;
-                if (zoneId.equals(ZoneId.of("Asia/Singapore"))) {
-                    hour = 8;
-                }
-
                 assertEquals(
-                        Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, hour, 1, 1, 0)).getTime(),
+                        Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
                         rs.getTimestamp(1).getTime());
 
                 assertEquals(
-                        Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, hour, 1, 1, 0)).getTime(),
+                        Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 8, 1, 1, 0)).getTime(),
                         rs.getTimestamp(2).getTime());
 
                 assertFalse(rs.next());

@@ -11,7 +11,8 @@ plugins {
 }
 
 group = 'com.bytedance.bytehouse'
-version = '0.1.0-SNAPSHOT'
+version = '0.1.1-SNAPSHOT'
+description 'ByteHouse JDBC Driver'
 
 java {
     withSourcesJar()
@@ -84,8 +85,6 @@ sonarqube {
     }
 }
 
-group 'com.bytedance.bytehouse'
-description 'ByteHouse JDBC Driver'
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -111,18 +110,22 @@ repositories {
 }
 
 dependencies {
-    implementation "io.airlift:aircompressor:0.18"
-    implementation "org.slf4j:slf4j-api:1.7.30"
-    implementation "org.slf4j:slf4j-simple:1.7.30"
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
+    implementation "io.airlift:aircompressor:0.18" // for LZ4 compression logic
     implementation 'com.github.RoaringBitmap.RoaringBitmap:RoaringBitmap:0.9.15'
-    implementation 'com.opencsv:opencsv:5.5'
-    api "com.bytedance:commons:0.0.14" // consul service discovery
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    compileOnly "org.slf4j:slf4j-api:1.7.30"
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+    // for processing json return from consul. the reason why we choose this over jackson is because this does not have other dependencies and it's less popular hence less likely to cause conflicts with other project
+    implementation "com.opencsv:opencsv:5.5.2"
+
+
+    // api "com.bytedance:commons:0.0.14" // consul service discovery
 
     testImplementation "org.mockito:mockito-core:3.6.28"
     testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
     testImplementation "com.google.guava:guava:16.0.1"
     testImplementation "org.testcontainers:junit-jupiter:1.15.1"
+    testImplementation "org.slf4j:slf4j-simple:1.7.30"
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
 
     benchmarkImplementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"

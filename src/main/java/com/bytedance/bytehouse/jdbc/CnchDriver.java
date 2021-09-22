@@ -26,11 +26,11 @@ import java.util.Properties;
 /**
  * The driver of ByteHouse, entry point of the application.
  */
-public class ByteHouseDriver implements Driver {
+public class CnchDriver implements Driver {
 
     static {
         try {
-            DriverManager.registerDriver(new ByteHouseDriver());
+            DriverManager.registerDriver(new CnchDriver());
         } catch (SQLException e) {
             throw new ByteHouseClientException(e);
         }
@@ -45,8 +45,7 @@ public class ByteHouseDriver implements Driver {
             // FIXME: 10/8/21 throw internal sql exception
             throw new SQLException("url is null");
         }
-        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
-                || url.startsWith(ByteHouseJdbcUrlParser.JDBC_CNCH_PREFIX);
+        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_CNCH_PREFIX);
     }
 
     /**
@@ -60,21 +59,12 @@ public class ByteHouseDriver implements Driver {
         if (!this.acceptsURL(url)) {
             return null;
         }
-
-        final ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
-                .withJdbcUrl(url)
-                .withProperties(properties)
-                .build();
-        return connect(url, cfg);
-    }
-
-    ByteHouseConnection connect(final String url, final ByteHouseConfig cfg) throws SQLException {
-        if (!this.acceptsURL(url)) {
-            // FIXME: 10/8/21 throw exception
-            return null;
-        }
-        final ByteHouseConfig newConfig = cfg.withJdbcUrl(url);
-        return ByteHouseConnection.createByteHouseConnection(newConfig);
+        /*
+            dataSource is not cached for reuse is because I believe each invocation of the method
+            might come with different url and properties.
+        */
+        final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
+        return (ByteHouseConnection) dataSource.getConnection();
     }
 
     /**
@@ -86,6 +76,7 @@ public class ByteHouseDriver implements Driver {
                 .withJdbcUrl(url)
                 .withProperties(properties)
                 .build();
+
         return cfg.settings().entrySet().stream().map(entry -> {
             final DriverPropertyInfo property = new DriverPropertyInfo(
                     entry.getKey().name(),

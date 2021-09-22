@@ -18,11 +18,10 @@ import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.routing.ConsulHelper;
 import com.bytedance.bytehouse.routing.JumpConsistentHash;
+import com.bytedance.bytehouse.routing.consulclone.ConsulDiscovery;
+import com.bytedance.bytehouse.routing.consulclone.ServiceNode;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
-import com.bytedance.commons.consul.Discovery;
-import com.bytedance.commons.consul.ServiceNode;
-import com.google.common.annotations.VisibleForTesting;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.Connection;
@@ -52,7 +51,7 @@ public class CnchRoutingDataSource implements BHDataSource {
 
     private final ByteHouseConfig cfg;
 
-    private final ConsulHelper consulHelper = new ConsulHelper(new Discovery());
+    private final ConsulHelper consulHelper = new ConsulHelper(new ConsulDiscovery());
 
     private final ReentrantReadWriteLock topologyLock = new ReentrantReadWriteLock();
 
@@ -107,7 +106,6 @@ public class CnchRoutingDataSource implements BHDataSource {
      *                      on their side, we can't know for sure.
      * @throws SQLException when consul returns empty list.
      */
-    @VisibleForTesting
     List<ConnCreator> initializeWithConsul(
             final String dbHost,
             final String username,
@@ -252,7 +250,6 @@ public class CnchRoutingDataSource implements BHDataSource {
     /**
      * underlying holders of connection objects.
      */
-    @VisibleForTesting
     static class ConnCreator implements Comparable<ConnCreator> {
 
         private final String k8sServiceAddr;

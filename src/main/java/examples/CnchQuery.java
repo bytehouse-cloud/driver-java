@@ -13,6 +13,7 @@
  */
 package examples;
 
+import com.bytedance.bytehouse.jdbc.CnchDriver;
 import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,12 +27,12 @@ public class CnchQuery {
 
     public static void main(String[] args) throws Exception {
 
-        final String url = "jdbc:cnch:///dataexpress?secure=false";
+        final String url = "jdbc:cnch:///dataexpress";
         final Properties properties = new Properties();
 
         final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
 
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = new CnchDriver().connect(url, properties)) {
             createDatabase(connection);
             createTable(connection);
         } catch (SQLException ex) {
@@ -50,7 +51,6 @@ public class CnchQuery {
             ex.printStackTrace();
         }
         System.out.println(uuid);
-
 
         try (Connection connection = dataSource.getConnection(uuid)) {
             insertTable(connection);

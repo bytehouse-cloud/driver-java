@@ -16,7 +16,6 @@ package com.bytedance.bytehouse.routing;
 import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
-import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -47,7 +46,6 @@ public class ConnRetry {
                     47, 48, 49, 50, 51, 52, 53, 57, 58, 59, 60, 61, 62, 63, 66, 67, 68, 69, 70, 72,
                     73, 74, 75, 78));
 
-    @VisibleForTesting
     long accumulatedWaitTimeMs;
 
     private NextWaitTime defaultPolicy = (max, curr, accumulated, attemptCount) -> Math.min(
@@ -65,7 +63,6 @@ public class ConnRetry {
 
     private String tableUuid;
 
-    @VisibleForTesting
     ConnRetry() {
         // should not be called outside this class.
     }
