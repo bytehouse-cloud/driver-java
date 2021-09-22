@@ -12,37 +12,10 @@ plugins {
 
 group = 'com.bytedance.bytehouse'
 version = '0.1.1-SNAPSHOT'
-description 'ByteHouse JDBC Driver'
+description 'ByteHouse JDBC Driver Benchmark'
 
 java {
     withSourcesJar()
-}
-
-publishing {
-    repositories {
-        maven {
-            name "nexus"
-            def releasesRepoUrl = "https://maven.byted.org/repository/releases"
-            def snapshotsRepoUrl = "https://maven.byted.org/repository/snapshots"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username = "$bytedanceRepoUser"
-                password = "$bytedanceRepoPassword"
-            }
-        }
-    }
-    publications {
-        bytedanceNexus(MavenPublication) {
-            artifactId = 'driver-java'
-            from components.java
-            pom {
-                name = 'Bytehouse JDBC Driver'
-                description = 'JDBC Driver for Bytehouse'
-            }
-        }
-    }
-    // validation
-    // https://luban.bytedance.net/maven/source/search-artifacts/?name=driver-java
 }
 
 application {
@@ -51,20 +24,20 @@ application {
 
 sourceSets {
     benchmark {
-        java.srcDirs = ['benchmark/java']
-        resources.srcDirs = ['benchmark/resources']
+        java.srcDirs = ['src/main/java']
+        resources.srcDirs = ['src/main/resources']
         compileClasspath += sourceSets.main.runtimeClasspath
     }
 
     clickhouseBenchmark {
-        java.srcDirs = ['benchmark/java']
-        resources.srcDirs = ['benchmark/resources']
+        java.srcDirs = ['src/main/java']
+        resources.srcDirs = ['src/main/resources']
         compileClasspath += sourceSets.main.runtimeClasspath
     }
 
     tpcdsBenchmark {
-        java.srcDirs = ['benchmark/java']
-        resources.srcDirs = ['benchmark/resources']
+        java.srcDirs = ['src/main/java']
+        resources.srcDirs = ['src/main/resources']
         compileClasspath += sourceSets.main.runtimeClasspath
     }
 }
@@ -110,23 +83,19 @@ repositories {
 }
 
 dependencies {
-    implementation "io.airlift:aircompressor:0.18" // for LZ4 compression logic
-    implementation 'com.github.RoaringBitmap.RoaringBitmap:RoaringBitmap:0.9.15'
-    implementation group: 'org.json', name: 'json', version: '20210307'
-    compileOnly "org.slf4j:slf4j-api:1.7.30"
-    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
-    // for processing json return from consul. the reason why we choose this over jackson is because this does not have other dependencies and it's less popular hence less likely to cause conflicts with other project
+
+    implementation project(':driver')
+    implementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
+    implementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
+    implementation 'org.testcontainers:clickhouse:1.15.1'
+    implementation "com.bytedance:commons:0.0.14" // consul service discovery
+    implementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    implementation "com.google.guava:guava:16.0.1"
+    implementation "org.testcontainers:junit-jupiter:1.15.1"
+    implementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
+    implementation 'org.openjdk.jmh:jmh-core:1.27'
     implementation "com.opencsv:opencsv:5.5.2"
-
-
-    // api "com.bytedance:commons:0.0.14" // consul service discovery
-
-    testImplementation "org.mockito:mockito-core:3.6.28"
-    testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
-    testImplementation "com.google.guava:guava:16.0.1"
-    testImplementation "org.testcontainers:junit-jupiter:1.15.1"
-    testImplementation "org.slf4j:slf4j-simple:1.7.30"
-    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
 
     benchmarkImplementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
     benchmarkImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
@@ -174,31 +143,15 @@ shadowJar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Explicit strategy to exclude duplicates
 }
 
-tasks.named("test") {
-    environment "CONSUL_HTTP_HOST", "10.231.243.98"
-    environment "CONSUL_HTTP_PORT", "2280"
-    useJUnitPlatform {}
-}
-
-jar {
-    from {
-        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    manifest {
-        attributes 'Main-Class': 'examples.CnchQuery'
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
 checkstyle {
-    configFile file("config/checkstyle.xml")
-    configProperties 'checkstyle.header.file': file("config/license.header")
+    configFile file("../config/checkstyle.xml")
+    configProperties 'checkstyle.header.file': file("../config/license.header")
 }
 
 pmd {
     sourceSets = [sourceSets.main]
     ruleSetFiles = files(
-            "./config/pmd/quickstart.xml"
+            ".././config/pmd/quickstart.xml"
     )
     ruleSets = []
     ignoreFailures = true

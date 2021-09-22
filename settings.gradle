@@ -1,1 +1,3 @@
 rootProject.name = 'driver-java'
+include 'driver'
+include 'benchmark'

@@ -185,7 +185,7 @@ public class AbstractBenchmark {
 
     private void loadTestConfigs() {
         EnvConfigs = new Properties();
-        String envConfigsResourcePath = "benchmark/resources/env.properties";
+        String envConfigsResourcePath = AbstractBenchmark.class.getResource("/env.properties").getPath();
 
         try (InputStream input = Files.newInputStream(Paths.get(envConfigsResourcePath))) {
             EnvConfigs.load(input);
@@ -194,7 +194,7 @@ public class AbstractBenchmark {
         }
 
         TestConfigs = new Properties();
-        String testConfigsResourcePath = "benchmark/resources/" + EnvConfigs.getProperty(ENV) + "-" + EnvConfigs.getProperty(SERVER) + "-config.properties";
+        String testConfigsResourcePath = AbstractBenchmark.class.getResource("/" + EnvConfigs.getProperty(ENV) + "-" + EnvConfigs.getProperty(SERVER) + "-config.properties").getPath();
         try (InputStream input = Files.newInputStream(Paths.get(testConfigsResourcePath))) {
             TestConfigs.load(input);
         } catch (IOException ex) {
