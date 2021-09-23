@@ -16,6 +16,7 @@ description 'ByteHouse JDBC Driver'
 
 java {
     withSourcesJar()
+    libsDirName = '../../libs'
 }
 
 publishing {
