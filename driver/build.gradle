@@ -99,8 +99,9 @@ dependencies {
 
     // api "com.bytedance:commons:0.0.14" // consul service discovery
     testImplementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
-    testImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
+    testImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.3.1'
     testImplementation 'org.testcontainers:clickhouse:1.15.1'
+    testImplementation 'org.testng:testng:7.4.0'
     testImplementation "org.mockito:mockito-core:3.6.28"
     testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
     testImplementation "com.google.guava:guava:16.0.1"
@@ -125,6 +126,7 @@ tasks.named("test") {
     environment "CONSUL_HTTP_HOST", "10.231.243.98"
     environment "CONSUL_HTTP_PORT", "2280"
     useJUnitPlatform {}
+//    useTestNG()
 }
 
 jar {

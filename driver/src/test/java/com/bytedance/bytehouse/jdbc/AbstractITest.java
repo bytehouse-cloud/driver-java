@@ -37,10 +37,10 @@ public class AbstractITest implements Serializable {
     private static final String USER = "USER";
 
     private Properties TestConfigs;
-    private static final String DRIVER = "driver";
-    private static final String BYTEHOUSE = "bytehouse";
-    private static final String CLICKHOUSE_NATIVE = "clickhouse-native";
-    private static final String CLICKHOUSE_HTTP = "clickhouse-http";
+    protected static final String DRIVER = "driver";
+    protected static final String BYTEHOUSE = "bytehouse";
+    protected static final String CLICKHOUSE_NATIVE = "clickhouse-native";
+    protected static final String CLICKHOUSE_HTTP = "clickhouse-http";
     private static final String SERVER = "server";
     private static final String GATEWAY = "gateway";
     private static final String CNCH = "cnch";
