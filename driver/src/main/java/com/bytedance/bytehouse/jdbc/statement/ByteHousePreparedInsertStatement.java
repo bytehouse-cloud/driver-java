@@ -22,7 +22,6 @@ import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
-import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,52 +31,27 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHousePreparedInsertStatement.class);
 
-    private final int posOfData;
+    private final String insertQueryPart;
 
-    private final String fullQuery;
-
-    private final String insertQuery;
+    private final String valuePart;
 
     private final DataTypeConverter dataTypeConverter;
 
     private boolean blockInit;
 
     public ByteHousePreparedInsertStatement(
-            final int posOfData,
-            final String fullQuery,
+            final String insertQueryPart,
+            final String valuePart,
             final ByteHouseConnection conn,
             final ServerContext serverContext
     ) throws SQLException {
         super(conn, serverContext, null);
         this.blockInit = false;
-        this.posOfData = posOfData;
-        this.fullQuery = fullQuery;
-        this.insertQuery = fullQuery.substring(0, posOfData);
+        this.insertQueryPart = insertQueryPart;
+        this.valuePart = valuePart;
         this.dataTypeConverter = new DataTypeConverter(tz);
 
         initBlockIfPossible();
-    }
-
-    private static int computeQuestionMarkSize(
-            final String query,
-            final int start
-    ) throws SQLException {
-        int param = 0;
-        boolean inQuotes = false, inBackQuotes = false;
-        for (int i = 0; i < query.length(); i++) {
-            char ch = query.charAt(i);
-            if (ch == '`') {
-                inBackQuotes = !inBackQuotes;
-            } else if (ch == '\'') {
-                inQuotes = !inQuotes;
-            } else if (!inBackQuotes && !inQuotes) {
-                if (ch == '?') {
-                    Validate.isTrue(i > start, "");
-                    param++;
-                }
-            }
-        }
-        return param;
     }
 
     // paramPosition start with 1
@@ -145,7 +119,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
         final StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
         try {
-            sb.append(insertQuery).append(" (");
+            sb.append(insertQueryPart).append(" (");
             for (int i = 0; i < block.columnCnt(); i++) {
                 final Object obj = block.getObject(i);
                 if (obj == null) {
@@ -171,10 +145,10 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
             return;
         }
         ExceptionUtil.rethrowSQLException(() -> {
-            this.block = creator.getSampleBlock(insertQuery);
+            this.block = creator.getSampleBlock(insertQueryPart);
             this.block.initWriteBuffer();
             this.blockInit = true;
-            new ValuesWithParametersNativeInputFormat(posOfData, fullQuery).fill(block);
+            new ValuesWithParametersNativeInputFormat(0, valuePart).fill(block);
         });
     }
 

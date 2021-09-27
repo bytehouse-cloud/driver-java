@@ -13,12 +13,12 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
-import org.junit.jupiter.api.Test;
-
 import java.sql.SQLException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 
 public class ByteHouseSQLExceptionITest extends AbstractITest {
@@ -30,7 +30,7 @@ public class ByteHouseSQLExceptionITest extends AbstractITest {
                 statement.executeQuery("DROP TABLE test");
             } catch (SQLException e) {
                 assertTrue(e instanceof ByteHouseSQLException);
-                assertNotEquals(0, e.getErrorCode());
+                assertEquals(0, e.getErrorCode()); // gateway default error code
                 assertEquals(e.getErrorCode(), e.getErrorCode());
             }
         });

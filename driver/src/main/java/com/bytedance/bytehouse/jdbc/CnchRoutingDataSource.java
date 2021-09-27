@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.routing.ConsulHelper;
 import com.bytedance.bytehouse.routing.JumpConsistentHash;
-import com.bytedance.bytehouse.routing.consulclone.ConsulDiscovery;
+import com.bytedance.bytehouse.routing.consulclone.Discovery;
 import com.bytedance.bytehouse.routing.consulclone.ServiceNode;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
@@ -45,13 +45,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class CnchRoutingDataSource implements BHDataSource {
 
+    static final String CNCH_SERVICE_NAME = "data.cnch.server";
+
     private static final Logger LOG = LoggerFactory.getLogger(CnchRoutingDataSource.class);
 
     private final List<ConnCreator> list = new ArrayList<>();
 
     private final ByteHouseConfig cfg;
 
-    private final ConsulHelper consulHelper = new ConsulHelper(new ConsulDiscovery());
+    private final ConsulHelper consulHelper = new ConsulHelper(Discovery.fromConsulDefault());
 
     private final ReentrantReadWriteLock topologyLock = new ReentrantReadWriteLock();
 
@@ -186,7 +188,7 @@ public class CnchRoutingDataSource implements BHDataSource {
             List<ConnCreator> generators;
             try {
                 generators = initializeWithConsul(
-                        "consul:data.cnch.server:" + clusterName,
+                        "consul:" + CNCH_SERVICE_NAME + ":" + clusterName,
                         cfg.user(),
                         cfg.password()
                 );

@@ -14,7 +14,7 @@
 package com.bytedance.bytehouse.misc;
 
 /**
- * alternative implementation for {@link Either} where left and right are the same type.
+ * either this or that.
  */
 public class Switcher<T> {
 

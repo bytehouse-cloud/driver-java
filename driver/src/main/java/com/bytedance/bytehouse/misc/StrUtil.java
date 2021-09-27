@@ -15,7 +15,11 @@ package com.bytedance.bytehouse.misc;
 
 import javax.annotation.Nullable;
 
-public class StrUtil {
+public final class StrUtil {
+
+    StrUtil() {
+        // no creation
+    }
 
     /**
      * Return a default string if given string is null or empty.

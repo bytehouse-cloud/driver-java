@@ -27,6 +27,16 @@ import java.sql.SQLFeatureNotSupportedException;
  */
 public interface BHDatabaseMetadata extends DatabaseMetaData, SQLWrapper, Logging {
 
+    /**
+     * get table uuid.
+     *
+     * @return uuid or null if uuid look up is not supported
+     */
+    String getTableUUID(
+            String database,
+            String table
+    ) throws SQLException;
+
     @Override
     default int getDriverMajorVersion() {
         logger().debug("invoke unimplemented method #getDriverMajorVersion()");

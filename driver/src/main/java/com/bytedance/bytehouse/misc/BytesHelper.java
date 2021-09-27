@@ -13,6 +13,9 @@
  */
 package com.bytedance.bytehouse.misc;
 
+/**
+ * methods to read and write bytes.
+ */
 public interface BytesHelper {
 
     default byte[] getBytes(int i) {

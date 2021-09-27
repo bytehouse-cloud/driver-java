@@ -20,6 +20,10 @@ import java.util.List;
  */
 public interface Discovery {
 
+    static Discovery fromConsulDefault() {
+        return new ConsulDiscovery();
+    }
+
     /**
      * look up {@link ServiceNode} using the service name.
      */

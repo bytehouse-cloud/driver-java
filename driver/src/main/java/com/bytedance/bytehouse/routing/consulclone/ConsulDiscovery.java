@@ -14,6 +14,7 @@
 package com.bytedance.bytehouse.routing.consulclone;
 
 import com.bytedance.bytehouse.log.Logger;
+import com.bytedance.bytehouse.log.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import com.bytedance.bytehouse.log.LoggerFactory;
 import javax.annotation.concurrent.Immutable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -61,16 +61,9 @@ public class ConsulDiscovery implements Discovery {
     private String agentPort;
 
     /**
-     * default constructor for all default configurations.
-     */
-    public ConsulDiscovery() {
-        this(DEFAULT_AGENT_IP, DEFAULT_AGENT_PORT);
-    }
-
-    /**
      * configurable constructor.
      */
-    public ConsulDiscovery(final String agentIp, final String agentPort) {
+    ConsulDiscovery(final String agentIp, final String agentPort) {
         this.agentIp = agentIp;
         this.agentPort = agentPort;
         this.dataCenter = "";
@@ -80,6 +73,13 @@ public class ConsulDiscovery implements Discovery {
         getLocation();
 
         LOGGER.info("using consul at {}:{}", this.agentIp, this.agentPort);
+    }
+
+    /**
+     * default factory for all default configurations.
+     */
+    ConsulDiscovery() {
+        this(DEFAULT_AGENT_IP, DEFAULT_AGENT_PORT);
     }
 
     /**
@@ -219,6 +219,7 @@ public class ConsulDiscovery implements Discovery {
             final URL url = new URL(requestUrl);
 
             final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setRequestProperty("Accept", "application/json");

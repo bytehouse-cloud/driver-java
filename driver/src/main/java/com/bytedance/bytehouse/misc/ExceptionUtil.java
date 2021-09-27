@@ -15,6 +15,7 @@ package com.bytedance.bytehouse.misc;
 
 import com.bytedance.bytehouse.exception.ByteHouseException;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import com.bytedance.bytehouse.exception.TransactionLabelExistsException;
 import com.bytedance.bytehouse.settings.ByteHouseErrCode;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -58,32 +59,50 @@ public class ExceptionUtil {
     }
 
     public static void rethrowSQLException(CheckedRunnable checked) throws ByteHouseSQLException {
-        try {
+        rethrowSQLException((CheckedSupplier<Void>) () -> {
             checked.run();
-        } catch (Exception rethrow) {
-            int errCode = ByteHouseErrCode.UNKNOWN_ERROR.code();
-            ByteHouseException ex = ExceptionUtil.recursiveFind(rethrow, ByteHouseException.class);
-            if (ex != null)
-                errCode = ex.errCode();
-            throw new ByteHouseSQLException(errCode, rethrow.getMessage(), rethrow);
-        }
+            return null;
+        });
     }
 
     public static <T> T rethrowSQLException(CheckedSupplier<T> checked) throws ByteHouseSQLException {
         try {
             return checked.get();
         } catch (Exception rethrow) {
-            int errCode = ByteHouseErrCode.UNKNOWN_ERROR.code();
-            ByteHouseException ex = ExceptionUtil.recursiveFind(rethrow, ByteHouseException.class);
-            if (ex != null)
-                errCode = ex.errCode();
-            throw new ByteHouseSQLException(errCode, rethrow.getMessage(), rethrow);
+            final ByteHouseSQLException sqlex = ExceptionUtil
+                    .recursiveFind(rethrow, ByteHouseSQLException.class);
+            if (sqlex != null) {
+                throw translate(sqlex);
+            }
+            final ByteHouseException ex = ExceptionUtil
+                    .recursiveFind(rethrow, ByteHouseException.class);
+            if (ex != null) {
+                throw new ByteHouseSQLException(ex.errCode(), rethrow.getMessage(), rethrow);
+            }
+
+            throw new ByteHouseSQLException(
+                    ByteHouseErrCode.UNKNOWN_ERROR.code(),
+                    rethrow.getMessage(),
+                    rethrow
+            );
+        }
+    }
+
+    /**
+     * based on the error code, translate to specific exception.
+     */
+    public static ByteHouseSQLException translate(final ByteHouseSQLException exception) {
+        int code = exception.getErrorCode();
+        if (code == ByteHouseErrCode.INSERTION_LABEL_ALREADY_EXISTS.code()) {
+            return new TransactionLabelExistsException(exception.getMessage(), exception);
+        } else {
+            return exception;
         }
     }
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public static <T> T recursiveFind(Throwable th, Class<T> expectedClz) {
+    public static <T> T recursiveFind(final Throwable th, final Class<T> expectedClz) {
         Throwable nest = th;
         while (nest != null) {
             if (expectedClz.isAssignableFrom(nest.getClass())) {

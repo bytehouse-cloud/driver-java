@@ -23,7 +23,8 @@ package com.bytedance.bytehouse.misc;
  *         <p>
  *         NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
  */
-public class ClickHouseCityHash {
+@SuppressWarnings({"PMD.FieldNamingConventions", "PMD.ClassNamingConventions", "PMD.LocalVariableNamingConventions"})
+public final class ClickHouseCityHash {
 
     private static final long k0 = 0xc3a5c85c97cb3127L;
 
@@ -34,6 +35,10 @@ public class ClickHouseCityHash {
     private static final long k3 = 0xc949d7c7509e6557L;
 
     private static final long kMul = 0x9ddfea08eb382d69L;
+
+    ClickHouseCityHash() {
+        // no creation
+    }
 
     private static long toLongLE(byte[] bytes, int offset) {
         return (((long) (bytes[offset + 7] & 255) << 56) +

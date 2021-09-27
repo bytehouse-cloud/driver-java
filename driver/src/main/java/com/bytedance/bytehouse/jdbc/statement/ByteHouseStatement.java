@@ -20,6 +20,7 @@ import com.bytedance.bytehouse.jdbc.wrapper.SQLStatement;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
+import com.bytedance.bytehouse.misc.SQLParser;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
@@ -31,14 +32,15 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.time.Duration;
-import java.util.Locale;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * {@link Statement} implementation for Bytehouse.
  */
 public class ByteHouseStatement implements SQLStatement {
+
+    static final Pattern TXN_LABEL_REGEX = Pattern
+            .compile("insertion_label\\s?=\\s?'[a-zA-Z0-9\\-]+'");
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStatement.class);
 
@@ -49,6 +51,8 @@ public class ByteHouseStatement implements SQLStatement {
 
     protected final ByteHouseConnection creator;
 
+    private final String defaultDb;
+
     protected Block block;
 
     private ByteHouseConfig cfg;
@@ -57,10 +61,6 @@ public class ByteHouseStatement implements SQLStatement {
     private ResultSet lastResultSet;
 
     private long maxRows;
-
-    private String db;
-
-    private String table = "unknown";
 
     private int updateCount = -1;
     // =========  END: temporary variables per execution ===========
@@ -72,7 +72,7 @@ public class ByteHouseStatement implements SQLStatement {
     ) {
         this.creator = connection;
         this.cfg = connection.cfg();
-        this.db = cfg.database();
+        this.defaultDb = cfg.database();
     }
 
     /**
@@ -95,27 +95,28 @@ public class ByteHouseStatement implements SQLStatement {
         }
 
         return ExceptionUtil.rethrowSQLException(() -> {
-            extractDBAndTableName(query);
-            final Matcher matcher = VALUES_REGEX.matcher(query);
 
-            if (matcher.find() && query.trim().toUpperCase(Locale.ROOT).startsWith("INSERT")) {
+            if (SQLParser.isInsertQuery(query)) {
                 // insert statement we return row count.
-                lastResultSet = null;
-                final String insertQuery = query.substring(0, matcher.end() - 1);
+                lastResultSet = null; // NOPMD assigning null smells
+
+                final SQLParser.InsertQueryParts parts = SQLParser.splitInsertQuery(query);
+                final String insertQuery = parts.queryPart;
                 block = creator.getSampleBlock(insertQuery);
                 block.initWriteBuffer();
-                new ValuesNativeInputFormat(matcher.end() - 1, query).fill(block);
+                new ValuesNativeInputFormat(0, parts.valuePart).fill(block);
                 updateCount = creator.sendInsertRequest(block);
                 return updateCount;
             } else {
+                final SQLParser.DbTable dbTable = SQLParser.extractDBAndTableName(query);
                 // other statement we return 0.
                 updateCount = -1;
                 final QueryResult result = creator.sendQueryRequest(query, cfg);
                 lastResultSet = new ByteHouseResultSet(
                         this,
                         cfg,
-                        db,
-                        table,
+                        dbTable.getDbOrDefault(this.defaultDb),
+                        dbTable.getTable(),
                         result.header(),
                         result.data()
                 );
@@ -281,26 +282,5 @@ public class ByteHouseStatement implements SQLStatement {
     @Override
     public Logger logger() {
         return ByteHouseStatement.LOG;
-    }
-
-    private void extractDBAndTableName(final String sql) {
-        final String upperSQL = sql.trim().toUpperCase(Locale.ROOT);
-        if (upperSQL.startsWith("SELECT")) {
-            final Matcher m = SELECT_DB_TABLE.matcher(sql);
-            if (m.find()) {
-                if (m.groupCount() == 2) {
-                    if (m.group(1) != null) {
-                        db = m.group(1);
-                    }
-                    table = m.group(2);
-                }
-            }
-        } else if (upperSQL.startsWith("DESC")) {
-            db = "system";
-            table = "columns";
-        } else if (upperSQL.startsWith("SHOW")) {
-            db = "system";
-            table = upperSQL.contains("TABLES") ? "tables" : "databases";
-        }
     }
 }

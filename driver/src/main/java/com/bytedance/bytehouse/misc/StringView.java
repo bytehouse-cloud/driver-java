@@ -13,6 +13,9 @@
  */
 package com.bytedance.bytehouse.misc;
 
+/**
+ * a subsecion of a {@link String}
+ */
 public class StringView implements CharSequence {
 
     private final String str;

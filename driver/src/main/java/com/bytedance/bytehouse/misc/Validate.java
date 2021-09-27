@@ -17,7 +17,12 @@ import com.bytedance.bytehouse.exception.InvalidValueException;
 import java.sql.SQLException;
 import javax.annotation.Nullable;
 
-public class Validate {
+@SuppressWarnings("PMD.UseUtilityClass")
+public final class Validate {
+
+    Validate() {
+        // no creation
+    }
 
     // We need to migrate from #isTrue to #ensure to avoid throwing checked exception internal.
     public static void ensure(boolean expr) {

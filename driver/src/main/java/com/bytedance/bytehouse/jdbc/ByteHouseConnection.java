@@ -27,6 +27,7 @@ import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.jdbc.wrapper.BHConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.misc.SQLParser;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseErrCode;
@@ -52,8 +53,6 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /**
@@ -63,8 +62,6 @@ import javax.annotation.Nullable;
 public class ByteHouseConnection implements BHConnection {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseConnection.class);
-
-    private static final Pattern VALUES_REGEX = Pattern.compile("[Vv][Aa][Ll][Uu][Ee][Ss]\\s*\\(");
 
     private static final String TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE =
             "Transaction is not supported in Bytehouse";
@@ -221,11 +218,12 @@ public class ByteHouseConnection implements BHConnection {
         // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3099
         Validate.isTrue(!isClosed(), "Unable to create PreparedStatement, "
                 + "because the connection is closed.");
-        final Matcher matcher = VALUES_REGEX.matcher(query);
-        if (matcher.find()) {
+        if (SQLParser.isInsertQuery(query)) {
+            final SQLParser.InsertQueryParts insertQueryParts = SQLParser.splitInsertQuery(query);
+
             return new ByteHousePreparedInsertStatement(
-                    matcher.end() - 1,
-                    query,
+                    insertQueryParts.queryPart,
+                    insertQueryParts.valuePart,
                     this,
                     nativeCtx.serverCtx()
             );

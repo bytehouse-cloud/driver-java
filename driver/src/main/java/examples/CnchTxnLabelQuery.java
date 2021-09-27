@@ -13,7 +13,6 @@
  */
 package examples;
 
-import com.bytedance.bytehouse.jdbc.ByteHouseDatabaseMetadata;
 import com.bytedance.bytehouse.jdbc.CnchDriver;
 import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
 import java.sql.Connection;
@@ -23,16 +22,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.UUID;
 
-public class CnchQuery {
+public class CnchTxnLabelQuery {
 
     public static void main(String[] args) throws Exception {
 
 //        final String url = "jdbc:cnch://default/dataexpress";
         final String url = "jdbc:cnch://post-1-0/dataexpress";
         final Properties properties = new Properties();
-
-        final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
 
         try (Connection connection = new CnchDriver().connect(url, properties)) {
             createDatabase(connection);
@@ -41,20 +39,25 @@ public class CnchQuery {
             ex.printStackTrace();
         }
 
-        final String uuid = ((ByteHouseDatabaseMetadata) dataSource.getConnection().getMetaData())
-                .getTableUUID("inventory", "orders");
-        System.out.println("uuid = " + uuid);
+        final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
 
-        try (Connection connection = dataSource.getConnection(uuid)) {
-            insertTable(connection);
+        final String s = randomLabel();
+        try (Connection connection = dataSource.getConnection()) {
+            insertTable(connection, s);
             selectTable(connection);
-            insertBatch(connection);
+            insertBatch(connection, randomLabel());
             selectTable(connection);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-        try (Connection connection = dataSource.getConnection(uuid)) {
+        try (Connection connection = dataSource.getConnection()) {
+            insertTable(connection, s);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
             dropDatabase(connection);
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -88,10 +91,10 @@ public class CnchQuery {
         }
     }
 
-    public static void insertTable(Connection connection) {
+    public static void insertTable(Connection connection, String label) {
         try (Statement stmt = connection.createStatement()) {
             final String sql = "INSERT INTO inventory.orders "
-                    + " VALUES "
+                    + " FORMAT Values SETTINGS insertion_label = '" + label + "' "
                     + " ('54895','Apple',12) ";
             System.out.println(sql);
             stmt.executeUpdate(sql);
@@ -100,10 +103,10 @@ public class CnchQuery {
         }
     }
 
-    public static void insertBatch(Connection connection) {
+    public static void insertBatch(Connection connection, final String label) {
         final String insertQuery = "INSERT INTO inventory.orders "
                 + " (OrderID, OrderName, OrderPriority) "
-                + " VALUES "
+                + " FORMAT Values SETTINGS insertion_label = '" + label + "' "
                 + " (?,'Apple',?) ";
         System.out.println(insertQuery);
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
@@ -149,5 +152,9 @@ public class CnchQuery {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private static String randomLabel() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
     }
 }
