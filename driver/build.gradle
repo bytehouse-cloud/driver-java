@@ -16,7 +16,6 @@ description 'ByteHouse JDBC Driver'
 
 java {
     withSourcesJar()
-    libsDirName = '../../libs'
 }
 
 publishing {
@@ -99,7 +98,9 @@ dependencies {
     // for processing json return from consul. the reason why we choose this over jackson is because this does not have other dependencies and it's less popular hence less likely to cause conflicts with other project
 
     // api "com.bytedance:commons:0.0.14" // consul service discovery
-
+    testImplementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
+    testImplementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
+    testImplementation 'org.testcontainers:clickhouse:1.15.1'
     testImplementation "org.mockito:mockito-core:3.6.28"
     testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
     testImplementation "com.google.guava:guava:16.0.1"
@@ -134,6 +135,16 @@ jar {
         attributes 'Main-Class': 'examples.CnchQuery'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    doLast {
+        copy {
+            from "build/libs/"
+            into "../libs/"
+            include "driver-" + version + ".jar"
+            rename { String filename ->
+                filename.replace("driver-" + version + ".jar", "driver-latest.jar")
+            }
+        }
+    }
 }
 
 checkstyle {

@@ -83,7 +83,7 @@ repositories {
 }
 
 dependencies {
-    implementation files('../libs/driver-0.1.1-SNAPSHOT-all.jar')
+    implementation files('../libs/driver-latest.jar')
     implementation "com.github.housepower:clickhouse-native-jdbc-shaded:2.5.6"
     implementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.2.4'
     implementation 'org.testcontainers:clickhouse:1.15.1'
