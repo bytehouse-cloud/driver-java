@@ -160,5 +160,5 @@ pmd {
             ".././config/pmd/quickstart.xml"
     )
     ruleSets = []
-    ignoreFailures = true
+//    ignoreFailures = true
 }

@@ -153,7 +153,7 @@ pmd {
             ".././config/pmd/quickstart.xml"
     )
     ruleSets = []
-    ignoreFailures = true
+//    ignoreFailures = true
 }
 
 task benchmark(type: JavaExec, dependsOn: benchmarkClasses) {

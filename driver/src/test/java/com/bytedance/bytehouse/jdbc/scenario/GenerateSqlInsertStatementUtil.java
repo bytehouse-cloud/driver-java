@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.jdbc.scenario;
 
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -77,7 +77,7 @@ public final class GenerateSqlInsertStatementUtil {
             final String query
     ) throws IOException {
         final String fullPath = "src/test/resources/sql/" + filename + ".sql";
-        try (FileWriter myWriter = new FileWriter(fullPath)) {
+        try (BufferedWriter myWriter = Files.newBufferedWriter(Paths.get(fullPath))) {
             myWriter.write(query);
         }
     }
