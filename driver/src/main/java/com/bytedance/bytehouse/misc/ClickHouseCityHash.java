@@ -23,7 +23,7 @@ package com.bytedance.bytehouse.misc;
  *         <p>
  *         NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
  */
-@SuppressWarnings({"PMD.FieldNamingConventions", "PMD.ClassNamingConventions", "PMD.LocalVariableNamingConventions"})
+@SuppressWarnings({"PMD.FieldNamingConventions", "PMD.ClassNamingConventions", "PMD.LocalVariableNamingConventions", "PMD.AvoidReassigningParameters"})
 public final class ClickHouseCityHash {
 
     private static final long k0 = 0xc3a5c85c97cb3127L;

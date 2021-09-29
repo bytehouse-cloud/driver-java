@@ -24,6 +24,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.UUID;
 
+@SuppressWarnings("PMD.SystemPrintln")
 public class CnchTxnLabelQuery {
 
     public static void main(String[] args) throws Exception {

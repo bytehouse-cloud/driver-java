@@ -79,13 +79,14 @@ public class AbstractBenchmark {
         statement.execute(createDatabaseSql);
 
         if (!createTableSql.equals("")) {
+            String createTableSqlWithEngine = createTableSql;
             if (getServerName().equals(CLICKHOUSE)) {
-                createTableSql += "Engine = Log";
+                createTableSqlWithEngine += "Engine = Log";
             }
             else {
-                createTableSql += "ENGINE=CnchMergeTree() order by tuple()";
+                createTableSqlWithEngine += "ENGINE=CnchMergeTree() order by tuple()";
             }
-            statement.execute(createTableSql);
+            statement.execute(createTableSqlWithEngine);
         }
 
         if (getServerName().equals(CNCH)) {

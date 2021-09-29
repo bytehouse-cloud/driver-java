@@ -23,6 +23,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import javax.sql.DataSource;
 
+@SuppressWarnings("PMD.SystemPrintln")
 public class SimpleQuery {
 
     public static void main(String[] args) throws Exception {

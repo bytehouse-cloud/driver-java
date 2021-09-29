@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Serializer JVM objects into bytes and stored them int {@link java.nio.ByteBuffer}.
  */
+@SuppressWarnings("PMD.AvoidReassigningParameters")
 public class BinarySerializer {
 
     private final Switcher<BuffedWriter> switcher;

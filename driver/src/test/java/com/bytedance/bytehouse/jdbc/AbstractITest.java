@@ -161,7 +161,7 @@ public class AbstractITest implements Serializable {
         if (getServerName().equals(CNCH)) {
             String uuid = getUuid(statement.getConnection(), lastUsedDatabaseName, lastUsedTableName);
             CnchRoutingDataSource dataSource = (CnchRoutingDataSource) getDataSource();
-            statement = dataSource.getConnection(uuid).createStatement();
+            return dataSource.getConnection(uuid).createStatement();
         }
         return statement;
     }

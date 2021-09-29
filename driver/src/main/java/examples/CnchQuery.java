@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+@SuppressWarnings("PMD.SystemPrintln")
 public class CnchQuery {
 
     public static void main(String[] args) throws Exception {

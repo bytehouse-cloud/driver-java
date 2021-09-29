@@ -21,6 +21,7 @@ import java.net.Socket;
 /**
  * {@link SocketBuffedWriter} directly writes into the outputStream of the socket.
  */
+@SuppressWarnings("PMD.AvoidReassigningParameters")
 public class SocketBuffedWriter implements BuffedWriter {
 
     private final OutputStream out;

@@ -121,16 +121,6 @@ public final class Util {
         return trace[i + 2];
     }
 
-    static public void report(String msg, Throwable t) {
-        System.err.println(msg);
-        System.err.println("Reported exception:");
-        t.printStackTrace();
-    }
-
-    static public void report(String msg) {
-        System.err.println("LOG: " + msg);
-    }
-
     /**
      * In order to call {@link SecurityManager#getClassContext()}, which is a
      * protected method, we add this wrapper which allows the method to be visible

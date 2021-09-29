@@ -22,6 +22,7 @@ import java.util.List;
  * writes to a List of JVM-memory-backed {@link ByteBuffer}.
  * the content is then access by the getter method of the list.
  */
+@SuppressWarnings("PMD.AvoidReassigningParameters")
 public class ByteArrayWriter implements BuffedWriter {
 
     private final List<byte[]> byteBufferList = new LinkedList<>();

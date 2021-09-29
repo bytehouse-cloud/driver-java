@@ -120,6 +120,8 @@ final public class MessageFormatter {
 
     private static final char ESCAPE_CHAR = '\\';
 
+    private static final Logger LOG = LoggerFactory.getLogger(MessageFormatter.class);
+
     /**
      * Performs single argument substitution for the 'messagePattern' passed as
      * parameter.
@@ -303,7 +305,7 @@ final public class MessageFormatter {
             String oAsString = o.toString();
             sbuf.append(oAsString);
         } catch (Throwable t) {
-            Util.report("LOG: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]", t);
+            LOG.error("LOG: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]", t);
             sbuf.append("[FAILED toString()]");
         }
     }

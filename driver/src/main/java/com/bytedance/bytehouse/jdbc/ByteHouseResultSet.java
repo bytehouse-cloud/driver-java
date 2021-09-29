@@ -340,9 +340,11 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     private Object getInternalObject(final int position) throws SQLException {
-        LOG.trace("get object at row: {}, column position: {} from block with "
-                        + "column count: {}, row count: {}",
-                currentRowNum, position, currentBlock.columnCnt(), currentBlock.rowCnt());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("get object at row: {}, column position: {} from block with "
+                            + "column count: {}, row count: {}",
+                    currentRowNum, position, currentBlock.columnCnt(), currentBlock.rowCnt());
+        }
         Validate.isTrue(currentRowNum >= 0 && currentRowNum < currentBlock.rowCnt(),
                 "No row information was obtained. You must call "
                         + "ResultSet.next() before that.");
@@ -455,8 +457,10 @@ public class ByteHouseResultSet implements SQLResultSet {
 
         isFirst = isBeforeFirst && hasNext;
         isAfterLast = !hasNext;
-        LOG.trace("check status[after]: has_next: {}, is_before_first: {}, is_first: {}, "
-                + "is_after_last: {}", hasNext, isBeforeFirst(), isFirst, isAfterLast);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("check status[after]: has_next: {}, is_before_first: {}, is_first: {}, "
+                    + "is_after_last: {}", hasNext, isBeforeFirst(), isFirst, isAfterLast);
+        }
 
         return hasNext;
     }
