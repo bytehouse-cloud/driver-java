@@ -91,6 +91,12 @@ public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
         flushToTarget(false);
     }
 
+    @Override
+    public void writeBinaryNow(final byte[] bytes) throws IOException {
+        flushToTarget(true);
+        writeBinary(bytes);
+    }
+
     /**
      * {@inheritDoc}
      */

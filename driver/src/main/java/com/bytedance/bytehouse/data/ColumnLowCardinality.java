@@ -30,13 +30,13 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
 
     private final static int HEADER_SIZE = 24; // defined by cnch protocol
 
-    private final byte[] header;
+    private byte[] header;
 
     private final IColumn keys;
 
-    private final Map<Object, Integer> objectToIndex;
+    private Map<Object, Integer> objectToIndex;
 
-    private final List<Integer> valueIndicesList;
+    private List<Integer> valueIndicesList;
 
     private byte[] valueIndicesRaw; // stores the keys to the values
 
@@ -165,6 +165,14 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
     public void setColumnWriterBuffer(ColumnWriterBuffer buffer) {
         super.setColumnWriterBuffer(buffer);
         keys.setColumnWriterBuffer(buffer);
+    }
+
+    @Override
+    public void reuseColumnWriterBuffer() {
+        super.reuseColumnWriterBuffer();
+        keys.reuseColumnWriterBuffer();
+        objectToIndex.clear();
+        valueIndicesList.clear();
     }
 
     @Override

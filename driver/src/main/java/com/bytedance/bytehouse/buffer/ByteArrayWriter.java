@@ -25,7 +25,7 @@ import java.util.List;
 @SuppressWarnings("PMD.AvoidReassigningParameters")
 public class ByteArrayWriter implements BuffedWriter {
 
-    private final List<byte[]> byteBufferList = new LinkedList<>();
+    private List<byte[]> byteBufferList = new LinkedList<>();
 
     private final int byteBufferCapacity;
 
@@ -85,6 +85,12 @@ public class ByteArrayWriter implements BuffedWriter {
         byteBufferPtr += length;
     }
 
+    @Override
+    public void writeBinaryNow(final byte[] bytes) throws IOException {
+        flushToTarget(true);
+        writeBinary(bytes);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -127,5 +133,10 @@ public class ByteArrayWriter implements BuffedWriter {
             byteBuffer = bytes;
             byteBufferCurrentSize = byteBufferCurrentSize*2;
         }
+    }
+
+    public void reuseByteArray() {
+        byteBufferList.clear();
+        byteBufferPtr = 0;
     }
 }

@@ -14,7 +14,6 @@
 package com.bytedance.bytehouse.jdbc.statement;
 
 import com.bytedance.bytehouse.client.ServerContext;
-import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.DataTypeConverter;
 import com.bytedance.bytehouse.data.IColumn;
 import com.bytedance.bytehouse.exception.ByteHouseClientException;
@@ -22,6 +21,7 @@ import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
+import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,6 +39,8 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     private boolean blockInit;
 
+    private int rowInsertedCount;
+
     public ByteHousePreparedInsertStatement(
             final String insertQueryPart,
             final String valuePart,
@@ -50,6 +52,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
         this.insertQueryPart = insertQueryPart;
         this.valuePart = valuePart;
         this.dataTypeConverter = new DataTypeConverter(tz);
+        this.rowInsertedCount = 0;
 
         initBlockIfPossible();
     }
@@ -86,6 +89,15 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
     @Override
     public void addBatch() throws SQLException {
         addParameters();
+        executeBatchIfReachMaxSize();
+    }
+
+    private void executeBatchIfReachMaxSize() throws SQLException {
+        if (block.rowCnt() < BHConstants.MAX_INSERT_BLOCK_SIZE) {
+            return;
+        }
+        rowInsertedCount += creator.sendBlock(block);
+        block.reuseBlock();
     }
 
     @Override
@@ -94,20 +106,19 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
 
     @Override
     public int[] executeBatch() throws SQLException {
-        final int rows = creator.sendInsertRequest(block);
-        final int[] result = new int[rows];
+        rowInsertedCount += creator.sendInsertRequest(block);
+        final int[] result = new int[rowInsertedCount];
         Arrays.fill(result, 1);
         clearBatch();
         this.blockInit = false;
         this.block.initWriteBuffer();
+        this.rowInsertedCount = 0;
         return result;
     }
 
     @Override
     public void close() throws SQLException {
         if (blockInit) {
-            // Empty insert when close.
-            this.creator.sendInsertRequest(Block.empty());
             this.blockInit = false;
             this.block.initWriteBuffer();
         }

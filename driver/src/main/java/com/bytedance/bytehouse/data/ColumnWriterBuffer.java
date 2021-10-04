@@ -36,4 +36,8 @@ public class ColumnWriterBuffer {
             serializer.writeBytes(bytes);
         }
     }
+
+    public void reuseColumnWriterBuffer() {
+        this.columnWriter.reuseByteArray();
+    }
 }

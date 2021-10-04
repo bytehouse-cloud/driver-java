@@ -406,7 +406,9 @@ public class ByteHouseConnection implements BHConnection {
                 "Call getSampleBlock before insert.");
         try {
             final NativeClient nativeClient = getNativeClient();
-            nativeClient.sendData(block);
+            if (!block.isEmpty()) {
+                nativeClient.sendData(block);
+            }
             nativeClient.sendData(Block.empty());
             nativeClient.receiveEndOfStream(cfg.get().queryTimeout(), nativeCtx.serverCtx());
         } finally {
@@ -414,6 +416,17 @@ public class ByteHouseConnection implements BHConnection {
                     SessionState.WAITING_INSERT, SessionState.IDLE
             ));
         }
+        return block.rowCnt();
+    }
+
+    /**
+     * send single block.
+     */
+    public int sendBlock(final Block block) throws SQLException {
+        Validate.isTrue(this.state.get() == SessionState.WAITING_INSERT,
+                "Call getSampleBlock before insert.");
+        final NativeClient nativeClient = getNativeClient();
+        nativeClient.sendData(block);
         return block.rowCnt();
     }
 

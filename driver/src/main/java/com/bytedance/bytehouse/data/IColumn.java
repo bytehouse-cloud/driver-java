@@ -42,6 +42,8 @@ public interface IColumn {
     ColumnWriterBuffer getColumnWriterBuffer();
 
     void setColumnWriterBuffer(ColumnWriterBuffer buffer);
+
+    void reuseColumnWriterBuffer();
 }
 
 

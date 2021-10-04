@@ -85,6 +85,12 @@ public class SocketBuffedWriter implements BuffedWriter {
         position += length;
     }
 
+    @Override
+    public void writeBinaryNow(final byte[] bytes) throws IOException {
+        flushToTarget(true);
+        out.write(bytes);
+    }
+
     /**
      * {@inheritDoc}
      */

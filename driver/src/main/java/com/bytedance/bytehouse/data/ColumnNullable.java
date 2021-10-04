@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public class ColumnNullable extends AbstractColumn {
 
-    private final List<Byte> nullableSign;
+    private List<Byte> nullableSign;
 
     // data represents nested column in ColumnArray
     private final IColumn data;
@@ -64,5 +64,18 @@ public class ColumnNullable extends AbstractColumn {
     public void setColumnWriterBuffer(ColumnWriterBuffer buffer) {
         super.setColumnWriterBuffer(buffer);
         data.setColumnWriterBuffer(buffer);
+    }
+
+    @Override
+    public void reuseColumnWriterBuffer() {
+        super.reuseColumnWriterBuffer();
+        data.reuseColumnWriterBuffer();
+        nullableSign.clear();
+    }
+
+    @Override
+    public void clear() {
+        data.clear();
+        nullableSign.clear();
     }
 }

@@ -21,13 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import org.junit.jupiter.api.Test;
 
 public class BatchInsertITest extends AbstractITest {
@@ -323,6 +326,65 @@ public class BatchInsertITest extends AbstractITest {
             }
             finally {
                 statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
+
+    @Test
+    public void dataNotCommittedBeforeExecuteBatch() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id Int8, age UInt8, name String, name2 String)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, 1, ?, ?)", tableName), pstmt -> {
+                    for (int i = 0; i < Byte.MAX_VALUE; i++) {
+                        pstmt.setByte(1, (byte) i);
+                        pstmt.setString(2, "Zhang San" + i);
+                        pstmt.setString(3, "张三" + i);
+                        pstmt.addBatch();
+                    }
+                });
+
+                // We are using a new connection here
+                ResultSet rs = statement.executeQuery(String.format("select * from %s", tableName));
+                assertFalse(rs.next());
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
+
+    @Test
+    public void queriesNotAllowedBeforeExecuteBatch() throws Exception {
+        withNewConnection(connection -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            Statement statement = connection.createStatement();
+            statement.execute(String.format("CREATE DATABASE %s", databaseName));
+            statement.execute(String.format("CREATE TABLE %s(id Int8, age UInt8, name String, name2 String)"
+                    + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+            PreparedStatement preparedStatement = connection.prepareStatement(String.format("INSERT INTO %s VALUES(?, 1, ?, ?)", tableName));
+
+            for (int i = 0; i < Byte.MAX_VALUE; i++) {
+                preparedStatement.setByte(1, (byte) i);
+                preparedStatement.setString(2, "Zhang San" + i);
+                preparedStatement.setString(3, "张三" + i);
+                preparedStatement.addBatch();
+            }
+
+            try {
+                statement.executeQuery(String.format("select * from %s", tableName));
+            } catch (ByteHouseSQLException exception) {
+                assertEquals("Connection is currently waiting for an insert operation, "
+                        + "check your previous InsertStatement.", exception.getMessage());
             }
         });
     }

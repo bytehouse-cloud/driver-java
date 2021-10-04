@@ -36,6 +36,11 @@ public interface BuffedWriter {
     void writeBinary(byte[] bytes, int offset, int length) throws IOException;
 
     /**
+     * flush the content of the buffer into underlying storage and then write the array of bytes
+     */
+    void writeBinaryNow(byte[] bytes) throws IOException;
+
+    /**
      * flush the content of the buffer into underlying storage.
      */
     void flushToTarget(boolean force) throws IOException;

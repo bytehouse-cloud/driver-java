@@ -64,4 +64,10 @@ public abstract class AbstractColumn implements IColumn {
     public void setColumnWriterBuffer(ColumnWriterBuffer buffer) {
         this.buffer = buffer;
     }
+
+    @Override
+    public void reuseColumnWriterBuffer() {
+        this.buffer.reuseColumnWriterBuffer();
+    }
+
 }

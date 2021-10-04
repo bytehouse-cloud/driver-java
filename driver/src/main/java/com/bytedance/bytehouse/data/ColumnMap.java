@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class ColumnMap extends AbstractColumn {
 
-    private final List<Long> offsets;
+    private List<Long> offsets;
 
     /**
      * Column for packing the keys for all the rows together for writing.
@@ -93,6 +93,14 @@ public class ColumnMap extends AbstractColumn {
         super.setColumnWriterBuffer(buffer);
         keysColumn.setColumnWriterBuffer(new ColumnWriterBuffer());
         valuesColumn.setColumnWriterBuffer(new ColumnWriterBuffer());
+    }
+
+    @Override
+    public void reuseColumnWriterBuffer() {
+        super.reuseColumnWriterBuffer();
+        offsets.clear();
+        keysColumn.reuseColumnWriterBuffer();
+        valuesColumn.reuseColumnWriterBuffer();
     }
 
     @Override

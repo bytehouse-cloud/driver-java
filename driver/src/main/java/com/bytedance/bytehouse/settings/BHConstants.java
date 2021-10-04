@@ -53,4 +53,8 @@ public final class BHConstants {
     public static final int SOCKET_RECV_BUFFER_BYTES = 1024 * 1024;
 
     public static final int COLUMN_BUFFER_BYTES = 1024 * 1024;
+
+    // For verification, MAX_INSERT_BLOCK_SIZE has been set to 1, default value would be decided
+    // after performing benchmark (possible value can be 65536)
+    public static final int MAX_INSERT_BLOCK_SIZE = 1;
 }

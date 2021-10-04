@@ -98,6 +98,10 @@ public class Block {
         return new Block(0, new IColumn[0]);
     }
 
+    public boolean isEmpty() {
+        return rowCnt == 0;
+    }
+
     public int rowCnt() {
         return rowCnt;
     }
@@ -120,6 +124,11 @@ public class Block {
                             columns[i].name()
                     ), e);
         }
+    }
+
+    public void reuseBlock() {
+        this.rowCnt = 0;
+        this.reuseWriteBuffer();
     }
 
     public void setObject(
@@ -185,6 +194,12 @@ public class Block {
     public void initWriteBuffer() {
         for (final IColumn column : columns) {
             column.setColumnWriterBuffer(new ColumnWriterBuffer());
+        }
+    }
+
+    public void reuseWriteBuffer() {
+        for (final IColumn column : columns) {
+            column.reuseColumnWriterBuffer();
         }
     }
 }

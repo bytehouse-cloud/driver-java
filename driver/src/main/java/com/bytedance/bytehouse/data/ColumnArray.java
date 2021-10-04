@@ -72,6 +72,13 @@ public class ColumnArray extends AbstractColumn {
     }
 
     @Override
+    public void reuseColumnWriterBuffer() {
+        super.reuseColumnWriterBuffer();
+        offsets.clear();
+        data.reuseColumnWriterBuffer();
+    }
+
+    @Override
     public void clear() {
         offsets.clear();
         data.clear();
