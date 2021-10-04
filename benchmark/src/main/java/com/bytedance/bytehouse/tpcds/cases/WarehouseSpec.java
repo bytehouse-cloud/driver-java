@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.tpcds.TpcdsBenchmarkSetupUtil;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class WarehouseSpec implements TpcdsSpec {
+public final class WarehouseSpec implements TpcdsSpec {
 
     public static final TpcdsSpec INSTANCE = new WarehouseSpec();
 

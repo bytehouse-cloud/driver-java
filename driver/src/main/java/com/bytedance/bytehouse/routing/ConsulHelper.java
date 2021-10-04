@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class ConsulHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(ConsulHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsulHelper.class);
 
     private static final String CONSUL_MARKER = "consul:";
 
@@ -85,7 +85,7 @@ public class ConsulHelper {
                 if (uniqueIps.add(ipv4)) {
                     uniqueClusterNodes.add(node);
                 } else {
-                    log.error("Consul returns duplicated ip: {}. ignoring...", ipv4);
+                    LOGGER.error("Consul returns duplicated ip: {}. ignoring...", ipv4);
                 }
             }
         }

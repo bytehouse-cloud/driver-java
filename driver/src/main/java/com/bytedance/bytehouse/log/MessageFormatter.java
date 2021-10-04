@@ -110,6 +110,7 @@ import java.util.Map;
  * @author Ceki G&uuml;lc&uuml;
  * @author Joern Huxhorn
  */
+@SuppressWarnings("PMD.LocalVariableNamingConventions")
 final public class MessageFormatter {
 
     static final char DELIM_START = '{';

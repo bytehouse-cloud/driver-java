@@ -27,7 +27,7 @@ import java.time.ZoneId;
 
 public class DataTypeString implements IDataType<CharSequence, String> {
 
-    public static DataTypeCreator<CharSequence, String> CREATOR = (lexer, serverContext) -> new DataTypeString(serverContext.getConfigure().charset());
+    public static final DataTypeCreator<CharSequence, String> CREATOR = (lexer, serverContext) -> new DataTypeString(serverContext.getConfigure().charset());
 
     private final Charset charset;
 

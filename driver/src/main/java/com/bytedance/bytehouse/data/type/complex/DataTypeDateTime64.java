@@ -133,10 +133,10 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
         Validate.isTrue(lexer.character() == ':');
         int minutes = lexer.numberLiteral().intValue();
         Validate.isTrue(lexer.character() == ':');
-        BigDecimal _seconds = BigDecimal.valueOf(lexer.numberLiteral().doubleValue())
+        BigDecimal seconds = BigDecimal.valueOf(lexer.numberLiteral().doubleValue())
                 .setScale(scale, BigDecimal.ROUND_HALF_UP);
-        int second = _seconds.intValue();
-        int nanos = _seconds.subtract(BigDecimal.valueOf(second)).movePointRight(9).intValue();
+        int second = seconds.intValue();
+        int nanos = seconds.subtract(BigDecimal.valueOf(second)).movePointRight(9).intValue();
         Validate.isTrue(lexer.character() == '\'');
         Validate.isTrue(lexer.character() == ')');
 

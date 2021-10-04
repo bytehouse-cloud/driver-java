@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.tpcds.TpcdsBenchmarkSetupUtil;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class CustomerAddressSpec implements TpcdsSpec {
+public final class CustomerAddressSpec implements TpcdsSpec {
 
     public static final TpcdsSpec INSTANCE = new CustomerAddressSpec();
 

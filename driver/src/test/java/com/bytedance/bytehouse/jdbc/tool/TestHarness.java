@@ -30,11 +30,11 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestHarness extends AbstractITest {
-    static final Logger LOG = LoggerFactory.getLogger(TestHarness.class);
-    static final int RECORD_COUNT = (1 << 17);
-    static Function<String, String> SUM_EXPR = s -> "sum(" + s + ")";
-    static Function<String, String> MAX_EXPR = s -> "max(" + s + ")";
-    static List<DataTypeApply> ALL_TYPES = new ArrayList<>();
+    private static final Logger LOG = LoggerFactory.getLogger(TestHarness.class);
+    private static final int RECORD_COUNT = (1 << 17);
+    private static final Function<String, String> SUM_EXPR = s -> "sum(" + s + ")";
+    private static final Function<String, String> MAX_EXPR = s -> "max(" + s + ")";
+    private static final List<DataTypeApply> ALL_TYPES = new ArrayList<>();
 
     static {
         ALL_TYPES.add(new DataTypeApply(

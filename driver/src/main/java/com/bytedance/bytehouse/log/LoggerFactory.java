@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.log;
 
-public class LoggerFactory {
+public final class LoggerFactory {
 
     private static LoggerFactoryAdaptor adaptor;
 

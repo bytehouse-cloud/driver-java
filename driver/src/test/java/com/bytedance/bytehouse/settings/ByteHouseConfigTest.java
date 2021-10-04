@@ -95,7 +95,7 @@ class ByteHouseConfigTest {
     public void testUserDefinedSettings() {
         SettingKey userDefined = SettingKey.builder()
                 .withName("user_defined")
-                .withType(SettingType.UTF8)
+                .withType(SettingType.UTF_8)
                 .build();
 
         Properties props = new Properties();

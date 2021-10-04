@@ -53,10 +53,10 @@ public class AbstractBenchmark {
     private static final String BYTEHOUSE = "bytehouse";
 
     private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:21.3";
-    private static final ClickHouseContainer container;
+    private static final ClickHouseContainer CONTAINER;
 
-    private Properties EnvConfigs;
-    private Properties TestConfigs;
+    private Properties envConfigs;
+    private Properties testConfigs;
 
     private Connection connection;
     private DataSource dataSource;
@@ -64,8 +64,8 @@ public class AbstractBenchmark {
     private String uuid;
 
     static {
-        container = new ClickHouseContainer(CLICKHOUSE_IMAGE);
-        container.start();
+        CONTAINER = new ClickHouseContainer(CLICKHOUSE_IMAGE);
+        CONTAINER.start();
     }
 
     protected void init(String databaseName, String tableName, String createTableSql) throws SQLException {
@@ -119,18 +119,18 @@ public class AbstractBenchmark {
 
     private Connection getNewConnection() throws SQLException {
         if (getDriverName().equals(CLICKHOUSE)) {
-            dataSource = new com.github.housepower.jdbc.BalancedClickhouseDataSource(getUrl(), TestConfigs);
+            dataSource = new com.github.housepower.jdbc.BalancedClickhouseDataSource(getUrl(), testConfigs);
         }
         else if (getDriverName().equals(BYTEHOUSE)) {
             if (getServerName().equals(CNCH)) {
-                dataSource = new CnchRoutingDataSource(getUrl(), TestConfigs);
+                dataSource = new CnchRoutingDataSource(getUrl(), testConfigs);
             }
             else if (getServerName().equals(CLICKHOUSE)) {
-                dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
+                dataSource = new ByteHouseDataSource(getUrl(), testConfigs);
                 //TODO: Throwing Exception Error sql: select timezone()
             }
             else {
-                dataSource = new ByteHouseDataSource(getUrl(), TestConfigs);
+                dataSource = new ByteHouseDataSource(getUrl(), testConfigs);
             }
         }
         return dataSource.getConnection();
@@ -157,19 +157,19 @@ public class AbstractBenchmark {
     }
 
     private String getHost() {
-        return TestConfigs.getProperty(HOST);
+        return testConfigs.getProperty(HOST);
     }
 
     private String getPort() {
-        return TestConfigs.getProperty(PORT);
+        return testConfigs.getProperty(PORT);
     }
 
     private String getUrl() {
-        switch (EnvConfigs.getProperty(SERVER)) {
+        switch (envConfigs.getProperty(SERVER)) {
             case CNCH:
                 return "jdbc:cnch:///dataexpress?secure=false";
             case CLICKHOUSE:
-                return "jdbc:" + getDriverName() + "://" + container.getHost() + ":" + container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
+                return "jdbc:" + getDriverName() + "://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(ClickHouseContainer.NATIVE_PORT);
             default:
                 return String.format("jdbc:bytehouse://%s:%s", getHost(), getPort());
 
@@ -177,27 +177,27 @@ public class AbstractBenchmark {
     }
 
     private String getServerName() {
-        return EnvConfigs.getProperty(SERVER);
+        return envConfigs.getProperty(SERVER);
     }
 
     private String getDriverName() {
-        return EnvConfigs.getProperty(DRIVER);
+        return envConfigs.getProperty(DRIVER);
     }
 
     private void loadTestConfigs() {
-        EnvConfigs = new Properties();
+        envConfigs = new Properties();
         String envConfigsResourcePath = AbstractBenchmark.class.getResource("/env.properties").getPath();
 
         try (InputStream input = Files.newInputStream(Paths.get(envConfigsResourcePath))) {
-            EnvConfigs.load(input);
+            envConfigs.load(input);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
 
-        TestConfigs = new Properties();
-        String testConfigsResourcePath = AbstractBenchmark.class.getResource("/" + EnvConfigs.getProperty(ENV) + "-" + EnvConfigs.getProperty(SERVER) + "-config.properties").getPath();
+        testConfigs = new Properties();
+        String testConfigsResourcePath = AbstractBenchmark.class.getResource("/" + envConfigs.getProperty(ENV) + "-" + envConfigs.getProperty(SERVER) + "-config.properties").getPath();
         try (InputStream input = Files.newInputStream(Paths.get(testConfigsResourcePath))) {
-            TestConfigs.load(input);
+            testConfigs.load(input);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }

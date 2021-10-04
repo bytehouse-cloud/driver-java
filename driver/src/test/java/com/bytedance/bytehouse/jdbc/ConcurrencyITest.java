@@ -33,15 +33,15 @@ public class ConcurrencyITest extends AbstractITest {
 
     @Test
     public void withAllNewConnections() throws Exception {
-        int thread_count = 10;
+        int threadCount = 10;
         List<Connection> connectionList = new ArrayList<>();
         List<Future<Integer>> results;
 
         try {
-            ExecutorService executor = Executors.newFixedThreadPool(thread_count);
+            ExecutorService executor = Executors.newFixedThreadPool(threadCount);
             List<Callable<Integer>> futureList = new ArrayList<>();
 
-            for (int i=0; i<thread_count; i++) {
+            for (int i=0; i<threadCount; i++) {
                 String databaseName = getDatabaseName();
                 String tableName = databaseName + "." + getTableName();
                 Connection connection = getConnection();
@@ -89,18 +89,18 @@ public class ConcurrencyITest extends AbstractITest {
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         String.format("INSERT INTO %s VALUES (?)", tableName, getCreateTableSuffix())
                 );
-                int start_idx = new Random().nextInt(100);
-                int batch_size = start_idx;
+                int startIdx = new Random().nextInt(100);
+                int batchSize = startIdx;
 
-                for (int iter=start_idx; iter<start_idx+batch_size; iter++) {
+                for (int iter=startIdx; iter<startIdx+batchSize; iter++) {
                     preparedStatement.setInt(1, iter);
                     preparedStatement.addBatch();
                 }
 
-                assertEquals(preparedStatement.executeBatch().length, batch_size);
+                assertEquals(preparedStatement.executeBatch().length, batchSize);
 
                 ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
-                for (int iter=start_idx; iter<start_idx+batch_size; iter++) {
+                for (int iter=startIdx; iter<startIdx+batchSize; iter++) {
                     assertTrue(rs.next());
                     assertEquals(rs.getInt(1), iter);
                 }

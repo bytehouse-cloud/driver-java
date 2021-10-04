@@ -56,7 +56,9 @@ public class DateTimeUtil {
     }
 
     public static Timestamp toTimestamp(final ZonedDateTime zdt, @Nullable final ZoneId tz) {
-        ZonedDateTime _zdt = tz == null ? zdt : zdt.withZoneSameLocal(tz);
-        return Timestamp.from(_zdt.toInstant());
+        if (tz == null) {
+            return Timestamp.from(zdt.toInstant());
+        }
+        return Timestamp.from(zdt.withZoneSameLocal(tz).toInstant());
     }
 }

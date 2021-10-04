@@ -27,9 +27,9 @@ import java.util.Map;
  */
 public final class GenerateSqlInsertStatementUtil {
 
-    public static final String[] columnTypes = {"String", "Int64", "UInt8", "Array(UInt32)"};
+    public static final String[] COLUMN_TYPES = {"String", "Int64", "UInt8", "Array(UInt32)"};
 
-    public static final String[] columnValues = {"'rand_string'", "123456789123456789", "123", "[1, 2, 3, 4, 5]"};
+    public static final String[] COLUMN_VALUES = {"'rand_string'", "123456789123456789", "123", "[1, 2, 3, 4, 5]"};
 
     private GenerateSqlInsertStatementUtil() {
         // no creation of util class
@@ -141,7 +141,7 @@ public final class GenerateSqlInsertStatementUtil {
     }
 
     public static boolean isValidColumnType(String type) {
-        for (String columnType : columnTypes) {
+        for (String columnType : COLUMN_TYPES) {
             if (columnType.equals(type)) return true;
         }
         return false;
@@ -149,9 +149,9 @@ public final class GenerateSqlInsertStatementUtil {
 
     public static String getValueForType(String type) {
         String value = "";
-        for (int i = 0; i < columnTypes.length; i++) {
-            if (columnTypes[i].equals(type)) {
-                value = columnValues[i];
+        for (int i = 0; i < COLUMN_TYPES.length; i++) {
+            if (COLUMN_TYPES[i].equals(type)) {
+                value = COLUMN_VALUES[i];
             }
         }
         return value;

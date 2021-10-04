@@ -23,49 +23,49 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CollectionUtilTest {
 
-    private static final Map<String, String> map1 = new HashMap<>();
+    private static final Map<String, String> MAP_1 = new HashMap<>();
 
     static {
-        map1.put("k1", "v1");
-        map1.put("k2", "v2");
+        MAP_1.put("k1", "v1");
+        MAP_1.put("k2", "v2");
     }
 
-    private static final Map<String, String> map2 = new HashMap<>();
+    private static final Map<String, String> MAP_2 = new HashMap<>();
 
     static {
-        map2.put("k2", "new_v2");
-        map2.put("k3", "v3");
+        MAP_2.put("k2", "new_v2");
+        MAP_2.put("k3", "v3");
     }
 
-    private static final Map<String, String> keepFirstMap = new HashMap<>();
+    private static final Map<String, String> KEEP_FIRST_MAP = new HashMap<>();
 
     static {
-        keepFirstMap.put("k1", "v1");
-        keepFirstMap.put("k2", "v2");
-        keepFirstMap.put("k3", "v3");
+        KEEP_FIRST_MAP.put("k1", "v1");
+        KEEP_FIRST_MAP.put("k2", "v2");
+        KEEP_FIRST_MAP.put("k3", "v3");
     }
 
-    private static final Map<String, String> keepLastMap = new HashMap<>();
+    private static final Map<String, String> KEEP_LAST_MAP = new HashMap<>();
 
     static {
-        keepLastMap.put("k1", "v1");
-        keepLastMap.put("k2", "new_v2");
-        keepLastMap.put("k3", "v3");
+        KEEP_LAST_MAP.put("k1", "v1");
+        KEEP_LAST_MAP.put("k2", "new_v2");
+        KEEP_LAST_MAP.put("k3", "v3");
     }
 
     @Test
     public void testMergeMap() {
-        assertEquals(keepFirstMap, CollectionUtil.mergeMapKeepFirst(map1, map2));
-        assertEquals(keepLastMap, CollectionUtil.mergeMapKeepLast(map1, map2));
+        assertEquals(KEEP_FIRST_MAP, CollectionUtil.mergeMapKeepFirst(MAP_1, MAP_2));
+        assertEquals(KEEP_LAST_MAP, CollectionUtil.mergeMapKeepLast(MAP_1, MAP_2));
     }
 
     @Test
     public void testMergeMapInPlace() {
-        HashMap<String, String> map1Copy1 = new HashMap<>(map1);
-        CollectionUtil.mergeMapInPlaceKeepFirst(map1Copy1, map2);
-        assertEquals(keepFirstMap, map1Copy1);
-        HashMap<String, String> map1Copy2 = new HashMap<>(map1);
-        CollectionUtil.mergeMapInPlaceKeepLast(map1Copy2, map2);
-        assertEquals(keepLastMap, map1Copy2);
+        HashMap<String, String> map1Copy1 = new HashMap<>(MAP_1);
+        CollectionUtil.mergeMapInPlaceKeepFirst(map1Copy1, MAP_2);
+        assertEquals(KEEP_FIRST_MAP, map1Copy1);
+        HashMap<String, String> map1Copy2 = new HashMap<>(MAP_1);
+        CollectionUtil.mergeMapInPlaceKeepLast(map1Copy2, MAP_2);
+        assertEquals(KEEP_LAST_MAP, map1Copy2);
     }
 }

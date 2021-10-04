@@ -21,6 +21,17 @@
     <rule ref="category/java/bestpractices.xml/SystemPrintln"/>
 
 
+    <!--    &lt;!&ndash; NAMING CONVENTIONS &ndash;&gt;-->
+    <rule ref="category/java/codestyle.xml/FieldNamingConventions"/>
+    <rule ref="category/java/codestyle.xml/FormalParameterNamingConventions"/>
+    <rule ref="category/java/codestyle.xml/LocalVariableNamingConventions"/>
+
+
+    <!--    &lt;!&ndash; OTHER &ndash;&gt;-->
+    <rule ref="category/java/codestyle.xml/AvoidUsingNativeCode"/>
+    <rule ref="category/java/codestyle.xml/EmptyMethodInAbstractClassShouldBeAbstract"/>
+
+
     <rule ref="category/java/errorprone.xml/AvoidAssertAsIdentifier"/>
     <rule ref="category/java/errorprone.xml/AvoidBranchingStatementAsLastInLoop"/>
     <rule ref="category/java/errorprone.xml/AvoidEnumAsIdentifier"/>
@@ -108,11 +119,8 @@
 <!--                      value="[A-Z][a-zA-Z0-9]+(Utils?|Helper|Factory|App|Settings)"/>-->
 <!--        </properties>-->
 <!--    </rule>-->
-<!--    <rule ref="category/java/codestyle.xml/FieldNamingConventions"/>-->
-<!--    <rule ref="category/java/codestyle.xml/FormalParameterNamingConventions"/>-->
 <!--    &lt;!&ndash;    <rule ref="category/java/codestyle.xml/GenericsNaming"/>&ndash;&gt;-->
 <!--    <rule ref="category/java/codestyle.xml/LinguisticNaming"/>-->
-<!--    <rule ref="category/java/codestyle.xml/LocalVariableNamingConventions"/>-->
 <!--    <rule ref="category/java/codestyle.xml/LongVariable">-->
 <!--        <properties>-->
 <!--            <property name="minimum" value="40"/>-->
@@ -121,7 +129,6 @@
 <!--    <rule ref="category/java/codestyle.xml/MethodNamingConventions"/>-->
 <!--    <rule ref="category/java/codestyle.xml/PackageCase"/>-->
 <!--    <rule ref="category/java/codestyle.xml/ShortClassName"/>-->
-
 <!--    <rule ref="category/java/codestyle.xml/LocalHomeNamingConvention"/>-->
 <!--    <rule ref="category/java/codestyle.xml/LocalInterfaceSessionNamingConvention"/>-->
 <!--    <rule ref="category/java/codestyle.xml/MDBAndSessionBeanNamingConvention"/>-->
@@ -132,14 +139,12 @@
 <!--    <rule ref="category/java/codestyle.xml/AvoidDollarSigns"/>-->
 <!--    <rule ref="category/java/codestyle.xml/AvoidProtectedFieldInFinalClass"/>-->
 <!--    <rule ref="category/java/codestyle.xml/AvoidProtectedMethodInFinalClassNotExtending"/>-->
-<!--    <rule ref="category/java/codestyle.xml/AvoidUsingNativeCode"/>-->
 <!--    <rule ref="category/java/codestyle.xml/BooleanGetMethodName"/>-->
 <!--    <rule ref="category/java/codestyle.xml/CallSuperInConstructor"/>-->
 <!--    <rule ref="category/java/codestyle.xml/ConfusingTernary"/>-->
 <!--    <rule ref="category/java/codestyle.xml/ControlStatementBraces"/>-->
 <!--    <rule ref="category/java/codestyle.xml/DontImportJavaLang"/>-->
 <!--    <rule ref="category/java/codestyle.xml/DuplicateImports"/>-->
-<!--    <rule ref="category/java/codestyle.xml/EmptyMethodInAbstractClassShouldBeAbstract"/>-->
 <!--    <rule ref="category/java/codestyle.xml/ExtendsObject"/>-->
 <!--    <rule ref="category/java/codestyle.xml/FieldDeclarationsShouldBeAtStartOfClass"/>-->
 <!--    <rule ref="category/java/codestyle.xml/ForLoopShouldBeWhileLoop"/>-->
@@ -162,15 +167,15 @@
 <!--    <rule ref="category/java/codestyle.xml/UselessQualifiedThis"/>-->
 
 
-<!--    <rule ref="category/java/design.xml/AbstractClassWithoutAnyMethod"/>-->
+    <rule ref="category/java/design.xml/AbstractClassWithoutAnyMethod"/>
 <!--    <rule ref="category/java/design.xml/AvoidCatchingGenericException"/>-->
 <!--    <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts"/>-->
 <!--    <rule ref="category/java/design.xml/AvoidRethrowingException"/>-->
 <!--    <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException"/>-->
-<!--    <rule ref="category/java/design.xml/AvoidThrowingNullPointerException"/>-->
+    <rule ref="category/java/design.xml/AvoidThrowingNullPointerException"/>
 <!--    <rule ref="category/java/design.xml/AvoidThrowingRawExceptionTypes"/>-->
 <!--    <rule ref="category/java/design.xml/AvoidUncheckedExceptionsInSignatures"/>-->
-<!--    <rule ref="category/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal"/>-->
+    <rule ref="category/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
 <!--    <rule ref="category/java/design.xml/CollapsibleIfStatements"/>-->
 <!--    <rule ref="category/java/design.xml/CouplingBetweenObjects"/>-->
 <!--    <rule ref="category/java/design.xml/CyclomaticComplexity"/>-->

@@ -30,7 +30,7 @@ import java.time.ZoneId;
  */
 public class DataTypeNothing implements IDataType<Byte, Object> {
 
-    public static DataTypeCreator<Byte, Object> CREATOR =
+    public static final DataTypeCreator<Byte, Object> CREATOR =
             (lexer, serverContext) -> new DataTypeNothing(serverContext);
 
     public DataTypeNothing(ServerContext serverContext) {

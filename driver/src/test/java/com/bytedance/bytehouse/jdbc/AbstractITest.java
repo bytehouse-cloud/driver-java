@@ -36,7 +36,7 @@ public class AbstractITest implements Serializable {
     private static final String PORT = "PORT";
     private static final String USER = "USER";
 
-    private Properties TestConfigs;
+    private Properties testConfigs;
     protected static final String DRIVER = "driver";
     protected static final String BYTEHOUSE = "bytehouse";
     protected static final String CLICKHOUSE_NATIVE = "clickhouse-native";
@@ -46,26 +46,26 @@ public class AbstractITest implements Serializable {
     private static final String CNCH = "cnch";
     private static final String ENV = "env";
 
-    private Properties DriverSettings;
+    private Properties driverSettings;
 
     private DataSource dataSource;
     private String lastUsedDatabaseName;
     private String lastUsedTableName;
 
     private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:21.3";
-    private static final ClickHouseContainer container;
+    private static final ClickHouseContainer CONTAINER;
 
     static {
-        container = new ClickHouseContainer(CLICKHOUSE_IMAGE);
-        container.start();
+        CONTAINER = new ClickHouseContainer(CLICKHOUSE_IMAGE);
+        CONTAINER.start();
     }
 
     protected String getHost() {
-        return DriverSettings.getProperty(HOST);
+        return driverSettings.getProperty(HOST);
     }
 
     protected String getPort() {
-        return DriverSettings.getProperty(PORT);
+        return driverSettings.getProperty(PORT);
     }
 
     protected String getUrl() {
@@ -78,9 +78,9 @@ public class AbstractITest implements Serializable {
                         return "jdbc:cnch:///dataexpress?secure=false";
                 }
             case CLICKHOUSE_NATIVE:
-                return "jdbc:clickhouse://" + container.getHost() + ":" + container.getMappedPort(ClickHouseContainer.NATIVE_PORT);
+                return "jdbc:clickhouse://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(ClickHouseContainer.NATIVE_PORT);
             case CLICKHOUSE_HTTP:
-                return "jdbc:clickhouse://" + container.getHost() + ":" + container.getMappedPort(ClickHouseContainer.HTTP_PORT);
+                return "jdbc:clickhouse://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(ClickHouseContainer.HTTP_PORT);
         }
         return "";
     }
@@ -95,7 +95,7 @@ public class AbstractITest implements Serializable {
     }
 
     protected String getUsername() {
-        return DriverSettings.getProperty(USER);
+        return driverSettings.getProperty(USER);
     }
 
     protected String getDatabaseName() {
@@ -109,11 +109,11 @@ public class AbstractITest implements Serializable {
     }
 
     protected String getServerName() {
-        return TestConfigs.getProperty(SERVER);
+        return testConfigs.getProperty(SERVER);
     }
 
     protected String getDriver() {
-        return TestConfigs.getProperty(DRIVER);
+        return testConfigs.getProperty(DRIVER);
     }
 
     protected DataSource getDataSource() {
@@ -127,18 +127,18 @@ public class AbstractITest implements Serializable {
             case BYTEHOUSE:
                 switch (getServerName()) {
                     case GATEWAY:
-                        dataSource = new ByteHouseDataSource(getUrl(), DriverSettings);
+                        dataSource = new ByteHouseDataSource(getUrl(), driverSettings);
                         break;
                     case CNCH:
-                        dataSource = new CnchRoutingDataSource(getUrl(), DriverSettings);
+                        dataSource = new CnchRoutingDataSource(getUrl(), driverSettings);
                         break;
                 }
                 break;
             case CLICKHOUSE_NATIVE:
-                dataSource = new BalancedClickhouseDataSource(getUrl(), DriverSettings);
+                dataSource = new BalancedClickhouseDataSource(getUrl(), driverSettings);
                 break;
             case CLICKHOUSE_HTTP:
-                dataSource = new ClickHouseDataSource(getUrl(), DriverSettings);
+                dataSource = new ClickHouseDataSource(getUrl(), driverSettings);
                 break;
         }
 
@@ -168,33 +168,33 @@ public class AbstractITest implements Serializable {
 
     protected ByteHouseDataSource getDataSource(String url, Object... params) throws SQLException {
         loadTestConfigs(params);
-        final DataSource dataSource = new ByteHouseDataSource(url, DriverSettings);
+        final DataSource dataSource = new ByteHouseDataSource(url, driverSettings);
         return (ByteHouseDataSource) dataSource;
     }
 
     private void loadTestConfigs(Object... params) {
-        TestConfigs = new Properties();
-        DriverSettings = new Properties();
+        testConfigs = new Properties();
+        driverSettings = new Properties();
         try (InputStream input = Files.newInputStream(Paths
                 .get("src/test/resources/config.properties"))) {
-            TestConfigs.load(input);
+            testConfigs.load(input);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
 
         if (getServerName().equals(GATEWAY)) {
-            String envName = TestConfigs.getProperty(ENV);
+            String envName = testConfigs.getProperty(ENV);
 
             try (InputStream input = Files.newInputStream(Paths
                     .get("src/test/resources/" + envName + "-config.properties"))) {
-                DriverSettings.load(input);
+                driverSettings.load(input);
             } catch (IOException ex) {
                 throw new UncheckedIOException(ex);
             }
         }
 
         for (int i = 0; i + 1 < params.length; i = i + 2) {
-            DriverSettings.setProperty(params[i].toString(), params[i+1].toString());
+            driverSettings.setProperty(params[i].toString(), params[i+1].toString());
         }
     }
 
