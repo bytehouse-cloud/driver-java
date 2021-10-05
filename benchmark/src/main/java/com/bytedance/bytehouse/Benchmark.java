@@ -26,11 +26,11 @@ public class Benchmark {
 
         Options options = new OptionsBuilder()
                 .forks(1)
-                .mode(Mode.AverageTime)
-                .warmupIterations(2)
+                .mode(Mode.SingleShotTime)
+                .warmupIterations(0)
                 .measurementIterations(1)
                 .include("./*IBenchmark")
-                .result("reports/benchmark-with-jmh-0.txt")
+                .result("reports/benchmark-datatypes.txt")
                 .resultFormat(ResultFormatType.TEXT)
                 .build();
         new Runner(options).run();

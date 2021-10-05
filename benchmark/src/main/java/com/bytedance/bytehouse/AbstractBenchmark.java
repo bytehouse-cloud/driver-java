@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.testcontainers.containers.ClickHouseContainer;
 
-@BenchmarkMode(Mode.AverageTime)
+@BenchmarkMode(Mode.SingleShotTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
 public class AbstractBenchmark {
@@ -54,6 +54,10 @@ public class AbstractBenchmark {
 
     private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:21.3";
     private static final ClickHouseContainer CONTAINER;
+
+    protected String databaseName = "jdbc_benchmark";
+    protected String tableName = "jdbc_benchmark";
+    protected RandomGenerator randomGenerator = new RandomGenerator();
 
     private Properties envConfigs;
     private Properties testConfigs;
@@ -201,5 +205,24 @@ public class AbstractBenchmark {
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
+    }
+
+    protected String getColumnsExpression(Type type, int columnCount) {
+        String baseExpression = type.toString();
+        StringBuilder expressionBuilder = new StringBuilder();
+        for (int i=0; i<columnCount; i++) {
+            expressionBuilder.append("col" + i + " " + baseExpression);
+            if (i != columnCount - 1) expressionBuilder.append(", ");
+        }
+        return expressionBuilder.toString();
+    }
+
+    protected String getExclaimExpression(int columnCount) {
+        StringBuilder expressionBuilder = new StringBuilder();
+        for (int i=0; i<columnCount; i++) {
+            expressionBuilder.append("?");
+            if (i != columnCount - 1) expressionBuilder.append(", ");
+        }
+        return expressionBuilder.toString();
     }
 }
