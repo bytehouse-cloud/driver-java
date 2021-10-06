@@ -173,4 +173,18 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + ZonedDateTime.class);
     }
+
+    @Override
+    public ZonedDateTime[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        ZonedDateTime[] data = new ZonedDateTime[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public ZonedDateTime[] allocate(int rows) {
+        return new ZonedDateTime[rows];
+    }
 }

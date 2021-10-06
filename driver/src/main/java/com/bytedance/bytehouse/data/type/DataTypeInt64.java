@@ -75,4 +75,18 @@ public class DataTypeInt64 implements BaseDataTypeInt64<Long, Long> {
     public boolean isSigned() {
         return true;
     }
+
+    @Override
+    public Long[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Long[] data = new Long[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Long[] allocate(int rows) {
+        return new Long[rows];
+    }
 }

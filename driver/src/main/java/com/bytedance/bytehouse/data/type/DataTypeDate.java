@@ -108,4 +108,18 @@ public class DataTypeDate implements IDataType<LocalDate, Date> {
 
         return LocalDate.of(year, month, day);
     }
+
+    @Override
+    public LocalDate[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        LocalDate[] data = new LocalDate[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public LocalDate[] allocate(int rows) {
+        return new LocalDate[rows];
+    }
 }

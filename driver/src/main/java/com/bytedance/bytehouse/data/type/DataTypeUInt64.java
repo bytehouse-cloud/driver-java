@@ -83,4 +83,18 @@ public class DataTypeUInt64 implements BaseDataTypeInt64<BigInteger, BigInteger>
     public BigInteger deserializeText(SQLLexer lexer) throws SQLException {
         return BigInteger.valueOf(lexer.numberLiteral().longValue());
     }
+
+    @Override
+    public BigInteger[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        BigInteger[] data = new BigInteger[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public BigInteger[] allocate(int rows) {
+        return new BigInteger[rows];
+    }
 }

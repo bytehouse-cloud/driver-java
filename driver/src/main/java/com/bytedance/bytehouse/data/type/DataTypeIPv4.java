@@ -82,4 +82,18 @@ public class DataTypeIPv4 implements IDataType<Long, Long> {
     public Long deserializeText(SQLLexer lexer) throws SQLException {
         return lexer.numberLiteral().longValue() & 0xffffffffL;
     }
+
+    @Override
+    public Long[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Long[] data = new Long[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Long[] allocate(int rows) {
+        return new Long[rows];
+    }
 }

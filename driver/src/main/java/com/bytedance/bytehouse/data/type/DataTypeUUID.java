@@ -87,4 +87,18 @@ public class DataTypeUUID implements IDataType<UUID, String> {
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + UUID.class);
     }
+
+    @Override
+    public UUID[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        UUID[] data = new UUID[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public UUID[] allocate(int rows) {
+        return new UUID[rows];
+    }
 }

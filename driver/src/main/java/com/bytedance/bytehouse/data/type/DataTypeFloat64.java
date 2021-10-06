@@ -87,4 +87,18 @@ public class DataTypeFloat64 implements IDataType<Double, Double> {
     public boolean isSigned() {
         return true;
     }
+
+    @Override
+    public Double[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Double[] data = new Double[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Double[] allocate(int rows) {
+        return new Double[rows];
+    }
 }

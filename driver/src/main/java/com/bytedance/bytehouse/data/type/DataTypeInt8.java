@@ -75,4 +75,18 @@ public class DataTypeInt8 implements BaseDataTypeInt8<Byte, Byte> {
     public boolean isSigned() {
         return true;
     }
+
+    @Override
+    public Byte[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Byte[] data = new Byte[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Byte[] allocate(int rows) {
+        return new Byte[rows];
+    }
 }

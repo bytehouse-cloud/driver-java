@@ -138,4 +138,18 @@ public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
     public String[] getAliases() {
         return new String[]{"TIMESTAMP"};
     }
+
+    @Override
+    public ZonedDateTime[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        ZonedDateTime[] data = new ZonedDateTime[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public ZonedDateTime[] allocate(int rows) {
+        return new ZonedDateTime[rows];
+    }
 }

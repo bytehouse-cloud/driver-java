@@ -87,4 +87,18 @@ public class DataTypeFloat32 implements IDataType<Float, Float> {
     public boolean isSigned() {
         return true;
     }
+
+    @Override
+    public Float[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Float[] data = new Float[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Float[] allocate(int rows) {
+        return new Float[rows];
+    }
 }

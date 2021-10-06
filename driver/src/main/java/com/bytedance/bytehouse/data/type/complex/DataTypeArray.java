@@ -141,7 +141,7 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
 
         for (int row = 0, lastOffset = 0; row < rows; row++) {
             int offset = offsets[row];
-            arrays[row] = res.slice(lastOffset, offset - lastOffset);
+            arrays[row] = res.slice(elemDataType.allocate(offset - lastOffset), lastOffset, offset - lastOffset);
             lastOffset = offset;
         }
         return arrays;
@@ -149,5 +149,10 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
 
     public IDataType getElemDataType() {
         return elemDataType;
+    }
+
+    @Override
+    public ByteHouseArray[] allocate(int rows) {
+        return new ByteHouseArray[rows];
     }
 }

@@ -69,8 +69,7 @@ public class ByteHouseArray implements SQLArray {
         return joiner.toString();
     }
 
-    public ByteHouseArray slice(int offset, int length) {
-        Object[] result = new Object[length];
+    public ByteHouseArray slice(Object[] result, int offset, int length) {
         if (length >= 0) System.arraycopy(elements, offset, result, 0, length);
         return new ByteHouseArray(elementDataType, result);
     }

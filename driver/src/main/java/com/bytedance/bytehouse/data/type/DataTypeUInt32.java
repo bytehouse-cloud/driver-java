@@ -66,4 +66,18 @@ public class DataTypeUInt32 implements BaseDataTypeInt32<Long, Long> {
     public Long deserializeText(SQLLexer lexer) throws SQLException {
         return lexer.numberLiteral().longValue();
     }
+
+    @Override
+    public Long[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Long[] data = new Long[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Long[] allocate(int rows) {
+        return new Long[rows];
+    }
 }

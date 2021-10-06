@@ -164,4 +164,9 @@ public class DataTypeTuple implements IDataType<ByteHouseStruct, Struct> {
     public IDataType[] getNestedTypes() {
         return nestedTypes;
     }
+
+    @Override
+    public ByteHouseStruct[] allocate(int rows) {
+        return new ByteHouseStruct[rows];
+    }
 }

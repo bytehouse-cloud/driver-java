@@ -75,4 +75,18 @@ public class DataTypeInt32 implements BaseDataTypeInt32<Integer, Integer> {
     public boolean isSigned() {
         return true;
     }
+
+    @Override
+    public Integer[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Integer[] data = new Integer[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Integer[] allocate(int rows) {
+        return new Integer[rows];
+    }
 }

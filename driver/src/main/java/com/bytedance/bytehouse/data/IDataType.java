@@ -112,6 +112,10 @@ public interface IDataType<CK, JDBC> {
      */
     int getScale();
 
+    default Object[] allocate(int rows) {
+        return new Object[rows];
+    }
+
     /**
      * Converts CK value to String.
      *

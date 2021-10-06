@@ -66,4 +66,18 @@ public class DataTypeUInt8 implements BaseDataTypeInt8<Short, Short> {
     public Short deserializeText(SQLLexer lexer) throws SQLException {
         return lexer.numberLiteral().shortValue();
     }
+
+    @Override
+    public Short[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Short[] data = new Short[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Short[] allocate(int rows) {
+        return new Short[rows];
+    }
 }

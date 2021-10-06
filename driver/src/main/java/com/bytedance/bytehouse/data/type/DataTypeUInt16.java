@@ -66,4 +66,18 @@ public class DataTypeUInt16 implements BaseDataTypeInt16<Integer, Integer> {
     public Integer deserializeText(SQLLexer lexer) throws SQLException {
         return lexer.numberLiteral().intValue();
     }
+
+    @Override
+    public Integer[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Integer[] data = new Integer[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Integer[] allocate(int rows) {
+        return new Integer[rows];
+    }
 }

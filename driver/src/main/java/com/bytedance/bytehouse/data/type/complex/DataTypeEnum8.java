@@ -129,4 +129,18 @@ public class DataTypeEnum8 implements IDataType<String, String> {
         }
         throw new SQLException("");
     }
+
+    @Override
+    public String[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        String[] data = new String[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public String[] allocate(int rows) {
+        return new String[rows];
+    }
 }

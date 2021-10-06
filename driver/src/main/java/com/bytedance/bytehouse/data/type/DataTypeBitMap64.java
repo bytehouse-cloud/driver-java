@@ -186,4 +186,18 @@ public class DataTypeBitMap64 implements IDataType<ByteHouseArray, Array>, Bytes
         }
         return new ByteHouseArray(DATA_TYPE_UINT_64, uInt64List.toArray());
     }
+
+    @Override
+    public ByteHouseArray[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        ByteHouseArray[] data = new ByteHouseArray[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public ByteHouseArray[] allocate(int rows) {
+        return new ByteHouseArray[rows];
+    }
 }

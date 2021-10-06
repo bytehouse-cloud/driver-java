@@ -223,4 +223,9 @@ public class DataTypeMap implements IDataType<Map, Object> {
     public IDataType getValueDataType() {
         return valueDataType;
     }
+
+    @Override
+    public Map[] allocate(int rows) {
+        return new Map[rows];
+    }
 }

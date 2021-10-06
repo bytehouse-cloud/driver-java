@@ -139,4 +139,18 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
     public String[] getAliases() {
         return new String[]{"BINARY"};
     }
+
+    @Override
+    public CharSequence[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        CharSequence[] data = new CharSequence[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public CharSequence[] allocate(int rows) {
+        return new CharSequence[rows];
+    }
 }

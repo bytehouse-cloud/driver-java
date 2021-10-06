@@ -130,4 +130,18 @@ public class DataTypeIPv6 implements IDataType<Inet6Address, String> {
             throw new SQLException(e);
         }
     }
+
+    @Override
+    public Inet6Address[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        Inet6Address[] data = new Inet6Address[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public Inet6Address[] allocate(int rows) {
+        return new Inet6Address[rows];
+    }
 }

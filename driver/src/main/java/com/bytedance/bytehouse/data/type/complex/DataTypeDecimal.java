@@ -213,4 +213,18 @@ public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, Bytes
     public boolean isSigned() {
         return true;
     }
+
+    @Override
+    public BigDecimal[] deserializeBinaryBulk(int rows, BinaryDeserializer deserializer) throws IOException, SQLException {
+        BigDecimal[] data = new BigDecimal[rows];
+        for (int row = 0; row < rows; row++) {
+            data[row] = this.deserializeBinary(deserializer);
+        }
+        return data;
+    }
+
+    @Override
+    public BigDecimal[] allocate(int rows) {
+        return new BigDecimal[rows];
+    }
 }
