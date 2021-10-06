@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
 
+import static com.bytedance.bytehouse.misc.PrimitiveConverter.box;
+
 public class ByteHouseArray implements SQLArray {
 
     private static final Logger LOG = LoggerFactory.getLogger(ByteHouseArray.class);
@@ -33,6 +35,11 @@ public class ByteHouseArray implements SQLArray {
     public ByteHouseArray(IDataType<?, ?> elementDataType, Object[] elements) {
         this.elementDataType = elementDataType;
         this.elements = elements;
+    }
+
+    public ByteHouseArray(IDataType<?, ?> elementDataType, Object elements) {
+        this.elementDataType = elementDataType;
+        this.elements = box(elements);
     }
 
     @Override

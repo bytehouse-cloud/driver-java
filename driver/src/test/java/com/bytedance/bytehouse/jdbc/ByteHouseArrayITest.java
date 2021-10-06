@@ -182,4 +182,49 @@ public class ByteHouseArrayITest extends AbstractITest {
             }
         });
     }
+
+    @Test
+    public void testSetArrayPrimitive() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(a8 Array(Int8), a16 Array(Int16), a32 Array(Int32), a64 Array(Int64))"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                String insertSql = String.format("INSERT INTO %s VALUES (?, ?, ?, ?)", tableName);
+                PreparedStatement preparedStatement = statement.getConnection().prepareStatement(insertSql);
+
+                Byte[] a8Array = new Byte[]{INT8_MIN_VALUE, INT8_MAX_VALUE};
+                Short[] a16Array = new Short[]{INT16_MIN_VALUE, INT16_MAX_VALUE};
+                Integer[] a32Array = new Integer[]{INT32_MIN_VALUE, INT32_MAX_VALUE};
+                Long[] a64Array = new Long[]{INT64_MIN_VALUE, INT64_MAX_VALUE};
+
+                preparedStatement.setArray(1, new ByteHouseArray(new DataTypeInt8(), new byte[]{INT8_MIN_VALUE, INT8_MAX_VALUE}));
+                preparedStatement.setArray(2, new ByteHouseArray(new DataTypeInt16(), new short[]{INT16_MIN_VALUE, INT16_MAX_VALUE}));
+                preparedStatement.setArray(3, new ByteHouseArray(new DataTypeInt32(), new int[]{INT32_MIN_VALUE, INT32_MAX_VALUE}));
+                preparedStatement.setArray(4, new ByteHouseArray(new DataTypeInt64(), new long[]{INT64_MIN_VALUE, INT64_MAX_VALUE}));
+                preparedStatement.addBatch();
+                preparedStatement.executeBatch();
+
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
+                while (rs.next()) {
+                    Byte[] a8ArrayResult = (Byte[]) rs.getArray(1).getArray();
+                    Short[] a16ArrayResult = (Short[]) rs.getArray(2).getArray();
+                    Integer[] a32ArrayResult = (Integer[]) rs.getArray(3).getArray();
+                    Long[] a64ArrayResult = (Long[]) rs.getArray(4).getArray();
+                    assertArrayEquals(a8Array, a8ArrayResult);
+                    assertArrayEquals(a16Array, a16ArrayResult);
+                    assertArrayEquals(a32Array, a32ArrayResult);
+                    assertArrayEquals(a64Array, a64ArrayResult);
+                }
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
 }
