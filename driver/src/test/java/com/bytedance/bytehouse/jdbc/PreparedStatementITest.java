@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -220,6 +222,34 @@ public class PreparedStatementITest extends AbstractITest {
             }
             finally {
                 stmt.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
+
+    @Test
+    public void testMetadata() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id Int32)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+
+                String preparedStatementInsertSql = String.format("INSERT INTO %s VALUES (?)", tableName);
+                PreparedStatement preparedStatement = statement.getConnection().prepareStatement(preparedStatementInsertSql);
+
+                ResultSetMetaData metaData = preparedStatement.getMetaData();
+                assertEquals(metaData.getColumnCount(), 1);
+                assertEquals(metaData.getColumnName(1), "id");
+
+                preparedStatement.executeBatch();
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+                statement.getConnection().close();
             }
         });
     }

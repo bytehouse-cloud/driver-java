@@ -51,14 +51,14 @@ public class ByteHouseStatement implements SQLStatement {
 
     protected final ByteHouseConnection creator;
 
-    private final String defaultDb;
+    protected final String defaultDb;
 
     protected Block block;
 
-    private ByteHouseConfig cfg;
+    protected ByteHouseConfig cfg;
 
     // =========  START: temporary variables per execution ===========
-    private ResultSet lastResultSet;
+    protected ResultSet lastResultSet;
 
     private long maxRows;
 

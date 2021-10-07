@@ -18,9 +18,11 @@ import com.bytedance.bytehouse.data.DataTypeConverter;
 import com.bytedance.bytehouse.data.IColumn;
 import com.bytedance.bytehouse.exception.ByteHouseClientException;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
+import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
+import com.bytedance.bytehouse.misc.SQLParser;
 import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 import java.sql.ResultSet;
@@ -55,6 +57,8 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
         this.rowInsertedCount = 0;
 
         initBlockIfPossible();
+        final SQLParser.DbTable dbTable = SQLParser.extractDBAndTableName(insertQueryPart);
+        lastResultSet = new ByteHouseResultSet(this, cfg, dbTable.getDbOrDefault(this.defaultDb), dbTable.getTable(), this.block, null);
     }
 
     // paramPosition start with 1

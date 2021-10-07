@@ -474,8 +474,10 @@ public class ByteHouseResultSet implements SQLResultSet {
     @Override
     public void close() throws SQLException {
         // consume remaining responses
-        while (dataResponses.hasNext()) {
-            dataResponses.next();
+        if (dataResponses != null) {
+            while (dataResponses.hasNext()) {
+                dataResponses.next();
+            }
         }
         // reset variables
         currentBlock = Block.empty();
