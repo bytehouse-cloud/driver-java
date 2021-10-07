@@ -14,6 +14,7 @@
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.Validate;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
@@ -21,6 +22,7 @@ import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -145,5 +147,13 @@ public class DataTypeEnum16 implements IDataType<String, String> {
     @Override
     public String[] allocate(int rows) {
         return new String[rows];
+    }
+
+    @Override
+    public String convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
+        if (obj instanceof String) {
+            return (String) obj;
+        }
+        throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + String.class);
     }
 }

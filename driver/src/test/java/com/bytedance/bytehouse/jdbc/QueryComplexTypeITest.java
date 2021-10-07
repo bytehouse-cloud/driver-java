@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigInteger;
 import java.sql.Array;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Struct;
 import java.time.LocalDate;
@@ -259,8 +260,16 @@ public class QueryComplexTypeITest extends AbstractITest {
                 statement.execute(String.format("CREATE TABLE %s (test Enum8('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()", tableName));
 
                 statement.execute(String.format("INSERT INTO %s VALUES('a')", tableName));
+
+                PreparedStatement preparedStatement = statement.getConnection().prepareStatement(String.format("INSERT INTO %s VALUES(?)", tableName));
+                preparedStatement.setObject(1, "a");
+                preparedStatement.addBatch();
+                preparedStatement.executeBatch();
+
                 ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
 
+                assertTrue(rs.next());
+                assertEquals("a", rs.getString(1));
                 assertTrue(rs.next());
                 assertEquals("a", rs.getString(1));
                 assertFalse(rs.next());
@@ -282,8 +291,16 @@ public class QueryComplexTypeITest extends AbstractITest {
                 statement.execute(String.format("CREATE TABLE %s (test Enum16('a' = -1, 'b' = 1))ENGINE=CnchMergeTree() order by tuple()", tableName));
 
                 statement.execute(String.format("INSERT INTO %s VALUES('a')", tableName));
+
+                PreparedStatement preparedStatement = statement.getConnection().prepareStatement(String.format("INSERT INTO %s VALUES(?)", tableName));
+                preparedStatement.setObject(1, "a");
+                preparedStatement.addBatch();
+                preparedStatement.executeBatch();
+
                 ResultSet rs = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
 
+                assertTrue(rs.next());
+                assertEquals("a", rs.getString(1));
                 assertTrue(rs.next());
                 assertEquals("a", rs.getString(1));
                 assertFalse(rs.next());
