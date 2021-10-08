@@ -68,6 +68,8 @@ public class ByteHouseConfig implements Serializable {
 
     private final String charset; // use String because Charset is not serializable
 
+    private final long maxBlockSize;
+
     private final Map<SettingKey, Serializable> settings;
 
     private ByteHouseConfig(
@@ -87,6 +89,7 @@ public class ByteHouseConfig implements Serializable {
             final boolean skipVerification,
             final boolean enableCompression,
             final String charset,
+            final long maxBlockSize,
             final Map<SettingKey, Serializable> settings
     ) {
         this.isCnch = isCnch;
@@ -105,6 +108,7 @@ public class ByteHouseConfig implements Serializable {
         this.skipVerification = skipVerification;
         this.enableCompression = enableCompression;
         this.charset = charset;
+        this.maxBlockSize = maxBlockSize;
         this.settings = settings;
     }
 
@@ -170,6 +174,10 @@ public class ByteHouseConfig implements Serializable {
 
     public Charset charset() {
         return Charset.forName(charset);
+    }
+
+    public long maxBlockSize() {
+        return maxBlockSize;
     }
 
     public Map<SettingKey, Serializable> settings() {
@@ -389,6 +397,8 @@ public class ByteHouseConfig implements Serializable {
 
         private Charset charset;
 
+        private long maxBlockSize;
+
         private Map<SettingKey, Serializable> settings = new HashMap<>();
 
         private Builder() {
@@ -422,6 +432,7 @@ public class ByteHouseConfig implements Serializable {
                     .skipVerification(cfg.skipVerification())
                     .enableCompression(cfg.enableCompression())
                     .charset(cfg.charset())
+                    .maxBlockSize(cfg.maxBlockSize())
                     .withSettings(cfg.settings());
         }
 
@@ -520,6 +531,11 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
+        public Builder maxBlockSize(final long maxBlockSize) {
+            this.withSetting(SettingKey.max_block_size, maxBlockSize);
+            return this;
+        }
+
         public Builder settings(final Map<SettingKey, Serializable> settings) {
             this.settings = settings;
             return this;
@@ -557,6 +573,7 @@ public class ByteHouseConfig implements Serializable {
             this.skipVerification = (boolean) this.settings.getOrDefault(SettingKey.skipVerification, false);
             this.enableCompression = (boolean) this.settings.getOrDefault(SettingKey.enableCompression, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
+            this.maxBlockSize = (long) this.settings.getOrDefault(SettingKey.max_block_size, 65536L);
 
             useDefaultIfNotSet();
             purgeClientSettings();
@@ -578,6 +595,7 @@ public class ByteHouseConfig implements Serializable {
                     skipVerification,
                     enableCompression,
                     charset.name(),
+                    maxBlockSize,
                     settings
             );
         }

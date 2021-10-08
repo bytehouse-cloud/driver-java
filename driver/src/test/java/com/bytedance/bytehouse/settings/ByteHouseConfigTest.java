@@ -74,7 +74,7 @@ class ByteHouseConfigTest {
         assertEquals(Charset.forName("GBK"), cfg.charset());
         assertEquals("jdbc:bytehouse://1.2.3.4:8123/db2?query_timeout=0&connect_timeout=0&charset=GBK" +
                         "&tcp_keep_alive=false&tcp_no_delay=true&secure=false" +
-                        "&skip_verification=false&enable_compression=false&allow_distributed_ddl=true",
+                        "&skip_verification=false&enable_compression=false&allow_distributed_ddl=true&max_block_size=65536",
                 cfg.jdbcUrl());
     }
 

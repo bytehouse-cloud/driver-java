@@ -23,7 +23,6 @@ import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactory;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
 import com.bytedance.bytehouse.misc.SQLParser;
-import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,7 +96,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
     }
 
     private void executeBatchIfReachMaxSize() throws SQLException {
-        if (block.rowCnt() < BHConstants.MAX_INSERT_BLOCK_SIZE) {
+        if (block.rowCnt() < cfg.maxBlockSize()) {
             return;
         }
         rowInsertedCount += creator.sendBlock(block);
