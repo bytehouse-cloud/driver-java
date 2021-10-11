@@ -31,14 +31,14 @@ public class BatchInsertIBenchmark extends AbstractBenchmark {
     private PreparedStatement preparedStatement;
     private String selectSql;
 
-    @Param({"1"})
+    @Param({"1", "2"})
     protected int batchSize = 1;
 
     @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String", "FixedString", "UUID",
             "Float32", "Float64", "Decimal", "Date", "DateTime", "IPv4", "IPv6", "Array", "Map", "Tuple"})
     protected Type datatype;
 
-    @Param({"1"})
+    @Param({"1", "2"})
     protected int columnCount = 1;
 
     @Setup

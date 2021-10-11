@@ -34,5 +34,7 @@ public class Benchmark {
                 .resultFormat(ResultFormatType.TEXT)
                 .build();
         new Runner(options).run();
+
+        ResultWriter.write();
     }
 }
