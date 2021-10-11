@@ -944,7 +944,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
         final String sql = "SHOW DATABASES";
         try (ResultSet rs = request(sql)) {
             while (rs.next()) {
-                final String name = rs.getString("Name").toUpperCase(Locale.ROOT);
+                final String name = rs.getString("Name");
                 if (schemaPattern != null && !sqlLike(name, schemaPattern)) {
                     continue;
                 }
@@ -1136,7 +1136,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                     // column size / precision
                     row.add(dataType.getPrecision());
                     //buffer length
-                    row.add(0);
+                    row.add(null);
                     // decimal digits
                     row.add(dataType.getScale());
                     // radix
@@ -1148,11 +1148,8 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                     row.add(comment == null || comment.isEmpty() ? null : comment);
 
                     // COLUMN_DEF
-                    final String defaultType = descTable.getString("DefaultType");
                     final String defaultExpression = descTable.getString("DefaultExpression");
-                    if (defaultType != null && !defaultType.isEmpty()) {
-                        row.add(defaultType);
-                    } else if (defaultExpression != null && !defaultExpression.isEmpty()) {
+                    if (defaultExpression != null && !defaultExpression.isEmpty()) {
                         row.add(defaultExpression);
                     } else {
                         row.add(null);
