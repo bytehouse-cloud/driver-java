@@ -150,6 +150,31 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
         }
     }
 
+    public String getHostPort(final String database, final String table) throws SQLException {
+        if (this.connection.cfg().isCnch()) {
+            final String sql = String.format("select "
+                            + " host, tcp_port "
+                            + " from system.cnch_table_host "
+                            + " where "
+                            + " database = '%s' "
+                            + " and name = '%s'",
+                    database,
+                    table
+            );
+
+            try (ResultSet resultSet = request(sql)) {
+                if (resultSet.next()) {
+                    return resultSet.getString("host") + ":" + resultSet.getString("tcp_port");
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            LOG.warn("Bytehouse does not support host port lookup");
+            return null;
+        }
+    }
+
     @Override
     public int getDriverMajorVersion() {
         return BHConstants.MAJOR_VERSION;

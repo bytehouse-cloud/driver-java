@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
@@ -53,7 +52,8 @@ public class AbstractBenchmark {
     private static final String BYTEHOUSE = "bytehouse";
 
     private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:21.3";
-    private static final ClickHouseContainer CONTAINER;
+    @SuppressWarnings("PMD.FieldNamingConventions")
+    private static ClickHouseContainer CONTAINER;
 
     protected String databaseName = "jdbc_benchmark";
     protected String tableName = "jdbc_benchmark";
@@ -65,12 +65,6 @@ public class AbstractBenchmark {
     private Connection connection;
     private DataSource dataSource;
     private Statement statement;
-    private String uuid;
-
-    static {
-        CONTAINER = new ClickHouseContainer(CLICKHOUSE_IMAGE);
-        CONTAINER.start();
-    }
 
     protected void init(String databaseName, String tableName, String createTableSql) throws SQLException {
         loadTestConfigs();
@@ -78,8 +72,9 @@ public class AbstractBenchmark {
         statement = connection.createStatement();
 
         String dropDatabaseSql = "DROP DATABASE IF EXISTS " + databaseName;
-        String createDatabaseSql = "CREATE DATABASE " + databaseName;
         statement.execute(dropDatabaseSql);
+
+        String createDatabaseSql = "CREATE DATABASE " + databaseName;
         statement.execute(createDatabaseSql);
 
         if (!createTableSql.equals("")) {
@@ -94,14 +89,15 @@ public class AbstractBenchmark {
         }
 
         if (getServerName().equals(CNCH)) {
-            uuid = getUuid(connection, databaseName, tableName);
+            Connection newConnection = ((CnchRoutingDataSource) dataSource).getConnection(connection, databaseName, tableName);
+            connection.close();
+            connection = newConnection;
         }
-        statement = getStatementWithUUID();
     }
 
     protected void teardown(String databaseName) throws SQLException {
         String dropDatabaseSql = "DROP DATABASE IF EXISTS " + databaseName;
-        statement.execute(dropDatabaseSql);
+        getStatement().execute(dropDatabaseSql);
         connection.close();
     }
 
@@ -109,16 +105,12 @@ public class AbstractBenchmark {
         return connection;
     }
 
-    protected Statement getStatement() {
-        return statement;
+    protected Statement getStatement() throws SQLException {
+        return connection.createStatement();
     }
 
     protected PreparedStatement getPreparedStatement(String sql) throws SQLException {
-        if (getServerName().equals(CNCH)) {
-            return ((CnchRoutingDataSource) dataSource).getConnection(uuid).prepareStatement(sql);
-        } else {
-            return connection.prepareStatement(sql);
-        }
+        return connection.prepareStatement(sql);
     }
 
     private Connection getNewConnection() throws SQLException {
@@ -140,26 +132,6 @@ public class AbstractBenchmark {
         return dataSource.getConnection();
     }
 
-    private Statement getStatementWithUUID() throws SQLException {
-        if (getServerName().equals(CNCH)) {
-            return ((CnchRoutingDataSource) dataSource).getConnection(uuid).createStatement();
-        } else {
-            return statement;
-        }
-    }
-
-    private String getUuid(Connection connection, String databaseName, String tableName) throws SQLException {
-        final ResultSet resultSet = connection
-                .createStatement()
-                .executeQuery(String.format("select uuid from system.cnch_tables where database = '%s' and name = '%s'", databaseName, tableName));
-
-        if (resultSet.next()) {
-            return resultSet.getString("uuid");
-        } else {
-            throw new SQLException("Failed to get uuid from resultset");
-        }
-    }
-
     private String getHost() {
         return testConfigs.getProperty(HOST);
     }
@@ -171,8 +143,10 @@ public class AbstractBenchmark {
     private String getUrl() {
         switch (envConfigs.getProperty(SERVER)) {
             case CNCH:
-                return "jdbc:cnch:///dataexpress?secure=false";
+                return String.format("jdbc:cnch://%s:%s", getHost(), getPort());
             case CLICKHOUSE:
+                CONTAINER = new ClickHouseContainer(CLICKHOUSE_IMAGE);
+                CONTAINER.start();
                 return "jdbc:" + getDriverName() + "://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(ClickHouseContainer.NATIVE_PORT);
             default:
                 return String.format("jdbc:bytehouse://%s:%s", getHost(), getPort());

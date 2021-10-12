@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,11 +52,13 @@ public class CnchRoutingDataSource implements BHDataSource {
 
     private final List<ConnCreator> list = new ArrayList<>();
 
-    private final ByteHouseConfig cfg;
+    private ByteHouseConfig cfg;
 
     private final ConsulHelper consulHelper = new ConsulHelper(Discovery.fromConsulDefault());
 
     private final ReentrantReadWriteLock topologyLock = new ReentrantReadWriteLock();
+
+    private final boolean ignoreConsul;
 
     /**
      * create Datasource for bytehouse JDBC connections
@@ -93,6 +96,12 @@ public class CnchRoutingDataSource implements BHDataSource {
             final String url,
             final Map<SettingKey, Serializable> settings
     ) {
+        if (url.contains("dataexpress")) {
+            ignoreConsul = false;
+        } else {
+            ignoreConsul = true;
+        }
+
         this.cfg = ByteHouseConfig.Builder.builder()
                 .withJdbcUrl(url)
                 .withSettings(settings)
@@ -165,9 +174,26 @@ public class CnchRoutingDataSource implements BHDataSource {
         }
     }
 
+    public ByteHouseConnection getConnection(
+            Connection connection, final String database, final String table
+    ) throws SQLException {
+        String hostWithPort = ((ByteHouseDatabaseMetadata) connection.getMetaData()).getHostPort(database, table);
+        List<String> credentials = Arrays.asList(hostWithPort.split(":"));
+        this.cfg = this.cfg
+                .withHostPort(
+                        credentials.get(0),
+                        Integer.parseInt(credentials.get(1))
+                );
+        return ByteHouseConnection.createByteHouseConnection(this.cfg);
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
-        return getConnection(null);
+        if (ignoreConsul) {
+            return ByteHouseConnection.createByteHouseConnection(this.cfg);
+        } else {
+            return getConnection(null);
+        }
     }
 
     @Override

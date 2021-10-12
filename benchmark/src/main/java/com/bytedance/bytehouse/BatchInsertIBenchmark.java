@@ -31,14 +31,15 @@ public class BatchInsertIBenchmark extends AbstractBenchmark {
     private PreparedStatement preparedStatement;
     private String selectSql;
 
-    @Param({"1", "2"})
+    @Param({"10000000"})
     protected int batchSize = 1;
 
-    @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String", "FixedString", "UUID",
-            "Float32", "Float64", "Decimal", "Date", "DateTime", "IPv4", "IPv6", "Array", "Map", "Tuple"})
+//    @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String", "FixedString", "UUID",
+//            "Float32", "Float64", "Decimal", "Date", "DateTime", "IPv4", "IPv6", "Array", "Map"})
+    @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String"})
     protected Type datatype;
 
-    @Param({"1", "2"})
+    @Param({"10"})
     protected int columnCount = 1;
 
     @Setup
@@ -66,8 +67,10 @@ public class BatchInsertIBenchmark extends AbstractBenchmark {
 
     @TearDown
     public void teardown() throws SQLException {
-        verifyTestRun();
+//        verifyTestRun();
         teardown(databaseName);
+        statement.close();
+        preparedStatement.close();
         getConnection().close();
     }
 

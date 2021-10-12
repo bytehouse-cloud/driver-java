@@ -38,7 +38,7 @@ public class RandomGenerator {
             case UInt64:
                 return 1;
             case String:
-                return "Hello";
+                return "HelloWorldHelloWorld";
             case FixedString:
                 return "HelloWorld";
             case UUID:

@@ -27,14 +27,12 @@ public class Benchmark {
         Options options = new OptionsBuilder()
                 .forks(1)
                 .mode(Mode.SingleShotTime)
-                .warmupIterations(0)
+                .warmupIterations(2)
                 .measurementIterations(1)
                 .include("./*IBenchmark")
                 .result("reports/benchmark-datatypes.txt")
                 .resultFormat(ResultFormatType.TEXT)
                 .build();
         new Runner(options).run();
-
-        ResultWriter.write();
     }
 }

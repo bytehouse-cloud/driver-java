@@ -34,12 +34,12 @@ public class ResultWriter {
     private static List<Double> thoroughputs = new ArrayList<>();
 
     private static String inputFilePath = "benchmark/reports/benchmark-datatypes.txt";
-    private static String outputFilePath = "benchmark/reports/benchmark-datatypes-1.csv";
+    private static String outputFilePath = "benchmark/reports/benchmark-datatypes.csv";
 
     private static int rowCount = 0;
     private static int columnCount = 9;
 
-    public static void write() {
+    public static void main(String[] args) {
         loadData();
         writeCSV();
     }
@@ -76,10 +76,14 @@ public class ResultWriter {
                 Double rowCount = Double.valueOf(data[1]);
                 rowCounts.add(truncateDouble(rowCount));
 
-                Double totalSize = rowCount*rowSize;
+                Double totalSize = rowCount*rowSize / (1024 * 1024);
                 totalSizes.add(truncateDouble(totalSize));
 
-                Double timesInSecond = Double.valueOf(data[5]);
+                int index = 6;
+                if (data[0].contains("SelectIBenchmark")) {
+                    index = 5;
+                }
+                Double timesInSecond = Double.valueOf(data[index]) / 1000;
                 timesInSeconds.add(truncateDouble(timesInSecond));
 
                 Double thoroughput = totalSize / timesInSecond;
@@ -124,13 +128,13 @@ public class ResultWriter {
     public static StringBuilder writeHeader(StringBuilder stringBuilder) {
         stringBuilder.append("Query Type,");
         stringBuilder.append("Data Type,");
-        stringBuilder.append("Unit Column Size,");
+        stringBuilder.append("Unit Column Size (Byte),");
         stringBuilder.append("Column Count,");
-        stringBuilder.append("Row Size,");
+        stringBuilder.append("Row Size (Byte),");
         stringBuilder.append("Batch Size,");
-        stringBuilder.append("Total Size,");
-        stringBuilder.append("Time,");
-        stringBuilder.append("Throughput\n");
+        stringBuilder.append("Total Size (MB),");
+        stringBuilder.append("Time (s),");
+        stringBuilder.append("Throughput (MB/s)\n");
         return stringBuilder;
     }
 
