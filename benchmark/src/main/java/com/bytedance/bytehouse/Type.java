@@ -128,6 +128,10 @@ public enum Type {
                 return 4;
             case IPv6:
                 return 16;
+            case Array:
+                return 20;
+            case Map:
+                return 8;
             default:
                 return 1;
         }

@@ -35,8 +35,9 @@ public class BatchInsertIBenchmark extends AbstractBenchmark {
     protected int batchSize = 1;
 
 //    @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String", "FixedString", "UUID",
-//            "Float32", "Float64", "Decimal", "Date", "DateTime", "IPv4", "IPv6", "Array", "Map"})
-    @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String"})
+//            "Float32", "Float64", "Decimal", "Date", "DateTime", "IPv4", "IPv6", "Enum8", "Enum16", "Array", "Map", "Tuple"})
+    @Param({"Int8", "Int16", "Int32", "Int64", "UInt8", "UInt16", "UInt32", "UInt64", "String", "FixedString", "UUID",
+            "Float32", "Float64", "Date", "DateTime", "IPv4", "Array", "Map"})
     protected Type datatype;
 
     @Param({"10"})
