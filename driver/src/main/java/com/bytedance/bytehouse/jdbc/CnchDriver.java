@@ -27,6 +27,7 @@ import java.util.Properties;
  * The driver of ByteHouse, entry point of the application.
  */
 public class CnchDriver implements Driver {
+    private static CnchRoutingDataSource dataSource;
 
     static {
         try {
@@ -59,12 +60,17 @@ public class CnchDriver implements Driver {
         if (!this.acceptsURL(url)) {
             return null;
         }
+        properties.setProperty("secure", "false");
         /*
             dataSource is not cached for reuse is because I believe each invocation of the method
             might come with different url and properties.
         */
-        final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
+        dataSource = new CnchRoutingDataSource(url, properties);
         return (ByteHouseConnection) dataSource.getConnection();
+    }
+
+    public CnchRoutingDataSource getLatestDataSource() {
+        return dataSource;
     }
 
     /**

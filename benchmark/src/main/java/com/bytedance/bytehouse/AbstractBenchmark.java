@@ -14,6 +14,7 @@
 package com.bytedance.bytehouse;
 
 import com.bytedance.bytehouse.jdbc.ByteHouseDataSource;
+import com.bytedance.bytehouse.jdbc.CnchDriver;
 import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +63,7 @@ public class AbstractBenchmark {
     private Properties envConfigs;
     private Properties testConfigs;
 
+    private CnchDriver driver;
     private Connection connection;
     private DataSource dataSource;
     private Statement statement;
@@ -89,7 +91,7 @@ public class AbstractBenchmark {
         }
 
         if (getServerName().equals(CNCH)) {
-            Connection newConnection = ((CnchRoutingDataSource) dataSource).getConnection(connection, databaseName, tableName);
+            Connection newConnection = driver.getLatestDataSource().getConnection(connection, databaseName, tableName);
             connection.close();
             connection = newConnection;
         }
@@ -120,6 +122,8 @@ public class AbstractBenchmark {
         else if (getDriverName().equals(BYTEHOUSE)) {
             if (getServerName().equals(CNCH)) {
                 dataSource = new CnchRoutingDataSource(getUrl(), testConfigs);
+                driver = new CnchDriver();
+                return driver.connect(getUrl(), testConfigs);
             }
             else if (getServerName().equals(CLICKHOUSE)) {
                 dataSource = new ByteHouseDataSource(getUrl(), testConfigs);

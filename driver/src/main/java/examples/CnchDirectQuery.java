@@ -13,8 +13,7 @@
  */
 package examples;
 
-import com.bytedance.bytehouse.jdbc.CnchRoutingDataSource;
-import javax.sql.DataSource;
+import com.bytedance.bytehouse.jdbc.CnchDriver;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -29,22 +28,21 @@ public class CnchDirectQuery {
         final Properties properties = new Properties();
 
         final String url = "jdbc:cnch://10.96.36.8:9010";
-        properties.setProperty("secure", "false");
 
-        final CnchRoutingDataSource dataSource = new CnchRoutingDataSource(url, properties);
+        final CnchDriver driver = new CnchDriver();
 
         String databaseName = "inventory";
         String tableName = "orders";
 
-        Connection connection = dataSource.getConnection();
+        Connection connection = driver.connect(url, properties);
         createDatabase(connection);
         createTable(connection);
 
-        insertBatch(getNewConnection(connection, dataSource, databaseName, tableName));
+        insertBatch(getNewConnection(connection, driver, databaseName, tableName));
     }
 
-    public static Connection getNewConnection(Connection connection, DataSource dataSource, String databaseName, String tableName) throws Exception {
-        Connection newConnection = ((CnchRoutingDataSource) dataSource).getConnection(connection, databaseName, tableName);
+    public static Connection getNewConnection(Connection connection, CnchDriver driver, String databaseName, String tableName) throws Exception {
+        Connection newConnection = driver.getLatestDataSource().getConnection(connection, databaseName, tableName);
         connection.close();
         return newConnection;
     }
