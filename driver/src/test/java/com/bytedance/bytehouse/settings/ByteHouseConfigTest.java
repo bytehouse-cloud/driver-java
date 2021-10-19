@@ -15,10 +15,8 @@
 package com.bytedance.bytehouse.settings;
 
 import com.bytedance.bytehouse.serde.SettingType;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Properties;
@@ -47,35 +45,6 @@ class ByteHouseConfigTest {
         assertEquals("jdbc:bytehouse://127.0.0.1:9000/?query_timeout=0&connect_timeout=0" +
                         "&charset=UTF-8&tcp_keep_alive=false&tcp_no_delay=true&secure=false&skip_verification=false" +
                         "&enable_compression=false",
-                cfg.jdbcUrl());
-    }
-
-    @Ignore
-    public void testByteHouseConfig() {
-        ByteHouseConfig cfg = ByteHouseConfig.Builder.builder()
-                .withJdbcUrl("jdbc:bytehouse://1.2.3.4:8123/db2")
-                .charset("GBK")
-                .withSetting(SettingKey.allow_distributed_ddl, true)
-                .build()
-                .withCredentials("user", "passWorD")
-                .withAccount("123");
-        assertEquals("1.2.3.4", cfg.host());
-        assertEquals(8123, cfg.port());
-        assertEquals("123", cfg.account());
-        assertEquals("user", cfg.user());
-        assertEquals("123::user", cfg.fullUsername());
-        assertEquals("passWorD", cfg.password());
-        assertEquals("db2", cfg.database());
-        assertEquals(Duration.ZERO, cfg.queryTimeout());
-        assertEquals(Duration.ZERO, cfg.connectTimeout());
-        assertFalse(cfg.tcpKeepAlive());
-        assertTrue(cfg.tcpNoDelay());
-        assertFalse(cfg.secure());
-        assertFalse(cfg.skipVerification());
-        assertEquals(Charset.forName("GBK"), cfg.charset());
-        assertEquals("jdbc:bytehouse://1.2.3.4:8123/db2?query_timeout=0&connect_timeout=0&charset=GBK" +
-                        "&tcp_keep_alive=false&tcp_no_delay=true&secure=false" +
-                        "&skip_verification=false&enable_compression=false&max_block_size=65536&allow_distributed_ddl=true",
                 cfg.jdbcUrl());
     }
 
