@@ -46,6 +46,14 @@ class ByteHouseSystemDatabaseMetadataITest extends AbstractITest {
     }
 
     @Test
+    void getURL() throws Exception {
+        withNewConnection(connection -> {
+            DatabaseMetaData dm = connection.getMetaData();
+            assertThat(dm.getURL()).contains(getUrl());
+        });
+    }
+
+    @Test
     void getUserName() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();

@@ -13,6 +13,9 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
+import com.github.housepower.jdbc.BalancedClickhouseDataSource;
+import org.testcontainers.containers.ClickHouseContainer;
+import ru.yandex.clickhouse.ClickHouseDataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -28,8 +31,19 @@ import java.util.Random;
 import javax.sql.DataSource;
 
 public class AbstractITest implements Serializable {
-    private static final String REGION = "REGION";
+    private static final String HOST = "HOST";
+    private static final String PORT = "PORT";
     private static final String USER = "USER";
+
+    private Properties testConfigs;
+    protected static final String DRIVER = "driver";
+    protected static final String BYTEHOUSE = "bytehouse";
+    protected static final String CLICKHOUSE_NATIVE = "clickhouse-native";
+    protected static final String CLICKHOUSE_HTTP = "clickhouse-http";
+    private static final String SERVER = "server";
+    private static final String GATEWAY = "gateway";
+    private static final String CNCH = "cnch";
+    private static final String ENV = "env";
 
     private Properties driverSettings;
 
@@ -37,16 +51,46 @@ public class AbstractITest implements Serializable {
     private String lastUsedDatabaseName;
     private String lastUsedTableName;
 
-    protected String getRegion() {
-        return driverSettings.getProperty(REGION);
+    private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:21.3";
+    private static final ClickHouseContainer CONTAINER;
+
+    static {
+        CONTAINER = new ClickHouseContainer(CLICKHOUSE_IMAGE);
+        CONTAINER.start();
+    }
+
+    protected String getHost() {
+        return driverSettings.getProperty(HOST);
+    }
+
+    protected String getPort() {
+        return driverSettings.getProperty(PORT);
     }
 
     protected String getUrl() {
-        return String.format("jdbc:bytehouse:///?region=%s", getRegion());
+        switch (getDriver()) {
+            case BYTEHOUSE:
+                switch (getServerName()) {
+                    case GATEWAY:
+                        return String.format("jdbc:bytehouse://%s:%s", getHost(), getPort());
+                    case CNCH:
+                        return "jdbc:cnch:///dataexpress?secure=false";
+                }
+            case CLICKHOUSE_NATIVE:
+                return "jdbc:clickhouse://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(ClickHouseContainer.NATIVE_PORT);
+            case CLICKHOUSE_HTTP:
+                return "jdbc:clickhouse://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(ClickHouseContainer.HTTP_PORT);
+        }
+        return "";
     }
 
     protected String getCreateTableSuffix() {
-        return "ENGINE=CnchMergeTree() order by tuple()";
+        if (getDriver().equals(BYTEHOUSE)) {
+            return "ENGINE=CnchMergeTree() order by tuple()";
+        }
+        else {
+            return "ENGINE=MergeTree() order by tuple()";
+        }
     }
 
     protected String getUsername() {
@@ -63,13 +107,37 @@ public class AbstractITest implements Serializable {
         return lastUsedTableName;
     }
 
+    protected String getServerName() {
+        return testConfigs.getProperty(SERVER);
+    }
+
+    protected String getDriver() {
+        return testConfigs.getProperty(DRIVER);
+    }
+
     protected DataSource getDataSource() {
         return dataSource;
     }
 
     protected Connection getConnection(Object... params) throws SQLException {
         loadTestConfigs(params);
-        dataSource = new ByteHouseDataSource(getUrl(), driverSettings);
+
+        switch (getDriver()) {
+            case BYTEHOUSE:
+                switch (getServerName()) {
+                    case GATEWAY:
+                        dataSource = new ByteHouseDataSource(getUrl(), driverSettings);
+                        break;
+                }
+                break;
+            case CLICKHOUSE_NATIVE:
+                dataSource = new BalancedClickhouseDataSource(getUrl(), driverSettings);
+                break;
+            case CLICKHOUSE_HTTP:
+                dataSource = new ClickHouseDataSource(getUrl(), driverSettings);
+                break;
+        }
+
         return dataSource.getConnection();
     }
 
@@ -84,13 +152,24 @@ public class AbstractITest implements Serializable {
     }
 
     private void loadTestConfigs(Object... params) {
+        testConfigs = new Properties();
         driverSettings = new Properties();
-
         try (InputStream input = Files.newInputStream(Paths
                 .get("src/test/resources/config.properties"))) {
-            driverSettings.load(input);
+            testConfigs.load(input);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
+        }
+
+        if (getServerName().equals(GATEWAY)) {
+            String envName = testConfigs.getProperty(ENV);
+
+            try (InputStream input = Files.newInputStream(Paths
+                    .get("src/test/resources/" + envName + "-config.properties"))) {
+                driverSettings.load(input);
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
         }
 
         for (int i = 0; i + 1 < params.length; i = i + 2) {

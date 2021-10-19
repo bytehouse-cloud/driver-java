@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class ByteHouseConnectionITest extends AbstractITest {
@@ -96,6 +97,32 @@ public class ByteHouseConnectionITest extends AbstractITest {
             connection.close();
             assertTrue(connection.isClosed());
             assertFalse(connection.isValid(1));
+        });
+    }
+
+    @Ignore
+    public void testReuseConnectionPreparedStatement() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id String) ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                PreparedStatement pstmt = statement.getConnection().prepareStatement(String.format("INSERT INTO %s VALUES (?)", tableName));
+                pstmt.setString(1, "id-01");
+                pstmt.addBatch();
+                pstmt.executeBatch();
+
+                ResultSet rs = statement.executeQuery(String.format("SELECT * FROM test_db.test_table", tableName));
+                assertTrue(rs.next());
+                assertEquals(rs.getString(1), "id-01");
+                assertFalse(rs.next());
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
         });
     }
 
