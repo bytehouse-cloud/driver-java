@@ -1680,13 +1680,6 @@ public class SettingKey implements Serializable {
             .build();
 
     @ClientConfigKey
-    public static SettingKey isCnch = SettingKey.builder()
-            .withName("is_cnch")
-            .withType(SettingType.BOOL)
-            .withDescription("indicating if the driver is running against cnch")
-            .build();
-
-    @ClientConfigKey
     public static SettingKey region = SettingKey.builder()
             .withName("region")
             .withType(SettingType.UTF_8)

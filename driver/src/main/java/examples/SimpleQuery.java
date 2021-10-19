@@ -33,9 +33,6 @@ public class SimpleQuery {
         properties.setProperty("user", "zx");
         properties.setProperty("password", "P`55word");
 
-//        String url = String.format("jdbc:cnch://localhost:9010");
-//        Properties properties = new Properties();
-
         final DataSource dataSource = new ByteHouseDataSource(url, properties);
 
         try (Connection connection = dataSource.getConnection()) {

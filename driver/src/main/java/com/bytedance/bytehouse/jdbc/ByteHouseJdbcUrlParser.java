@@ -64,9 +64,6 @@ public final class ByteHouseJdbcUrlParser {
 
             final String scheme = uri.getScheme();
             final Map<SettingKey, Serializable> settings = new HashMap<>();
-            settings.put(SettingKey.isCnch,
-                    scheme != null && scheme.toLowerCase(Locale.ROOT).equals("cnch")
-            );
             settings.put(SettingKey.host, host);
             settings.put(SettingKey.port, port);
             settings.put(SettingKey.database, database);

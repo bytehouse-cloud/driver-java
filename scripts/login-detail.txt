@@ -1,4 +1,0 @@
-account = "AWSKUBIO"
-user = "account.admin"
-region = "cn-north-1"
-password = "P@55word"

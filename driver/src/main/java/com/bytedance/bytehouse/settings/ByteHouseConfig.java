@@ -36,8 +36,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class ByteHouseConfig implements Serializable {
 
-    private final boolean isCnch;
-
     private final String region;
 
     private final String host;
@@ -73,7 +71,6 @@ public class ByteHouseConfig implements Serializable {
     private final Map<SettingKey, Serializable> settings;
 
     private ByteHouseConfig(
-            final boolean isCnch,
             final String region,
             final String host,
             final int port,
@@ -92,7 +89,6 @@ public class ByteHouseConfig implements Serializable {
             final long maxBlockSize,
             final Map<SettingKey, Serializable> settings
     ) {
-        this.isCnch = isCnch;
         this.region = region;
         this.host = host;
         this.port = port;
@@ -110,10 +106,6 @@ public class ByteHouseConfig implements Serializable {
         this.charset = charset;
         this.maxBlockSize = maxBlockSize;
         this.settings = settings;
-    }
-
-    public boolean isCnch() {
-        return this.isCnch;
     }
 
     public String region() {
@@ -193,8 +185,7 @@ public class ByteHouseConfig implements Serializable {
 
     public String jdbcUrl() {
         final StringBuilder builder = new StringBuilder(
-                this.isCnch ? ByteHouseJdbcUrlParser.JDBC_CNCH_PREFIX :
-                        ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX
+                ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX
         )
                 .append("//").append(host).append(':').append(port).append('/').append(database)
                 .append('?').append(SettingKey.queryTimeout.name()).append('=').append(queryTimeout.getSeconds())
@@ -365,8 +356,6 @@ public class ByteHouseConfig implements Serializable {
     @SuppressWarnings("PMD.CommentRequired")
     public static final class Builder {
 
-        private boolean isCnch;
-
         private String region;
 
         private String host;
@@ -416,7 +405,6 @@ public class ByteHouseConfig implements Serializable {
          */
         public static Builder builder(final ByteHouseConfig cfg) {
             return new Builder()
-                    .isCnch(cfg.isCnch())
                     .region(cfg.region())
                     .host(cfg.host())
                     .port(cfg.port())
@@ -434,11 +422,6 @@ public class ByteHouseConfig implements Serializable {
                     .charset(cfg.charset())
                     .maxBlockSize(cfg.maxBlockSize())
                     .withSettings(cfg.settings());
-        }
-
-        public Builder isCnch(final boolean isCnch) {
-            this.withSetting(SettingKey.isCnch, isCnch);
-            return this;
         }
 
         public Builder region(String region) {
@@ -557,7 +540,6 @@ public class ByteHouseConfig implements Serializable {
         public ByteHouseConfig build() {
             this.region = (String) this.settings.getOrDefault(SettingKey.region, "");
             handleRegionSettings();
-            this.isCnch = (boolean) this.settings.getOrDefault(SettingKey.isCnch, false);
 
             this.host = (String) this.settings.getOrDefault(SettingKey.host, "127.0.0.1");
             this.port = ((Number) this.settings.getOrDefault(SettingKey.port, 9000)).intValue();
@@ -579,7 +561,6 @@ public class ByteHouseConfig implements Serializable {
             purgeClientSettings();
 
             return new ByteHouseConfig(
-                    isCnch,
                     region,
                     host,
                     port,

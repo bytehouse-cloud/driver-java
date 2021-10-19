@@ -125,57 +125,6 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
     }
 
     @Override
-    public String getTableUUID(final String database, final String table) throws SQLException {
-        if (this.connection.cfg().isCnch()) {
-            final String sql = String.format("select "
-                            + " uuid "
-                            + " from system.cnch_tables "
-                            + " where "
-                            + " database = '%s' "
-                            + " and name = '%s'",
-                    database,
-                    table
-            );
-
-            try (ResultSet resultSet = request(sql)) {
-                if (resultSet.next()) {
-                    return resultSet.getString("uuid");
-                } else {
-                    return null;
-                }
-            }
-        } else {
-            LOG.warn("Bytehouse does not support table uuid lookup");
-            return null;
-        }
-    }
-
-    public String getHostPort(final String database, final String table) throws SQLException {
-        if (this.connection.cfg().isCnch()) {
-            final String sql = String.format("select "
-                            + " host, tcp_port "
-                            + " from system.cnch_table_host "
-                            + " where "
-                            + " database = '%s' "
-                            + " and name = '%s'",
-                    database,
-                    table
-            );
-
-            try (ResultSet resultSet = request(sql)) {
-                if (resultSet.next()) {
-                    return resultSet.getString("host") + ":" + resultSet.getString("tcp_port");
-                } else {
-                    return null;
-                }
-            }
-        } else {
-            LOG.warn("Bytehouse does not support host port lookup");
-            return null;
-        }
-    }
-
-    @Override
     public int getDriverMajorVersion() {
         return BHConstants.MAJOR_VERSION;
     }
@@ -787,11 +736,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                                              Values are "SYSTEM", "USER", "DERIVED". (may be null)
          */
 
-        if (this.connection.cfg().isCnch()) {
-            return getTablesForCnch(schemaPattern, tableNamePattern, types);
-        } else {
-            return getTablesForBytehouse(schemaPattern, tableNamePattern, types);
-        }
+        return getTablesForBytehouse(schemaPattern, tableNamePattern, types);
     }
 
     private ByteHouseResultSet getTablesForBytehouse(
@@ -872,68 +817,6 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
         return builder.build();
     }
 
-    @Deprecated
-    private ByteHouseResultSet getTablesForCnch(
-            final String schemaPattern,
-            final String tableNamePattern,
-            final String[] types
-    ) throws SQLException {
-        String sql = "select database, name from system.cnch_tables where 1=1";
-        if (schemaPattern != null) {
-            sql += " and database like '" + schemaPattern + "'";
-        }
-        if (tableNamePattern != null) {
-            sql += " and name like '" + tableNamePattern + "'";
-        }
-        sql += " order by database, name";
-        final ByteHouseResultSetBuilder builder;
-        try (ResultSet result = request(sql)) {
-
-            builder = ByteHouseResultSetBuilder
-                    .builder(10, connection.serverContext())
-                    .cfg(connection.cfg())
-                    .columnNames(
-                            "TABLE_CAT",
-                            TABLE_SCHEM,
-                            TABLE_NAME,
-                            "TABLE_TYPE",
-                            "REMARKS",
-                            "TYPE_CAT",
-                            "TYPE_SCHEM",
-                            "TYPE_NAME",
-                            "SELF_REFERENCING_COL_NAME",
-                            "REF_GENERATION")
-                    .columnTypes(
-                            "String",
-                            "String",
-                            "String",
-                            "String",
-                            "String",
-                            "String",
-                            "String",
-                            "String",
-                            "String",
-                            "String");
-
-            final List<String> typeList = types != null ? Arrays.asList(types) : null;
-            while (result.next()) {
-                final List<String> row = new ArrayList<>();
-                row.add(BHConstants.DEFAULT_CATALOG);
-                row.add(result.getString(1));
-                row.add(result.getString(2));
-                String type = "TABLE";
-                row.add(type);
-                for (int i = 3; i < 9; i++) {
-                    row.add(null);
-                }
-                if (typeList == null || typeList.contains(type)) {
-                    builder.addRow(row);
-                }
-            }
-        }
-        return builder.build();
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -950,11 +833,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String catalog,
             final String schemaPattern
     ) throws SQLException {
-        if (this.connection.cfg().isCnch()) {
-            return getSchemasForCnch(catalog, schemaPattern);
-        } else {
-            return getSchemasForBytehouse(catalog, schemaPattern);
-        }
+        return getSchemasForBytehouse(catalog, schemaPattern);
     }
 
     private ResultSet getSchemasForBytehouse(
@@ -980,30 +859,6 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             }
         }
         return builder.build();
-    }
-
-    @Deprecated
-    private ResultSet getSchemasForCnch(
-            final String catalog,
-            final String schemaPattern) throws SQLException {
-        String sql = String.format("SELECT "
-                        + " name as TABLE_SCHEM, "
-                        + " '%s' as TABLE_CATALOG "
-                        + " from system.cnch_databases ",
-                BHConstants.DEFAULT_CATALOG
-        );
-        if (catalog != null) {
-            sql += String.format(" where TABLE_CATALOG = '%s'", catalog);
-        }
-        if (schemaPattern != null) {
-            if (catalog != null) {
-                sql += " and ";
-            } else {
-                sql += " where ";
-            }
-            sql += "name LIKE '" + schemaPattern + '\'';
-        }
-        return request(sql);
     }
 
     /**
@@ -1044,11 +899,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String tableNamePattern,
             final String columnNamePattern
     ) throws SQLException {
-        if (this.connection.cfg().isCnch()) {
-            return getColumnsForCnch(schemaPattern, tableNamePattern, columnNamePattern);
-        } else {
-            return getColumnsForBytehouse(schemaPattern, tableNamePattern, columnNamePattern);
-        }
+        return getColumnsForBytehouse(schemaPattern, tableNamePattern, columnNamePattern);
     }
 
     private ByteHouseResultSet getColumnsForBytehouse(
@@ -1207,167 +1058,6 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
 
                     builder.addRow(row);
                 }
-            }
-        }
-        return builder.build();
-    }
-
-    @Deprecated
-    private ByteHouseResultSet getColumnsForCnch(
-            final String schemaPattern,
-            final String tableNamePattern,
-            final String columnNamePattern
-    ) throws SQLException {
-        StringBuilder query;
-        if (connection.serverContext().version().compareTo("1.1.54237") > 0) {
-            query = new StringBuilder(
-                    "SELECT "
-                            + " database, "
-                            + " table, "
-                            + " name, "
-                            + " type, "
-                            + " default_kind as default_type, "
-                            + " default_expression "
-            );
-        } else {
-            query = new StringBuilder(
-                    "SELECT database, table, name, type, default_type, default_expression ");
-        }
-        query.append("FROM system.cnch_columns ");
-        final List<String> predicates = new ArrayList<>();
-        if (schemaPattern != null) {
-            predicates.add("database LIKE '" + schemaPattern + "' ");
-        }
-        if (tableNamePattern != null) {
-            predicates.add("table LIKE '" + tableNamePattern + "' ");
-        }
-        if (columnNamePattern != null) {
-            predicates.add("name LIKE '" + columnNamePattern + "' ");
-        }
-        if (!predicates.isEmpty()) {
-            query.append(" WHERE ");
-            buildAndCondition(query, predicates);
-        }
-        ByteHouseResultSetBuilder builder = ByteHouseResultSetBuilder
-                .builder(24, connection.serverContext())
-                .cfg(connection.cfg())
-                .columnNames(
-                        "TABLE_CAT",
-                        TABLE_SCHEM,
-                        TABLE_NAME,
-                        "COLUMN_NAME",
-                        "DATA_TYPE",
-                        "TYPE_NAME",
-                        "COLUMN_SIZE",
-                        "BUFFER_LENGTH",
-                        "DECIMAL_DIGITS",
-                        "NUM_PREC_RADIX",
-                        "NULLABLE",
-                        "REMARKS",
-                        "COLUMN_DEF",
-                        "SQL_DATA_TYPE",
-                        "SQL_DATETIME_SUB",
-                        "CHAR_OCTET_LENGTH",
-                        "ORDINAL_POSITION",
-                        "IS_NULLABLE",
-                        "SCOPE_CATALOG",
-                        "SCOPE_SCHEMA",
-                        "SCOPE_TABLE",
-                        "SOURCE_DATA_TYPE",
-                        "IS_AUTOINCREMENT",
-                        "IS_GENERATEDCOLUMN")
-                .columnTypes(
-                        "String",
-                        "String",
-                        "String",
-                        "String",
-                        "Int32",
-                        "String",
-                        "Int32",
-                        "Int32",
-                        "Int32",
-                        "Int32",
-                        "Int32",
-                        "String",
-                        "String",
-                        "Int32",
-                        "Int32",
-                        "Int32",
-                        "Int32",
-                        "String",
-                        "String",
-                        "String",
-                        "String",
-                        "Int32",
-                        "String",
-                        "String");
-        try (ResultSet descTable = request(query.toString())) {
-            int colNum = 1;
-            while (descTable.next()) {
-                final List<Object> row = new ArrayList<>();
-                //catalog name
-                row.add(BHConstants.DEFAULT_CATALOG);
-                //database name
-                row.add(descTable.getString("database"));
-                //table name
-                row.add(descTable.getString("table"));
-                //column name
-                IDataType dataType = DataTypeFactory.get(
-                        descTable.getString("type"),
-                        connection.serverContext()
-                );
-                row.add(descTable.getString("name"));
-                //data type
-                row.add(dataType.sqlTypeId());
-                //type name
-                row.add(descTable.getString("name"));
-                // column size / precision
-                row.add(dataType.getPrecision());
-                //buffer length
-                row.add(0);
-                // decimal digits
-                row.add(dataType.getScale());
-                // radix
-                row.add(10);
-                // nullable
-                row.add(dataType.nullable() ? columnNullable : columnNoNulls);
-                //remarks
-                row.add(null);
-
-                // COLUMN_DEF
-                if ("DEFAULT".equals(descTable.getString("default_type"))) {
-                    row.add(descTable.getString("default_expression"));
-                } else {
-                    row.add(null);
-                }
-
-                //"SQL_DATA_TYPE", unused per JavaDoc
-                row.add(null);
-                //"SQL_DATETIME_SUB", unused per JavaDoc
-                row.add(null);
-
-                // char octet length
-                row.add(0);
-                // ordinal
-                row.add(colNum);
-                colNum += 1;
-
-                //IS_NULLABLE
-                row.add(dataType.nullable() ? "YES" : "NO");
-                //"SCOPE_CATALOG",
-                row.add(null);
-                //"SCOPE_SCHEMA",
-                row.add(null);
-                //"SCOPE_TABLE",
-                row.add(null);
-                //"SOURCE_DATA_TYPE",
-                row.add(null);
-                //"IS_AUTOINCREMENT"
-                row.add("NO");
-                //"IS_GENERATEDCOLUMN"
-                row.add("NO");
-
-                builder.addRow(row);
             }
         }
         return builder.build();

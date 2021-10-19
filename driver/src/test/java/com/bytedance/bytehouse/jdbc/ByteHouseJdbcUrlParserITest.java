@@ -30,8 +30,7 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:bytehouse://myhost:8000/database"
         );
 
-        assertEquals(settings.size(), 4);
-        assertEquals(settings.get(SettingKey.isCnch), false);
+        assertEquals(settings.size(), 3);
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");
@@ -43,8 +42,7 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:cnch://myhost:8000/database"
         );
 
-        assertEquals(settings.size(), 4);
-        assertEquals(settings.get(SettingKey.isCnch), true);
+        assertEquals(settings.size(), 3);
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");
@@ -56,8 +54,7 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:bytehouse://myhost:8000/database?user=person&password=P@ssword"
         );
 
-        assertEquals(settings.size(), 6);
-        assertEquals(settings.get(SettingKey.isCnch), false);
+        assertEquals(settings.size(), 5);
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");
@@ -71,8 +68,7 @@ public class ByteHouseJdbcUrlParserITest {
                 "jdbc:bytehouse://myhost:8000/database?random=string"
         );
 
-        assertEquals(settings.size(), 4 );
-        assertEquals(settings.get(SettingKey.isCnch), false);
+        assertEquals(settings.size(), 3 );
         assertEquals(settings.get(SettingKey.host), "myhost");
         assertEquals(settings.get(SettingKey.port), 8000);
         assertEquals(settings.get(SettingKey.database), "database");

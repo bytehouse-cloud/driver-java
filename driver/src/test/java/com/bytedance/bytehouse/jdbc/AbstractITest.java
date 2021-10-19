@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
@@ -129,9 +128,6 @@ public class AbstractITest implements Serializable {
                     case GATEWAY:
                         dataSource = new ByteHouseDataSource(getUrl(), driverSettings);
                         break;
-                    case CNCH:
-                        dataSource = new CnchRoutingDataSource(getUrl(), driverSettings);
-                        break;
                 }
                 break;
             case CLICKHOUSE_NATIVE:
@@ -145,24 +141,7 @@ public class AbstractITest implements Serializable {
         return dataSource.getConnection();
     }
 
-    protected String getUuid(Connection connection, String database, String table) throws SQLException {
-        final ResultSet resultSet = connection
-                .createStatement()
-                .executeQuery(String.format("select uuid from system.cnch_tables where database = '%s' and name = '%s'", database, table));
-
-        if (resultSet.next()) {
-            return resultSet.getString("uuid");
-        } else {
-            throw new SQLException("Failed to get uuid from resultset");
-        }
-    }
-
     protected Statement getStatement(Statement statement) throws SQLException {
-        if (getServerName().equals(CNCH)) {
-            String uuid = getUuid(statement.getConnection(), lastUsedDatabaseName, lastUsedTableName);
-            CnchRoutingDataSource dataSource = (CnchRoutingDataSource) getDataSource();
-            return dataSource.getConnection(uuid).createStatement();
-        }
         return statement;
     }
 

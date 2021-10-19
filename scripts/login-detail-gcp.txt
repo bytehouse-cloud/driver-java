@@ -1,4 +1,0 @@
-account = "AWSLJEWV"
-user = "zx"
-password = "P`55word"
-region = "cn-north-1-staging"
