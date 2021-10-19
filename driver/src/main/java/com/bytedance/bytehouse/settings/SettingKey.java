@@ -32,14 +32,6 @@ public class SettingKey implements Serializable {
     // key always is lower case
     private static final Map<String, SettingKey> DEFINED_SETTING_KEYS = new ConcurrentHashMap<>();
 
-    /**
-     * ------------------- QUERY SETTINGS ----------------------
-     * <br/>
-     * Adopted from:
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/settings/default.go">
-     * default.go
-     * </a>
-     */
     public static SettingKey min_compress_block_size = SettingKey.builder()
             .withName("min_compress_block_size")
             .withType(SettingType.INT_64)
@@ -1060,8 +1052,6 @@ public class SettingKey implements Serializable {
             .withType(SettingType.BOOL)
             .build();
 
-    // ------------------------- CNCH SPECIFIC QUERY SETTINGS -------------------------------
-
     public static SettingKey enable_operator_level_profile = SettingKey.builder()
             .withName("enable_operator_level_profile")
             .withType(SettingType.BOOL)
@@ -1637,7 +1627,6 @@ public class SettingKey implements Serializable {
             .withType(SettingType.BOOL)
             .build();
 
-    // CNCH Distributed Stages
     public static SettingKey enable_distributed_stages = SettingKey.builder()
             .withName("enable_distributed_stages")
             .withType(SettingType.BOOL)
@@ -1648,7 +1637,6 @@ public class SettingKey implements Serializable {
             .withType(SettingType.BOOL)
             .build();
 
-    // ----------------------------- GATEWAY SETTINGS -------------------------------------
     public static SettingKey skip_history = SettingKey.builder()
             .withName("skip_history")
             .withType(SettingType.BOOL)

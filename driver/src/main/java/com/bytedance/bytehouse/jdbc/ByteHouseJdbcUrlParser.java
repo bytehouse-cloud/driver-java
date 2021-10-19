@@ -40,10 +40,6 @@ public final class ByteHouseJdbcUrlParser {
 
     public static final String JDBC_BYTEHOUSE_PREFIX = JDBC_PREFIX + BYTEHOUSE_PREFIX;
 
-    public static final String CNCH_PREFIX = "cnch:";
-
-    public static final String JDBC_CNCH_PREFIX = JDBC_PREFIX + CNCH_PREFIX;
-
     public static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_]+)");
 
     public static final Pattern HOST_PORT_PATH_PATTERN =

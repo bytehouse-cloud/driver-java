@@ -125,9 +125,8 @@ public final class ByteHouseDataSource implements BHDataSource {
         );
         final String bhUrl = url.substring(ByteHouseJdbcUrlParser.JDBC_PREFIX.length());
         Validate.ensure(
-                bhUrl.startsWith(ByteHouseJdbcUrlParser.BYTEHOUSE_PREFIX)
-                        || bhUrl.startsWith(ByteHouseJdbcUrlParser.CNCH_PREFIX),
-                "not ByteHouse nor CNCH url: " + url);
+                bhUrl.startsWith(ByteHouseJdbcUrlParser.BYTEHOUSE_PREFIX),
+                "not ByteHouse url: " + url);
 
         final URI uri;
         try {

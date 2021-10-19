@@ -30,12 +30,6 @@ public class AggQueryPlanResponse implements Response {
         this.plans = plans; // do not need to copy
     }
 
-    /**
-     * readFrom implementation follows
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/aggregate_query_plan.go">
-     * aggregate_query_plan.go
-     * </a>
-     */
     public static AggQueryPlanResponse readFrom(
             final BinaryDeserializer deserializer
     ) throws IOException, SQLException {

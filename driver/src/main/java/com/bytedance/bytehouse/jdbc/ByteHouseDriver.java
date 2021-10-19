@@ -45,8 +45,7 @@ public class ByteHouseDriver implements Driver {
             // FIXME: 10/8/21 throw internal sql exception
             throw new SQLException("url is null");
         }
-        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX)
-                || url.startsWith(ByteHouseJdbcUrlParser.JDBC_CNCH_PREFIX);
+        return url.startsWith(ByteHouseJdbcUrlParser.JDBC_BYTEHOUSE_PREFIX);
     }
 
     /**

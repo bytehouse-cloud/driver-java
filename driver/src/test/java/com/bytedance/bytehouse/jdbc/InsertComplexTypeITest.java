@@ -118,7 +118,6 @@ public class InsertComplexTypeITest extends AbstractITest {
         });
     }
 
-    // TODO: https://jira-sg.bytedance.net/browse/BYT-3499
     @Ignore
     public void successfullyDateTimeDataType() throws Exception {
         withStatement(statement -> {
@@ -151,7 +150,6 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    // CNCH does not support DateTime64 as data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Disabled
     public void successfullyDateTime64DataType() throws Exception {
         withStatement(statement -> {
@@ -180,7 +178,6 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    // CNCH does not support DateTime64 as data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Disabled
     public void successfullyMinDateTime64DataType() throws Exception {
         String databaseName = getDatabaseName();
@@ -205,7 +202,6 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    // CNCH does not support DateTime64 as data type https://bytedance.feishu.cn/docs/doccnIyoWyz8MSqOXZ2zeqLJpfe
     @Disabled
     public void successfullyMaxDateTime64DataType() throws Exception {
         String databaseName = getDatabaseName();
@@ -231,7 +227,6 @@ public class InsertComplexTypeITest extends AbstractITest {
         }, "use_client_time_zone", true);
     }
 
-    // TODO: Can be verified after CNCH bug is resolved, working in progress: https://jira-sg.bytedance.net/browse/BYT-3286
     @Ignore
     public void successfullyTupleDataType() throws Exception {
         String databaseName = getDatabaseName();

@@ -26,12 +26,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.time.ZoneId;
 
-/**
- * Support for LowCardinality data type.
- * Equivalent code in driver-go can be found here
- * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/column/low_cardinality.go">
- * </a>
- */
 public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesHelper {
 
     private final IDataType<?, ?> keys;

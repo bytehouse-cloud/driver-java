@@ -15,10 +15,6 @@ package com.bytedance.bytehouse.settings;
 
 import java.util.Locale;
 
-/**
- * Error code from the server.
- * <a href="https://code.byted.org/dp/ClickHouse/blob/cnch_dev/dbms/src/Common/ErrorCodes.cpp">ErrorCodes.cpp</a>
- */
 public enum ByteHouseErrCode {
     UNKNOWN_ERROR(-2, "UNKNOWN_ERROR"),
     CLIENT_ERROR(-1, "CLIENT_ERROR"),

@@ -31,12 +31,6 @@ public class TableColumnsResponse implements Response {
         this.description = description;
     }
 
-    /**
-     * readFrom implementation follows
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/table_columns.go">
-     * table_columns.go
-     * </a>
-     */
     public static TableColumnsResponse readFrom(final BinaryDeserializer deserializer)
             throws IOException, SQLException {
 

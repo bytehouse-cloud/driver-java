@@ -215,7 +215,6 @@ public class ByteHouseConnection implements BHConnection {
 
     @Override
     public PreparedStatement prepareStatement(final String query) throws SQLException {
-        // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3099
         Validate.isTrue(!isClosed(), "Unable to create PreparedStatement, "
                 + "because the connection is closed.");
         if (SQLParser.isInsertQuery(query)) {

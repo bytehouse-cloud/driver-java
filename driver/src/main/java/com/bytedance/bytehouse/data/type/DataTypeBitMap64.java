@@ -35,13 +35,6 @@ import java.util.List;
 import java.util.Map;
 import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 
-/**
- * Support for BitMap64 data type - type specific to CNCH.<br/>
- * Equivalent code in driver-go can be found here
- * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/column/bitmap.go">
- * bitmap.go
- * </a>
- */
 public class DataTypeBitMap64 implements IDataType<ByteHouseArray, Array>, BytesHelper {
 
     private static final DataTypeUInt64 DATA_TYPE_UINT_64 = new DataTypeUInt64();

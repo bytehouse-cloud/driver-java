@@ -94,9 +94,6 @@ public class ServerContext {
         }
     }
 
-    /**
-     * Temporary fix for CNCH returning "Local" as a serverTimeZone.
-     */
     private static ZoneId getZoneId(String serverTimeZone) {
         if (serverTimeZone.equals("Local")) {
             return ZoneId.systemDefault();

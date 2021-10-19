@@ -33,10 +33,6 @@ public class LogResponse implements Response {
         this.block = block;
     }
 
-    /**
-     * readFrom implementation follows
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/logs.go">logs.go</a>
-     */
     public static LogResponse readFrom(
             final BinaryDeserializer deserializer,
             final ServerContext info

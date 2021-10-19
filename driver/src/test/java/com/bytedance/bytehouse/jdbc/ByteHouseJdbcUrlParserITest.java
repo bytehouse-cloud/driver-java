@@ -37,18 +37,6 @@ public class ByteHouseJdbcUrlParserITest {
     }
 
     @Test
-    public void parseJdbcUrl_cnchInScheme() {
-        Map<SettingKey, Serializable> settings = ByteHouseJdbcUrlParser.parseJdbcUrl(
-                "jdbc:cnch://myhost:8000/database"
-        );
-
-        assertEquals(settings.size(), 3);
-        assertEquals(settings.get(SettingKey.host), "myhost");
-        assertEquals(settings.get(SettingKey.port), 8000);
-        assertEquals(settings.get(SettingKey.database), "database");
-    }
-
-    @Test
     public void parseJdbcUrl_withValidQueryParameters_succeed() {
         Map<SettingKey, Serializable> settings = ByteHouseJdbcUrlParser.parseJdbcUrl(
                 "jdbc:bytehouse://myhost:8000/database?user=person&password=P@ssword"

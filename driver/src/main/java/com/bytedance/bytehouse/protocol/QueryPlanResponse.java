@@ -31,12 +31,6 @@ public class QueryPlanResponse implements Response {
         this.plans = plans;
     }
 
-    /**
-     * readFrom implementation follows
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/query_plan.go">
-     * query_plan.go
-     * </a>
-     */
     public static QueryPlanResponse readFrom(
             final BinaryDeserializer deserializer
     ) throws IOException, SQLException {

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Disabled;
 
 public class QueryRandomITest extends AbstractITest {
 
-    // CNCH does not support GenerateRandom as engine
     @Disabled
     public void successfullyDateTime64DataType() throws Exception {
         withStatement(statement -> {

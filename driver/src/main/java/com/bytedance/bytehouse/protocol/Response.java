@@ -25,12 +25,6 @@ import java.sql.SQLException;
  */
 public interface Response {
 
-    /**
-     * List of all the possible {@link Response}s.
-     * <br><br>
-     * The cases to handle follow
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/response.go">response.go</a>
-     */
     static Response readFrom(
             final BinaryDeserializer deserializer,
             final ServerContext info

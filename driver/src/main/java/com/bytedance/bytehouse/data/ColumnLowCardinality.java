@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class ColumnLowCardinality extends AbstractColumn implements BytesHelper {
 
-    private final static int HEADER_SIZE = 24; // defined by cnch protocol
+    private final static int HEADER_SIZE = 24;
 
     private byte[] header;
 
@@ -146,10 +146,6 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
     }
 
     private void updateHeader() {
-        /* header[0] and header[9] are part of the CNCH protocol.
-         More details from
-         https://code.byted.org/dp/ClickHouse/blob/stable_v2/dbms/src/Columns/ColumnLowCardinality.cpp
-        */
         header[0] = 1; // version
         header[9] = 2; // indicate presence of additional keys
 

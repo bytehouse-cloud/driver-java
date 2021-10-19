@@ -125,7 +125,6 @@ public class PreparedStatementITest extends AbstractITest {
         });
     }
 
-    // TODO: Can be verified after CNCH bug is resolved
     @Ignore
     public void successfullyDateIndependentWithTz() throws Exception {
         DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT);

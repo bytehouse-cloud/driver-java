@@ -36,7 +36,6 @@ public class ExceptionResponse implements Response {
             );
         }
 
-        // FIXME: 10/8/21 https://jira-sg.bytedance.net/browse/BYT-3114
         return new ByteHouseSQLException(code, name + message + ". Stack trace:\n\n" + stackTrace);
     }
 

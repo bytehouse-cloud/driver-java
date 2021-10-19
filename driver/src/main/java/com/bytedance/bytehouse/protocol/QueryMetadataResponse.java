@@ -27,12 +27,6 @@ public class QueryMetadataResponse implements Response {
         this.queryId = queryId;
     }
 
-    /**
-     * readFrom implementation follows
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/response/query_metadata.go">
-     * query_metadata.go
-     * </a>
-     */
     public static QueryMetadataResponse readFrom(
             final BinaryDeserializer deserializer
     ) throws IOException {

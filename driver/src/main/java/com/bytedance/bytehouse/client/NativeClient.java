@@ -85,11 +85,6 @@ public class NativeClient implements AutoCloseable {
         this.deserializer = deserializer;
     }
 
-    /**
-     * Connects to Gateway using either a secure (with TLS) or insecure TCP connection.
-     * Equivalent code in driver-go can be found in dial() function of:
-     * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/conn/connect.go">connect.go</a>
-     */
     public static NativeClient connect(final ByteHouseConfig configure) throws SQLException {
         try {
             final SocketAddress endpoint = new InetSocketAddress(

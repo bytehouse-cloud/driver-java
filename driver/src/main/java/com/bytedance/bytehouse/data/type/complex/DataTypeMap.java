@@ -30,13 +30,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Support for Map data type.
- * Equivalent code in driver-go can be found here
- * <a href="https://code.byted.org/bytehouse/driver-go/blob/main/driver/lib/data/column/map.go">
- * map.go
- * </a>
- */
 public class DataTypeMap implements IDataType<Map, Object> {
 
     private static final DataTypeUInt64 DATA_TYPE_UINT_64 = new DataTypeUInt64();
