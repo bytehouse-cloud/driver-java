@@ -13,7 +13,6 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -33,7 +32,7 @@ class ByteHouseSystemDatabaseMetadataITest extends AbstractITest {
     void allProceduresAreCallable() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertThat(dm.allProceduresAreCallable()).isTrue();
+            assertTrue(dm.allProceduresAreCallable());
         });
     }
 
@@ -41,7 +40,7 @@ class ByteHouseSystemDatabaseMetadataITest extends AbstractITest {
     void allTablesAreSelectable() throws Exception {
         withNewConnection(connection -> {
             DatabaseMetaData dm = connection.getMetaData();
-            assertThat(dm.allTablesAreSelectable()).isTrue();
+            assertTrue(dm.allTablesAreSelectable());
         });
     }
 

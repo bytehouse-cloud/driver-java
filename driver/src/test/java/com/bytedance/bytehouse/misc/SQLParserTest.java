@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.misc;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Locale;
@@ -39,9 +39,7 @@ class SQLParserTest {
                 String originalQuery,
                 boolean isTrue
         ) {
-            assertThat(SQLParser
-                    .isInsertQuery(originalQuery))
-                    .isEqualTo(isTrue);
+            assertEquals(SQLParser.isInsertQuery(originalQuery), isTrue);
         }
 
         static class CustomArgumentProvider implements ArgumentsProvider {
@@ -87,8 +85,8 @@ class SQLParserTest {
         ) {
             if (exceptionType == null) {
                 final SQLParser.InsertQueryParts parts = SQLParser.splitInsertQuery(originalQuery);
-                assertThat(parts.queryPart).isEqualTo(queryPart);
-                assertThat(parts.valuePart).isEqualTo(valuePart);
+                assertEquals(parts.queryPart, queryPart);
+                assertEquals(parts.valuePart, valuePart);
             } else {
                 assertThrows(exceptionType, () -> {
                     SQLParser.splitInsertQuery(originalQuery);
@@ -150,8 +148,8 @@ class SQLParserTest {
                     .extractDBAndTableName(query);
 
             final OriginalImpl originalImpl = new OriginalImpl(defaultDb).extractDBAndTableName(query);
-            assertThat(dbTable.getDbOrDefault(defaultDb)).isEqualTo(originalImpl.db);
-            assertThat(dbTable.getTable()).isEqualTo(originalImpl.table);
+            assertEquals(dbTable.getDbOrDefault(defaultDb), originalImpl.db);
+            assertEquals(dbTable.getTable(), originalImpl.table);
         }
 
         static class CustomArgumentProvider implements ArgumentsProvider {
