@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -35,9 +35,9 @@ public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
 
     public static DataTypeCreator<ZonedDateTime, Timestamp> creator = (lexer, serverContext) -> {
         if (lexer.isCharacter('(')) {
-            Validate.isTrue(lexer.character() == '(');
+            ValidateUtils.isTrue(lexer.character() == '(');
             String dataTimeZone = lexer.stringLiteral();
-            Validate.isTrue(lexer.character() == ')');
+            ValidateUtils.isTrue(lexer.character() == ')');
             return new DataTypeDateTime("DateTime('" + dataTimeZone + "')", serverContext);
         }
         return new DataTypeDateTime("DateTime", serverContext);
@@ -92,19 +92,19 @@ public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
 
     @Override
     public ZonedDateTime deserializeText(SQLLexer lexer) throws SQLException {
-        Validate.isTrue(lexer.character() == '\'');
+        ValidateUtils.isTrue(lexer.character() == '\'');
         int year = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == '-');
+        ValidateUtils.isTrue(lexer.character() == '-');
         int month = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == '-');
+        ValidateUtils.isTrue(lexer.character() == '-');
         int day = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.isWhitespace());
+        ValidateUtils.isTrue(lexer.isWhitespace());
         int hours = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == ':');
+        ValidateUtils.isTrue(lexer.character() == ':');
         int minutes = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == ':');
+        ValidateUtils.isTrue(lexer.character() == ':');
         int seconds = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == '\'');
+        ValidateUtils.isTrue(lexer.character() == '\'');
 
         return ZonedDateTime.of(year, month, day, hours, minutes, seconds, 0, tz);
     }

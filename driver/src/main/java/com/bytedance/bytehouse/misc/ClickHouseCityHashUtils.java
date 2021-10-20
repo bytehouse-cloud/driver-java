@@ -23,20 +23,19 @@ package com.bytedance.bytehouse.misc;
  *         <p>
  *         NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
  */
-@SuppressWarnings({"PMD.FieldNamingConventions", "PMD.ClassNamingConventions", "PMD.LocalVariableNamingConventions", "PMD.AvoidReassigningParameters"})
-public final class ClickHouseCityHash {
+public final class ClickHouseCityHashUtils {
 
-    private static final long k0 = 0xc3a5c85c97cb3127L;
+    private static final long K0 = 0xc3a5c85c97cb3127L;
 
-    private static final long k1 = 0xb492b66fbe98f273L;
+    private static final long K1 = 0xb492b66fbe98f273L;
 
-    private static final long k2 = 0x9ae16a3b2f90404fL;
+    private static final long K2 = 0x9ae16a3b2f90404fL;
 
-    private static final long k3 = 0xc949d7c7509e6557L;
+    private static final long K3 = 0xc949d7c7509e6557L;
 
-    private static final long kMul = 0x9ddfea08eb382d69L;
+    private static final long K_MUL = 0x9ddfea08eb382d69L;
 
-    ClickHouseCityHash() {
+    ClickHouseCityHashUtils() {
         // no creation
     }
 
@@ -79,11 +78,11 @@ public final class ClickHouseCityHash {
     }
 
     private static long hash128to64(long u, long v) {
-        long a = (u ^ v) * kMul;
+        long a = (u ^ v) * K_MUL;
         a ^= (a >>> 47);
-        long b = (v ^ a) * kMul;
+        long b = (v ^ a) * K_MUL;
         b ^= (b >>> 47);
-        b *= kMul;
+        b *= K_MUL;
         return b;
     }
 
@@ -107,9 +106,9 @@ public final class ClickHouseCityHash {
             byte c = s[pos + len - 1];
             int y = (int) a + (((int) b) << 8);
             int z = len + (((int) c) << 2);
-            return shiftMix(y * k2 ^ z * k3) * k2;
+            return shiftMix(y * K2 ^ z * K3) * K2;
         }
-        return k2;
+        return K2;
     }
 
     private static long[] weakHashLen32WithSeeds(
@@ -145,21 +144,21 @@ public final class ClickHouseCityHash {
 
         int l = len - 16;
         if (l <= 0) {
-            a = shiftMix(a * k1) * k1;
-            c = b * k1 + hashLen0to16(s, pos, len);
+            a = shiftMix(a * K1) * K1;
+            c = b * K1 + hashLen0to16(s, pos, len);
             d = shiftMix(a + (len >= 8 ? fetch64(s, pos + 0) : c));
         } else {
 
-            c = hashLen16(fetch64(s, pos + len - 8) + k1, a);
+            c = hashLen16(fetch64(s, pos + len - 8) + K1, a);
             d = hashLen16(b + len, c + fetch64(s, pos + len - 16));
             a += d;
 
             do {
-                a ^= shiftMix(fetch64(s, pos + 0) * k1) * k1;
-                a *= k1;
+                a ^= shiftMix(fetch64(s, pos + 0) * K1) * K1;
+                a *= K1;
                 b ^= a;
-                c ^= shiftMix(fetch64(s, pos + 8) * k1) * k1;
-                c *= k1;
+                c ^= shiftMix(fetch64(s, pos + 8) * K1) * K1;
+                c *= K1;
                 d ^= c;
                 pos += 16;
                 l -= 16;
@@ -180,22 +179,22 @@ public final class ClickHouseCityHash {
         long[] v = new long[2], w = new long[2];
         long x = seed0;
         long y = seed1;
-        long z = k1 * len;
-        v[0] = rotate(y ^ k1, 49) * k1 + fetch64(s, pos);
-        v[1] = rotate(v[0], 42) * k1 + fetch64(s, pos + 8);
-        w[0] = rotate(y + z, 35) * k1 + x;
-        w[1] = rotate(x + fetch64(s, pos + 88), 53) * k1;
+        long z = K1 * len;
+        v[0] = rotate(y ^ K1, 49) * K1 + fetch64(s, pos);
+        v[1] = rotate(v[0], 42) * K1 + fetch64(s, pos + 8);
+        w[0] = rotate(y + z, 35) * K1 + x;
+        w[1] = rotate(x + fetch64(s, pos + 88), 53) * K1;
 
         // This is the same inner loop as CityHash64(), manually unrolled.
         do {
-            x = rotate(x + y + v[0] + fetch64(s, pos + 16), 37) * k1;
-            y = rotate(y + v[1] + fetch64(s, pos + 48), 42) * k1;
+            x = rotate(x + y + v[0] + fetch64(s, pos + 16), 37) * K1;
+            y = rotate(y + v[1] + fetch64(s, pos + 48), 42) * K1;
 
             x ^= w[1];
             y ^= v[0];
 
             z = rotate(z ^ w[0], 33);
-            v = weakHashLen32WithSeeds(s, pos, v[1] * k1, x + w[0]);
+            v = weakHashLen32WithSeeds(s, pos, v[1] * K1, x + w[0]);
             w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y);
 
             {
@@ -204,12 +203,12 @@ public final class ClickHouseCityHash {
                 x = swap;
             }
             pos += 64;
-            x = rotate(x + y + v[0] + fetch64(s, pos + 16), 37) * k1;
-            y = rotate(y + v[1] + fetch64(s, pos + 48), 42) * k1;
+            x = rotate(x + y + v[0] + fetch64(s, pos + 16), 37) * K1;
+            y = rotate(y + v[1] + fetch64(s, pos + 48), 42) * K1;
             x ^= w[1];
             y ^= v[0];
             z = rotate(z ^ w[0], 33);
-            v = weakHashLen32WithSeeds(s, pos, v[1] * k1, x + w[0]);
+            v = weakHashLen32WithSeeds(s, pos, v[1] * K1, x + w[0]);
             w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y);
             {
                 long swap = z;
@@ -220,17 +219,17 @@ public final class ClickHouseCityHash {
             len -= 128;
         } while (len >= 128);
 
-        y += rotate(w[0], 37) * k0 + z;
-        x += rotate(v[0] + z, 49) * k0;
+        y += rotate(w[0], 37) * K0 + z;
+        x += rotate(v[0] + z, 49) * K0;
 
         // If 0 < len < 128, hash up to 4 chunks of 32 bytes each from the end of s.
-        for (int tail_done = 0; tail_done < len; ) {
-            tail_done += 32;
-            y = rotate(y - x, 42) * k0 + v[1];
-            w[0] += fetch64(s, pos + len - tail_done + 16);
-            x = rotate(x, 49) * k0 + w[0];
+        for (int tailDone = 0; tailDone < len; ) {
+            tailDone += 32;
+            y = rotate(y - x, 42) * K0 + v[1];
+            w[0] += fetch64(s, pos + len - tailDone + 16);
+            x = rotate(x, 49) * K0 + w[0];
             w[0] += v[0];
-            v = weakHashLen32WithSeeds(s, pos + len - tail_done, v[0], v[1]);
+            v = weakHashLen32WithSeeds(s, pos + len - tailDone, v[0], v[1]);
         }
 
         // At this point our 48 bytes of state should contain more than
@@ -252,15 +251,15 @@ public final class ClickHouseCityHash {
             return cityHash128WithSeed(
                     s, pos + 16,
                     len - 16,
-                    fetch64(s, pos) ^ k3,
+                    fetch64(s, pos) ^ K3,
                     fetch64(s, pos + 8));
         }
         if (len >= 8) {
             return cityHash128WithSeed(
                     new byte[0], 0, 0,
-                    fetch64(s, pos) ^ (len * k0),
-                    fetch64(s, pos + len - 8) ^ k1);
+                    fetch64(s, pos) ^ (len * K0),
+                    fetch64(s, pos + len - 8) ^ K1);
         }
-        return cityHash128WithSeed(s, pos, len, k0, k1);
+        return cityHash128WithSeed(s, pos, len, K0, K1);
     }
 }

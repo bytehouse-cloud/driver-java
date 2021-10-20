@@ -16,7 +16,7 @@ package com.bytedance.bytehouse.jdbc;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLArray;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -26,7 +26,7 @@ import static com.bytedance.bytehouse.misc.PrimitiveConverter.box;
 
 public class ByteHouseArray implements SQLArray {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseArray.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseArray.class);
 
     private final IDataType<?, ?> elementDataType;
 

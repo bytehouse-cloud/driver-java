@@ -75,7 +75,6 @@ public interface IDataType<CK, JDBC> {
      *
      * @return class of JDBC type
      */
-    @SuppressWarnings("unchecked")
     default Class<JDBC> jdbcJavaType() {
         return (Class<JDBC>) javaType();
     }

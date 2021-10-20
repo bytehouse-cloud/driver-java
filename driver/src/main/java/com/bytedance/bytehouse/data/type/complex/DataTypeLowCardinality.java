@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -31,9 +31,9 @@ public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesH
     private final IDataType<?, ?> keys;
 
     public static DataTypeCreator<Object, Object> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         IDataType<?, ?> elemDataType = DataTypeFactory.get(lexer, serverContext);
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
 
         return new DataTypeLowCardinality(elemDataType);
     };

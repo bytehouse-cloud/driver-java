@@ -73,7 +73,6 @@ public class SocketBuffedReader implements BuffedReader {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
     public int readBinary(final byte[] bytes) throws IOException {
         for (int i = 0; i < bytes.length; ) {
             if (!remaining() && !refill()) {
@@ -97,7 +96,6 @@ public class SocketBuffedReader implements BuffedReader {
         return position < limit;
     }
 
-    @SuppressWarnings("PMD.AssignmentInOperand")
     private boolean refill() throws IOException {
         if (!remaining() && (limit = in.read(buf, 0, capacity)) <= 0) {
             throw new EOFException("Attempt to read after eof.");

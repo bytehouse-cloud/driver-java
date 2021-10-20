@@ -48,7 +48,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Ceki Gulcu
  */
-@SuppressWarnings("PMD.LocalVariableNamingConventions")
 public class MessageFormatterTest {
 
     Integer i1 = 1;

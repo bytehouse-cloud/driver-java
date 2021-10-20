@@ -44,8 +44,8 @@ public class ColumnMap extends AbstractColumn {
     public ColumnMap(String name, DataTypeMap type, Object[] values) {
         super(name, type, values);
         offsets = new ArrayList<>();
-        keysColumn = ColumnFactory.createColumn(null, type.getKeyDataType(), null);
-        valuesColumn = ColumnFactory.createColumn(null, type.getValueDataType(), null);
+        keysColumn = ColumnFactoryUtils.createColumn(null, type.getKeyDataType(), null);
+        valuesColumn = ColumnFactoryUtils.createColumn(null, type.getValueDataType(), null);
     }
 
     /**

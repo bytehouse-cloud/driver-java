@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.wrapper.BHDatabaseMetadata;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLHelper;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -39,7 +39,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
 
     private static final String TABLE_NAME = "TABLE_NAME";
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseDatabaseMetadata.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseDatabaseMetadata.class);
 
     private final String url;
 

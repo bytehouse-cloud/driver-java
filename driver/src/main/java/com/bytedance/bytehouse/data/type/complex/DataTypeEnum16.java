@@ -16,7 +16,7 @@ package com.bytedance.bytehouse.data.type.complex;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -29,17 +29,17 @@ import java.util.List;
 public class DataTypeEnum16 implements IDataType<String, String> {
 
     public static DataTypeCreator<String, String> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         List<Short> enumValues = new ArrayList<>();
         List<String> enumNames = new ArrayList<>();
 
         for (int i = 0; i < 1 << 16; i++) {
             enumNames.add(lexer.stringLiteral());
-            Validate.isTrue(lexer.character() == '=');
+            ValidateUtils.isTrue(lexer.character() == '=');
             enumValues.add(lexer.numberLiteral().shortValue());
 
             char character = lexer.character();
-            Validate.isTrue(character == ',' || character == ')');
+            ValidateUtils.isTrue(character == ',' || character == ')');
 
             if (character == ')') {
                 StringBuilder builder = new StringBuilder("Enum16(");

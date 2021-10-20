@@ -3,7 +3,6 @@ plugins {
     id 'checkstyle'
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "pmd"
-    id 'application'
     id 'maven-publish'
     id 'java'
 }
@@ -43,18 +42,16 @@ publishing {
     // https://luban.bytedance.net/maven/source/search-artifacts/?name=driver-java
 }
 
-application {
-    mainClassName = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "NULL"
-}
-
 compileJava {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
+    options.encoding = "UTF-8"
 }
 
 compileTestJava {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
+    options.encoding = "UTF-8"
 }
 
 repositories {
@@ -100,15 +97,15 @@ jar {
 }
 
 checkstyle {
-    configFile file("../config/checkstyle.xml")
-    configProperties 'checkstyle.header.file': file("../config/license.header")
+    configFile file("../config/checkstyle/checkstyle.xml")
+    configProperties 'checkstyle.header.file': file("../config/checkstyle/license.header")
 }
 
 pmd {
+    toolVersion = "6.39.0"
     sourceSets = [sourceSets.main]
     ruleSetFiles = files(
             ".././config/pmd/quickstart.xml"
     )
-    ruleSets = []
-//    ignoreFailures = true
+    rulesMinimumPriority = 1
 }

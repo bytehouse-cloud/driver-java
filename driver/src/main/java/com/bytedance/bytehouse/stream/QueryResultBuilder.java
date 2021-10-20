@@ -15,12 +15,12 @@ package com.bytedance.bytehouse.stream;
 
 import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.Block;
-import com.bytedance.bytehouse.data.ColumnFactory;
+import com.bytedance.bytehouse.data.ColumnFactoryUtils;
 import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.data.IColumn;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.misc.CheckedIterator;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public final class QueryResultBuilder {
      * throws exception if the length is inconsistent with what's already existing.
      */
     public QueryResultBuilder columnNames(final List<String> names) {
-        Validate.ensure(names.size() == columnNum,
+        ValidateUtils.ensure(names.size() == columnNum,
                 "size mismatch, req: " + columnNum + " got: " + names.size()
         );
         this.columnNames = names;
@@ -94,7 +94,7 @@ public final class QueryResultBuilder {
      * @throws SQLException                                            if the string description of the type is not valid.
      */
     public QueryResultBuilder columnTypes(final List<String> types) throws SQLException {
-        Validate.ensure(types.size() == columnNum,
+        ValidateUtils.ensure(types.size() == columnNum,
                 "size mismatch, req: " + columnNum + " got: " + types.size());
         this.columnTypes = new ArrayList<>(columnNum);
         for (int i = 0; i < columnNum; i++) {
@@ -116,7 +116,7 @@ public final class QueryResultBuilder {
      * @throws com.bytedance.bytehouse.exception.InvalidValueException if the length is inconsistent with what's already existing.
      */
     public QueryResultBuilder addRow(final List<?> row) {
-        Validate.ensure(row.size() == columnNum,
+        ValidateUtils.ensure(row.size() == columnNum,
                 "size mismatch, req: " + columnNum + " got: " + row.size());
         rows.add(row);
         return this;
@@ -126,14 +126,14 @@ public final class QueryResultBuilder {
      * build query and return what you have just plugged into this instance as the results.
      */
     public QueryResult build() throws SQLException {
-        Validate.ensure(columnNames != null, "columnNames is null");
-        Validate.ensure(columnTypes != null, "columnTypes is null");
+        ValidateUtils.ensure(columnNames != null, "columnNames is null");
+        ValidateUtils.ensure(columnTypes != null, "columnTypes is null");
 
         // assemble header block
         final IColumn[] headerColumns = new IColumn[columnNum];
         final Object[] emptyObjects = new Object[columnNum];
         for (int c = 0; c < columnNum; c++) {
-            headerColumns[c] = ColumnFactory.createColumn(columnNames.get(c), columnTypes.get(c), emptyObjects);
+            headerColumns[c] = ColumnFactoryUtils.createColumn(columnNames.get(c), columnTypes.get(c), emptyObjects);
         }
         final Block headerBlock = new Block(0, headerColumns);
 
@@ -144,7 +144,7 @@ public final class QueryResultBuilder {
             for (int r = 0; r < rows.size(); r++) {
                 columnObjects[r] = rows.get(r).get(c);
             }
-            dataColumns[c] = ColumnFactory.createColumn(columnNames.get(c), columnTypes.get(c), columnObjects);
+            dataColumns[c] = ColumnFactoryUtils.createColumn(columnNames.get(c), columnTypes.get(c), columnObjects);
         }
         final Block dataBlock = new Block(rows.size(), dataColumns);
 

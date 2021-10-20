@@ -30,7 +30,7 @@ public class ColumnTuple extends AbstractColumn {
         IDataType<?, ?>[] types = type.getNestedTypes();
         columnDataArray = new IColumn[types.length];
         for (int i = 0; i < types.length; i++) {
-            columnDataArray[i] = ColumnFactory.createColumn(null, types[i], null);
+            columnDataArray[i] = ColumnFactoryUtils.createColumn(null, types[i], null);
         }
     }
 

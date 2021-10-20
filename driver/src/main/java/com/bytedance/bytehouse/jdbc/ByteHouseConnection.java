@@ -26,9 +26,9 @@ import com.bytedance.bytehouse.jdbc.statement.ByteHousePreparedQueryStatement;
 import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.jdbc.wrapper.BHConnection;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.misc.SQLParser;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
+import com.bytedance.bytehouse.misc.SQLParserUtils;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.ByteHouseErrCode;
 import com.bytedance.bytehouse.settings.SettingKey;
@@ -58,10 +58,9 @@ import javax.annotation.Nullable;
 /**
  * Provides implementation for {@link BHConnection}.
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.TooManyMethods", "PMD.AvoidFieldNameMatchingMethodName"})
 public class ByteHouseConnection implements BHConnection {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseConnection.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseConnection.class);
 
     private static final String TRANSACTION_IS_NOT_SUPPORTED_IN_BYTEHOUSE =
             "Transaction is not supported in Bytehouse";
@@ -89,7 +88,6 @@ public class ByteHouseConnection implements BHConnection {
     /**
      * factory method {@link ByteHouseConnection}.
      */
-    @SuppressWarnings("PMD.CloseResource")
     public static ByteHouseConnection createByteHouseConnection(
             final ByteHouseConfig config
     ) throws SQLException {
@@ -208,17 +206,17 @@ public class ByteHouseConnection implements BHConnection {
 
     @Override
     public Statement createStatement() throws SQLException {
-        Validate.isTrue(!isClosed(), "Unable to create Statement, "
+        ValidateUtils.isTrue(!isClosed(), "Unable to create Statement, "
                 + "because the connection is closed.");
         return new ByteHouseStatement(this);
     }
 
     @Override
     public PreparedStatement prepareStatement(final String query) throws SQLException {
-        Validate.isTrue(!isClosed(), "Unable to create PreparedStatement, "
+        ValidateUtils.isTrue(!isClosed(), "Unable to create PreparedStatement, "
                 + "because the connection is closed.");
-        if (SQLParser.isInsertQuery(query)) {
-            final SQLParser.InsertQueryParts insertQueryParts = SQLParser.splitInsertQuery(query);
+        if (SQLParserUtils.isInsertQuery(query)) {
+            final SQLParserUtils.InsertQueryParts insertQueryParts = SQLParserUtils.splitInsertQuery(query);
 
             return new ByteHousePreparedInsertStatement(
                     insertQueryParts.queryPart,
@@ -259,7 +257,7 @@ public class ByteHouseConnection implements BHConnection {
             final String typeName,
             final Object[] elements
     ) throws SQLException {
-        Validate.isTrue(!isClosed(), "Unable to create Array, "
+        ValidateUtils.isTrue(!isClosed(), "Unable to create Array, "
                 + "because the connection is closed.");
         return new ByteHouseArray(DataTypeFactory.get(typeName, nativeCtx.serverCtx()), elements);
     }
@@ -269,7 +267,7 @@ public class ByteHouseConnection implements BHConnection {
             final String typeName,
             final Object[] attributes
     ) throws SQLException {
-        Validate.isTrue(!isClosed(), "Unable to create Struct, "
+        ValidateUtils.isTrue(!isClosed(), "Unable to create Struct, "
                 + "because the connection is closed.");
         return new ByteHouseStruct(typeName, attributes);
     }
@@ -364,7 +362,7 @@ public class ByteHouseConnection implements BHConnection {
                 cfg.get().settings(),
                 cfg.get().enableCompression()
         );
-        Validate.isTrue(this.state.compareAndSet(SessionState.IDLE, SessionState.WAITING_INSERT),
+        ValidateUtils.isTrue(this.state.compareAndSet(SessionState.IDLE, SessionState.WAITING_INSERT),
                 "Connection is currently waiting for an insert operation, "
                         + "check your previous InsertStatement.");
         return nativeClient.receiveSampleBlock(cfg.get().queryTimeout(), nativeCtx.serverCtx());
@@ -377,7 +375,7 @@ public class ByteHouseConnection implements BHConnection {
             final String query,
             final ByteHouseConfig cfg
     ) throws SQLException {
-        Validate.isTrue(this.state.get() == SessionState.IDLE,
+        ValidateUtils.isTrue(this.state.get() == SessionState.IDLE,
                 "Connection is currently waiting for an insert operation, "
                         + "check your previous InsertStatement.");
         final NativeClient nativeClient = getHealthyNativeClient();
@@ -401,7 +399,7 @@ public class ByteHouseConnection implements BHConnection {
      * send insert request.
      */
     public int sendInsertRequest(final Block block) throws SQLException {
-        Validate.isTrue(this.state.get() == SessionState.WAITING_INSERT,
+        ValidateUtils.isTrue(this.state.get() == SessionState.WAITING_INSERT,
                 "Call getSampleBlock before insert.");
         try {
             final NativeClient nativeClient = getNativeClient();
@@ -411,7 +409,7 @@ public class ByteHouseConnection implements BHConnection {
             nativeClient.sendData(Block.empty());
             nativeClient.receiveEndOfStream(cfg.get().queryTimeout(), nativeCtx.serverCtx());
         } finally {
-            Validate.isTrue(this.state.compareAndSet(
+            ValidateUtils.isTrue(this.state.compareAndSet(
                     SessionState.WAITING_INSERT, SessionState.IDLE
             ));
         }
@@ -422,7 +420,7 @@ public class ByteHouseConnection implements BHConnection {
      * send single block.
      */
     public int sendBlock(final Block block) throws SQLException {
-        Validate.isTrue(this.state.get() == SessionState.WAITING_INSERT,
+        ValidateUtils.isTrue(this.state.get() == SessionState.WAITING_INSERT,
                 "Call getSampleBlock before insert.");
         final NativeClient nativeClient = getNativeClient();
         nativeClient.sendData(block);

@@ -22,8 +22,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * provides some easy utility methods to parse a sql statement.
  */
-@SuppressWarnings("PMD.ClassNamingConventions")
-public final class SQLParser {
+public final class SQLParserUtils {
 
     static final Pattern TXN_LABEL_BRACKET_REGEX = Pattern
             .compile("insertion_label\\s*=\\s*'[a-zA-Z0-9\\-#]+'\\s*\\(");
@@ -36,7 +35,7 @@ public final class SQLParser {
 
     private static final Pattern SELECT_DB_TABLE = Pattern.compile("(?i)FROM\\s+(\\S+\\.)?(\\S+)");
 
-    private SQLParser() {
+    private SQLParserUtils() {
         // no creation
     }
 
@@ -79,7 +78,6 @@ public final class SQLParser {
         return matcher.find() && query.trim().toUpperCase(Locale.ROOT).startsWith("INSERT");
     }
 
-    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     public static DbTable extractDBAndTableName(final String sql) {
         final String upperSQL = sql.trim().toUpperCase(Locale.ROOT);
         if (upperSQL.startsWith("SELECT")) {
@@ -118,7 +116,7 @@ public final class SQLParser {
                 inQuotes = !inQuotes;
             } else if (!inBackQuotes && !inQuotes) {
                 if (ch == '?') {
-                    Validate.isTrue(i > start, "");
+                    ValidateUtils.isTrue(i > start, "");
                     param++;
                 }
             }

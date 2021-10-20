@@ -20,9 +20,9 @@ import com.bytedance.bytehouse.exception.ByteHouseClientException;
 import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
-import com.bytedance.bytehouse.misc.SQLParser;
+import com.bytedance.bytehouse.misc.SQLParserUtils;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ import java.util.Arrays;
 
 public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHousePreparedInsertStatement.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHousePreparedInsertStatement.class);
 
     private final String insertQueryPart;
 
@@ -56,7 +56,7 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
         this.rowInsertedCount = 0;
 
         initBlockIfPossible();
-        final SQLParser.DbTable dbTable = SQLParser.extractDBAndTableName(insertQueryPart);
+        final SQLParserUtils.DbTable dbTable = SQLParserUtils.extractDBAndTableName(insertQueryPart);
         lastResultSet = new ByteHouseResultSet(this, cfg, dbTable.getDbOrDefault(this.defaultDb), dbTable.getTable(), this.block, null);
     }
 

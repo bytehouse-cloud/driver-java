@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.data.type.DataTypeInt64;
 import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -35,9 +35,9 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
     private final String name;
 
     public static DataTypeCreator<ByteHouseArray, Array> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         IDataType<?, ?> arrayNestedType = DataTypeFactory.get(lexer, serverContext);
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
         return new DataTypeArray("Array(" + arrayNestedType.name() + ")",
                 arrayNestedType, (DataTypeInt64) DataTypeFactory.get("Int64", serverContext));
     };
@@ -93,7 +93,7 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
 
     @Override
     public ByteHouseArray deserializeText(SQLLexer lexer) throws SQLException {
-        Validate.isTrue(lexer.character() == '[');
+        ValidateUtils.isTrue(lexer.character() == '[');
         List<Object> arrayData = new ArrayList<>();
         for (; ; ) {
             if (lexer.isCharacter(']')) {

@@ -16,8 +16,8 @@ package com.bytedance.bytehouse.jdbc;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLStruct;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class ByteHouseStruct implements SQLStruct {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStruct.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseStruct.class);
 
     private static final Pattern ATTR_INDEX_REGEX = Pattern.compile("_(\\d+)");
 
@@ -57,11 +57,11 @@ public class ByteHouseStruct implements SQLStruct {
         for (String attrName : map.keySet()) {
             Class<?> clazz = map.get(attrName);
             Matcher matcher = ATTR_INDEX_REGEX.matcher(attrName);
-            Validate.isTrue(matcher.matches(), "Can't find " + attrName + ".");
+            ValidateUtils.isTrue(matcher.matches(), "Can't find " + attrName + ".");
 
             int attrIndex = Integer.parseInt(matcher.group(1)) - 1;
-            Validate.isTrue(attrIndex < attributes.length, "Can't find " + attrName + ".");
-            Validate.isTrue(clazz.isInstance(attributes[attrIndex]),
+            ValidateUtils.isTrue(attrIndex < attributes.length, "Can't find " + attrName + ".");
+            ValidateUtils.isTrue(clazz.isInstance(attributes[attrIndex]),
                     "Can't cast " + attrName + " to " + clazz.getName());
 
             res[i++] = clazz.cast(attributes[attrIndex]);

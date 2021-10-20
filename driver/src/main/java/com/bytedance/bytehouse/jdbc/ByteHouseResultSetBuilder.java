@@ -14,7 +14,7 @@
 package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.client.ServerContext;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.stream.QueryResult;
@@ -128,7 +128,7 @@ public final class ByteHouseResultSetBuilder {
      * build {@link ByteHouseResultSet} from the builder.
      */
     public ByteHouseResultSet build() throws SQLException {
-        Validate.ensure(cfg != null);
+        ValidateUtils.ensure(cfg != null);
         final QueryResult queryResult = this.queryResultBuilder.build();
         return new ByteHouseResultSet(
                 null,

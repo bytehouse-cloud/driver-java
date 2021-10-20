@@ -15,8 +15,8 @@ package com.bytedance.bytehouse.jdbc;
 
 import com.bytedance.bytehouse.exception.InvalidValueException;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.Serializable;
 import java.net.URI;
@@ -45,7 +45,7 @@ public final class ByteHouseJdbcUrlParser {
     public static final Pattern HOST_PORT_PATH_PATTERN =
             Pattern.compile("//(?<host>[^/:\\s]+)(:(?<port>\\d+))?");
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseJdbcUrlParser.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseJdbcUrlParser.class);
 
     /**
      * Parse and extract jdbcUrl.
@@ -152,7 +152,7 @@ public final class ByteHouseJdbcUrlParser {
 
         while (tokenizer.hasMoreTokens()) {
             final String[] queryParameter = tokenizer.nextToken().split("=", 2);
-            Validate.ensure(queryParameter.length == 2,
+            ValidateUtils.ensure(queryParameter.length == 2,
                     String.format("ByteHouse JDBC URL Parameter '%s' Error, "
                             + "Expected '='.", queryParameters)
             );

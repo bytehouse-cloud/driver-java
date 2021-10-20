@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLPreparedStatement;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Array;
@@ -192,7 +192,7 @@ public abstract class AbstractPreparedStatement
         StringBuilder queryBuilder = new StringBuilder();
         for (int i = 0; i < queryParts.length; i++) {
             if (i - 1 >= 0 && i - 1 < parameters.length) {
-                Validate.isTrue(assembleParameter(parameters[i - 1], queryBuilder),
+                ValidateUtils.isTrue(assembleParameter(parameters[i - 1], queryBuilder),
                         "UNKNOWN DataType :" + (parameters[i - 1] == null ? null : parameters[i - 1].getClass()));
             }
             queryBuilder.append(queryParts[i]);

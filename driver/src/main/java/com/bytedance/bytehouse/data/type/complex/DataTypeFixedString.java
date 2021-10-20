@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -30,9 +30,9 @@ import java.time.ZoneId;
 public class DataTypeFixedString implements IDataType<CharSequence, String> {
 
     public static DataTypeCreator<CharSequence, String> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         Number fixedStringN = lexer.numberLiteral();
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
         return new DataTypeFixedString("FixedString(" + fixedStringN.intValue() + ")", fixedStringN.intValue(), serverContext);
     };
 

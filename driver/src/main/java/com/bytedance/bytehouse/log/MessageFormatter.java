@@ -110,7 +110,6 @@ import java.util.Map;
  * @author Ceki G&uuml;lc&uuml;
  * @author Joern Huxhorn
  */
-@SuppressWarnings("PMD.LocalVariableNamingConventions")
 final public class MessageFormatter {
 
     static final char DELIM_START = '{';
@@ -121,7 +120,7 @@ final public class MessageFormatter {
 
     private static final char ESCAPE_CHAR = '\\';
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageFormatter.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(MessageFormatter.class);
 
     /**
      * Performs single argument substitution for the 'messagePattern' passed as
@@ -213,8 +212,8 @@ final public class MessageFormatter {
         // use string builder for better multicore performance
         StringBuilder sbuf = new StringBuilder(messagePattern.length() + 50);
 
-        int L;
-        for (L = 0; L < argArray.length; L++) {
+        int l;
+        for (l = 0; l < argArray.length; l++) {
 
             j = messagePattern.indexOf(DELIM_STR, i);
 
@@ -230,7 +229,7 @@ final public class MessageFormatter {
             } else {
                 if (isEscapedDelimeter(messagePattern, j)) {
                     if (!isDoubleEscaped(messagePattern, j)) {
-                        L--; // DELIM_START was escaped, thus should not be incremented
+                        l--; // DELIM_START was escaped, thus should not be incremented
                         sbuf.append(messagePattern, i, j - 1);
                         sbuf.append(DELIM_START);
                         i = j + 1;
@@ -239,13 +238,13 @@ final public class MessageFormatter {
                         // itself escaped: "abc x:\\{}"
                         // we have to consume one backward slash
                         sbuf.append(messagePattern, i, j - 1);
-                        deeplyAppendParameter(sbuf, argArray[L], new HashMap<>());
+                        deeplyAppendParameter(sbuf, argArray[l], new HashMap<>());
                         i = j + 2;
                     }
                 } else {
                     // normal case
                     sbuf.append(messagePattern, i, j);
-                    deeplyAppendParameter(sbuf, argArray[L], new HashMap<>());
+                    deeplyAppendParameter(sbuf, argArray[l], new HashMap<>());
                     i = j + 2;
                 }
             }

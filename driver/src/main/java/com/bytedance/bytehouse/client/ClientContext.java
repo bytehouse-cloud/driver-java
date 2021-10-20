@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.client;
 
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
@@ -62,7 +62,7 @@ public class ClientContext {
             final NativeClient nativeClient,
             final ByteHouseConfig configure
     ) throws SQLException {
-        Validate.isTrue(nativeClient.address() instanceof InetSocketAddress);
+        ValidateUtils.isTrue(nativeClient.address() instanceof InetSocketAddress);
         final InetSocketAddress address = (InetSocketAddress) nativeClient.address();
         final String clientName = String.format(Locale.ROOT,
                 "%s %s", BHConstants.NAME, "client");

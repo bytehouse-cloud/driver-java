@@ -17,7 +17,7 @@ import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -32,13 +32,13 @@ public class DataTypeTuple implements IDataType<ByteHouseStruct, Struct> {
     private final String name;
 
     public static DataTypeCreator<ByteHouseStruct, Struct> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         List<IDataType<?, ?>> nestedDataTypes = new ArrayList<>();
 
         for (; ; ) {
             nestedDataTypes.add(DataTypeFactory.get(lexer, serverContext));
             char delimiter = lexer.character();
-            Validate.isTrue(delimiter == ',' || delimiter == ')');
+            ValidateUtils.isTrue(delimiter == ',' || delimiter == ')');
             if (delimiter == ')') {
                 StringBuilder builder = new StringBuilder("Tuple(");
                 for (int i = 0; i < nestedDataTypes.size(); i++) {
@@ -150,14 +150,14 @@ public class DataTypeTuple implements IDataType<ByteHouseStruct, Struct> {
 
     @Override
     public ByteHouseStruct deserializeText(SQLLexer lexer) throws SQLException {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         Object[] tupleData = new Object[getNestedTypes().length];
         for (int i = 0; i < getNestedTypes().length; i++) {
             if (i > 0)
-                Validate.isTrue(lexer.character() == ',');
+                ValidateUtils.isTrue(lexer.character() == ',');
             tupleData[i] = getNestedTypes()[i].deserializeText(lexer);
         }
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
         return new ByteHouseStruct("Tuple", tupleData);
     }
 

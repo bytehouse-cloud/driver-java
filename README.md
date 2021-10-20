@@ -59,7 +59,7 @@ javax.sql.DataSource | com.bytedance.bytehouse.jdbc.ByteHouseDataSource
 ### Connecting using the DataSource (Recommended)
 ```bash
 # how to run
-./gradlew -PmainClass=examples.SimpleQuery run
+./gradlew -PmainClass=examples.SimpleQueryUtils run
 ```
 ```java
 import com.bytedance.bytehouse.jdbc.ByteHouseDataSource;

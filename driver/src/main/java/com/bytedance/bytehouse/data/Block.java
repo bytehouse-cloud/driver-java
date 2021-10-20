@@ -15,7 +15,7 @@ package com.bytedance.bytehouse.data;
 
 import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.BlockSettings.Setting;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -85,7 +85,7 @@ public class Block {
 
             final IDataType dataType = DataTypeFactory.get(type, serverContext);
             final Object[] arr = dataType.deserializeBinaryBulk(rowCnt, deserializer);
-            columns[i] = ColumnFactory.createColumn(name, dataType, arr);
+            columns[i] = ColumnFactoryUtils.createColumn(name, dataType, arr);
         }
 
         return new Block(rowCnt, columns, blockSettings);
@@ -165,7 +165,7 @@ public class Block {
 
     // idx start with 0
     public IColumn getColumn(final int columnIdx) throws SQLException {
-        Validate.isTrue(columnIdx < columns.length,
+        ValidateUtils.isTrue(columnIdx < columns.length,
                 "Position " + columnIdx +
                         " is out of bound in Block.getByPosition, max position = "
                         + (columns.length - 1)
@@ -175,7 +175,7 @@ public class Block {
 
     // position start with 1
     public int getPositionByName(final String columnName) throws SQLException {
-        Validate.isTrue(
+        ValidateUtils.isTrue(
                 nameAndPositions.containsKey(columnName),
                 "Column '" + columnName + "' does not exist"
         );
@@ -183,7 +183,7 @@ public class Block {
     }
 
     public Object getObject(final int columnIdx) throws SQLException {
-        Validate.isTrue(columnIdx < columns.length,
+        ValidateUtils.isTrue(columnIdx < columns.length,
                 "Position " + columnIdx +
                         " is out of bound in Block.getByPosition, max position = "
                         + (columns.length - 1)

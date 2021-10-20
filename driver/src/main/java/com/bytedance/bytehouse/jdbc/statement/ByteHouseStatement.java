@@ -18,11 +18,11 @@ import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLWrapper;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.log.Logging;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
-import com.bytedance.bytehouse.misc.SQLParser;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.SQLParserUtils;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import com.bytedance.bytehouse.stream.QueryResult;
@@ -43,7 +43,7 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
     static final Pattern TXN_LABEL_REGEX = Pattern
             .compile("insertion_label\\s?=\\s?'[a-zA-Z0-9\\-]+'");
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseStatement.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseStatement.class);
 
     private static final Pattern VALUES_REGEX = Pattern
             .compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
@@ -97,11 +97,11 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
 
         return ExceptionUtil.rethrowSQLException(() -> {
 
-            if (SQLParser.isInsertQuery(query)) {
+            if (SQLParserUtils.isInsertQuery(query)) {
                 // insert statement we return row count.
                 lastResultSet = null; // NOPMD assigning null smells
 
-                final SQLParser.InsertQueryParts parts = SQLParser.splitInsertQuery(query);
+                final SQLParserUtils.InsertQueryParts parts = SQLParserUtils.splitInsertQuery(query);
                 final String insertQuery = parts.queryPart;
                 block = creator.getSampleBlock(insertQuery);
                 block.initWriteBuffer();
@@ -109,7 +109,7 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
                 updateCount = creator.sendInsertRequest(block);
                 return updateCount;
             } else {
-                final SQLParser.DbTable dbTable = SQLParser.extractDBAndTableName(query);
+                final SQLParserUtils.DbTable dbTable = SQLParserUtils.extractDBAndTableName(query);
                 // other statement we return 0.
                 updateCount = -1;
                 final QueryResult result = creator.sendQueryRequest(query, cfg);
@@ -205,7 +205,7 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
 
     @Override
     public void setMaxRows(final int max) throws SQLException {
-        Validate.isTrue(max >= 0, "Illegal maxRows value: " + max);
+        ValidateUtils.isTrue(max >= 0, "Illegal maxRows value: " + max);
         maxRows = max;
         cfg.settings().put(SettingKey.max_result_rows, maxRows);
     }

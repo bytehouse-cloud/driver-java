@@ -17,10 +17,9 @@ import com.bytedance.bytehouse.exception.InvalidValueException;
 import java.sql.SQLException;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("PMD.UseUtilityClass")
-public final class Validate {
+public final class ValidateUtils {
 
-    Validate() {
+    ValidateUtils() {
         // no creation
     }
 

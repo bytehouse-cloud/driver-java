@@ -86,7 +86,6 @@ public class QueryRequest implements Request {
 
         for (final Map.Entry<SettingKey, Serializable> entry : settings.entrySet()) {
             serializer.writeUTF8StringBinary(entry.getKey().name());
-            @SuppressWarnings("rawtypes")
             SettingType type = entry.getKey().type();
             //noinspection unchecked
             type.serializeSetting(serializer, entry.getValue());

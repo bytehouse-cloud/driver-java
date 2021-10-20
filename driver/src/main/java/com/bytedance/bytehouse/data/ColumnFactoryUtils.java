@@ -19,7 +19,7 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeMap;
 import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
 
-public class ColumnFactory {
+public class ColumnFactoryUtils {
 
     public static IColumn createColumn(String name, IDataType<?, ?> type, Object[] values) {
         if (type instanceof DataTypeArray)

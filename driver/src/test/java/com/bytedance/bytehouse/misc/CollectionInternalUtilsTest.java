@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CollectionUtilTest {
+class CollectionInternalUtilsTest {
 
     private static final Map<String, String> MAP_1 = new HashMap<>();
 

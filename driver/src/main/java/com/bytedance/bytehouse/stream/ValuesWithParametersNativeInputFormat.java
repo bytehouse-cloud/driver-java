@@ -15,7 +15,7 @@ package com.bytedance.bytehouse.stream;
 
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import java.sql.SQLException;
 import java.util.BitSet;
 
@@ -31,10 +31,10 @@ public class ValuesWithParametersNativeInputFormat implements NativeInputFormat 
     public void fill(final Block block) throws SQLException {
         final BitSet constIdxFlags = new BitSet(block.columnCnt());
         char nextChar = lexer.character();
-        Validate.isTrue(nextChar == '(');
+        ValidateUtils.isTrue(nextChar == '(');
         for (int columnIdx = 0; columnIdx < block.columnCnt(); columnIdx++) {
             if (columnIdx > 0) {
-                Validate.isTrue(lexer.character() == ',');
+                ValidateUtils.isTrue(lexer.character() == ',');
             }
 
             if (lexer.isCharacter('?')) {
@@ -50,6 +50,6 @@ public class ValuesWithParametersNativeInputFormat implements NativeInputFormat 
                 block.incPlaceholderIndexes(columnIdx);
             }
         }
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
     }
 }

@@ -60,9 +60,9 @@ public class CompressedBuffedReader implements BuffedReader, BytesHelper {
     }
 
     @Override
-    @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
     public int readBinary(final byte[] bytes) throws IOException {
-        for (int i = 0; i < bytes.length; ) {
+        int i = 0;
+        while (i < bytes.length) {
             if (position == capacity) {
                 decompressed = readCompressedData();
                 this.position = 0;

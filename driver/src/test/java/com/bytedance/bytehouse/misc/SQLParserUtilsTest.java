@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-class SQLParserTest {
+class SQLParserUtilsTest {
 
 
     @Nested
@@ -39,7 +39,7 @@ class SQLParserTest {
                 String originalQuery,
                 boolean isTrue
         ) {
-            assertEquals(SQLParser.isInsertQuery(originalQuery), isTrue);
+            assertEquals(SQLParserUtils.isInsertQuery(originalQuery), isTrue);
         }
 
         static class CustomArgumentProvider implements ArgumentsProvider {
@@ -84,12 +84,12 @@ class SQLParserTest {
                 Class<IllegalArgumentException> exceptionType
         ) {
             if (exceptionType == null) {
-                final SQLParser.InsertQueryParts parts = SQLParser.splitInsertQuery(originalQuery);
+                final SQLParserUtils.InsertQueryParts parts = SQLParserUtils.splitInsertQuery(originalQuery);
                 assertEquals(parts.queryPart, queryPart);
                 assertEquals(parts.valuePart, valuePart);
             } else {
                 assertThrows(exceptionType, () -> {
-                    SQLParser.splitInsertQuery(originalQuery);
+                    SQLParserUtils.splitInsertQuery(originalQuery);
                 });
             }
         }
@@ -144,7 +144,7 @@ class SQLParserTest {
         void tests(
                 String query
         ) {
-            final SQLParser.DbTable dbTable = SQLParser
+            final SQLParserUtils.DbTable dbTable = SQLParserUtils
                     .extractDBAndTableName(query);
 
             final OriginalImpl originalImpl = new OriginalImpl(defaultDb).extractDBAndTableName(query);

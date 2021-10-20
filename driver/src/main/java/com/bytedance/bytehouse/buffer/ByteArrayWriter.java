@@ -22,7 +22,6 @@ import java.util.List;
  * writes to a List of JVM-memory-backed {@link ByteBuffer}.
  * the content is then access by the getter method of the list.
  */
-@SuppressWarnings("PMD.AvoidReassigningParameters")
 public class ByteArrayWriter implements BuffedWriter {
 
     private List<byte[]> byteBufferList = new LinkedList<>();
@@ -71,18 +70,21 @@ public class ByteArrayWriter implements BuffedWriter {
      * {@inheritDoc}
      */
     @Override
-    public void writeBinary(final byte[] bytes, int offset, int length) {
-        while (remaining() < length) {
+    public void writeBinary(final byte[] bytes, final int offset, final int length) {
+        int currOffset = offset;
+        int remainingLength = length;
+
+        while (remaining() < remainingLength) {
             final int num = remaining();
-            System.arraycopy(bytes, offset, byteBuffer, byteBufferPtr, num);
+            System.arraycopy(bytes, currOffset, byteBuffer, byteBufferPtr, num);
             byteBufferPtr += num;
-            offset += num;
-            length -= num;
+            currOffset += num;
+            remainingLength -= num;
             resizeByteArray();
         }
 
-        System.arraycopy(bytes, offset, byteBuffer, byteBufferPtr, length);
-        byteBufferPtr += length;
+        System.arraycopy(bytes, currOffset, byteBuffer, byteBufferPtr, remainingLength);
+        byteBufferPtr += remainingLength;
     }
 
     @Override

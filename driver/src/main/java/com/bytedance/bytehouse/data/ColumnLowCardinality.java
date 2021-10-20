@@ -44,7 +44,7 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
         super(name, type, values);
 
         header = new byte[HEADER_SIZE];
-        keys = ColumnFactory.createColumn(null, type.getElemDataType(), null);
+        keys = ColumnFactoryUtils.createColumn(null, type.getElemDataType(), null);
         objectToIndex = new HashMap<>();
         valueIndicesList = new ArrayList<>();
     }

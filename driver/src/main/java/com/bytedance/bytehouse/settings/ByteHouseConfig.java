@@ -353,7 +353,6 @@ public class ByteHouseConfig implements Serializable {
     /**
      * Builder class.
      */
-    @SuppressWarnings("PMD.CommentRequired")
     public static final class Builder {
 
         private String region;

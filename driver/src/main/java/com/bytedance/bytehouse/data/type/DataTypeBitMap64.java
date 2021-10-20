@@ -17,7 +17,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.ByteArrayOutputStream;
@@ -165,7 +165,7 @@ public class DataTypeBitMap64 implements IDataType<ByteHouseArray, Array>, Bytes
      */
     @Override
     public ByteHouseArray deserializeText(SQLLexer lexer) throws SQLException {
-        Validate.isTrue(lexer.character() == '[');
+        ValidateUtils.isTrue(lexer.character() == '[');
         List<BigInteger> uInt64List = new ArrayList<>();
         while (true) {
             if (lexer.isCharacter(']')) {

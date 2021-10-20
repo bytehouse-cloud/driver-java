@@ -16,7 +16,7 @@ package com.bytedance.bytehouse.jdbc.tool;
 
 import com.bytedance.bytehouse.jdbc.AbstractITest;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.google.common.base.Joiner;
 
 import java.sql.Array;
@@ -30,7 +30,7 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestHarness extends AbstractITest {
-    private static final Logger LOG = LoggerFactory.getLogger(TestHarness.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(TestHarness.class);
     private static final int RECORD_COUNT = (1 << 17);
     private static final Function<String, String> SUM_EXPR = s -> "sum(" + s + ")";
     private static final Function<String, String> MAX_EXPR = s -> "max(" + s + ")";

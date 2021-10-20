@@ -17,8 +17,8 @@ import com.bytedance.bytehouse.buffer.SocketBuffedReader;
 import com.bytedance.bytehouse.buffer.SocketBuffedWriter;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.protocol.DataRequest;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import com.bytedance.bytehouse.protocol.EOFStreamResponse;
@@ -64,7 +64,7 @@ import javax.net.ssl.X509ExtendedTrustManager;
  */
 public class NativeClient implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NativeClient.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(NativeClient.class);
 
     private final Socket socket;
 
@@ -258,7 +258,7 @@ public class NativeClient implements AutoCloseable {
             final ServerContext info
     ) throws SQLException {
         Response response = receiveResponse(soTimeout, info);
-        Validate.isTrue(response instanceof HelloResponse, "Expect Hello Response.");
+        ValidateUtils.isTrue(response instanceof HelloResponse, "Expect Hello Response.");
         return (HelloResponse) response;
     }
 
@@ -267,7 +267,7 @@ public class NativeClient implements AutoCloseable {
             final ServerContext info
     ) throws SQLException {
         final Response response = receiveResponse(soTimeout, info);
-        Validate.isTrue(
+        ValidateUtils.isTrue(
                 response instanceof EOFStreamResponse,
                 "Expect EOFStream Response."
         );

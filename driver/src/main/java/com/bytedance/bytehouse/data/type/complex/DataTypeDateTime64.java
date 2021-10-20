@@ -19,7 +19,7 @@ import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.misc.StringView;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -49,19 +49,19 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
 
     public static DataTypeCreator<ZonedDateTime, Timestamp> creator = (lexer, serverContext) -> {
         if (lexer.isCharacter('(')) {
-            Validate.isTrue(lexer.character() == '(');
+            ValidateUtils.isTrue(lexer.character() == '(');
             int scale = lexer.numberLiteral().intValue();
-            Validate.isTrue(scale >= DataTypeDateTime64.MIN_SCALE && scale <= DataTypeDateTime64.MAX_SCALA,
+            ValidateUtils.isTrue(scale >= DataTypeDateTime64.MIN_SCALE && scale <= DataTypeDateTime64.MAX_SCALA,
                     "scale=" + scale + " out of range [" + DataTypeDateTime64.MIN_SCALE + "," + DataTypeDateTime64.MAX_SCALA + "]");
             if (lexer.isCharacter(',')) {
-                Validate.isTrue(lexer.character() == ',');
-                Validate.isTrue(lexer.isWhitespace());
+                ValidateUtils.isTrue(lexer.character() == ',');
+                ValidateUtils.isTrue(lexer.isWhitespace());
                 String dataTimeZone = lexer.stringLiteral();
-                Validate.isTrue(lexer.character() == ')');
+                ValidateUtils.isTrue(lexer.character() == ')');
                 return new DataTypeDateTime64("DateTime64(" + scale + ", '" + dataTimeZone + "')", scale, serverContext);
             }
 
-            Validate.isTrue(lexer.character() == ')');
+            ValidateUtils.isTrue(lexer.character() == ')');
             return new DataTypeDateTime64("DateTime64(" + scale + ")", scale, serverContext);
         }
         return new DataTypeDateTime64("DateTime64", DataTypeDateTime64.DEFAULT_SCALE, serverContext);
@@ -120,25 +120,25 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
     @Override
     public ZonedDateTime deserializeText(SQLLexer lexer) throws SQLException {
         StringView dataTypeName = lexer.bareWord();
-        Validate.isTrue(dataTypeName.checkEquals("toDateTime64"));
-        Validate.isTrue(lexer.character() == '(');
-        Validate.isTrue(lexer.character() == '\'');
+        ValidateUtils.isTrue(dataTypeName.checkEquals("toDateTime64"));
+        ValidateUtils.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '\'');
         int year = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == '-');
+        ValidateUtils.isTrue(lexer.character() == '-');
         int month = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == '-');
+        ValidateUtils.isTrue(lexer.character() == '-');
         int day = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.isWhitespace());
+        ValidateUtils.isTrue(lexer.isWhitespace());
         int hours = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == ':');
+        ValidateUtils.isTrue(lexer.character() == ':');
         int minutes = lexer.numberLiteral().intValue();
-        Validate.isTrue(lexer.character() == ':');
+        ValidateUtils.isTrue(lexer.character() == ':');
         BigDecimal seconds = BigDecimal.valueOf(lexer.numberLiteral().doubleValue())
                 .setScale(scale, BigDecimal.ROUND_HALF_UP);
         int second = seconds.intValue();
         int nanos = seconds.subtract(BigDecimal.valueOf(second)).movePointRight(9).intValue();
-        Validate.isTrue(lexer.character() == '\'');
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == '\'');
+        ValidateUtils.isTrue(lexer.character() == ')');
 
         return ZonedDateTime.of(year, month, day, hours, minutes, second, nanos, tz);
     }

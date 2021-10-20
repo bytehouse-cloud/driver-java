@@ -45,7 +45,7 @@ import com.bytedance.bytehouse.data.type.complex.DataTypeString;
 import com.bytedance.bytehouse.data.type.complex.DataTypeTuple;
 import com.bytedance.bytehouse.misc.LRUCache;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -60,8 +60,7 @@ public final class DataTypeFactory {
     private static final LRUCache<String, IDataType<?, ?>> DATA_TYPE_CACHE =
             new LRUCache<>(BHConstants.DATA_TYPE_CACHE_SIZE);
 
-    @SuppressWarnings("PMD.FieldNamingConventions")
-    private static final Map<String, IDataType<?, ?>> dataTypes = initialDataTypes();
+    private static final Map<String, IDataType<?, ?>> DATA_TYPES = initialDataTypes();
 
     private DataTypeFactory() {
         // no creation
@@ -82,7 +81,7 @@ public final class DataTypeFactory {
 
         final SQLLexer lexer = new SQLLexer(0, type);
         dataType = get(lexer, serverContext);
-        Validate.isTrue(lexer.eof());
+        ValidateUtils.isTrue(lexer.eof());
 
         DATA_TYPE_CACHE.put(type, dataType);
         return dataType;
@@ -91,7 +90,6 @@ public final class DataTypeFactory {
     /**
      * parse {@link IDataType} from {@link SQLLexer}.
      */
-    @SuppressWarnings("PMD.LiteralsFirstInComparisons")
     public static IDataType<?, ?> get(
             final SQLLexer lexer,
             final ServerContext serverContext
@@ -125,8 +123,8 @@ public final class DataTypeFactory {
         } else if (dataTypeName.equalsIgnoreCase("Map")) {
             return DataTypeMap.creator.createDataType(lexer, serverContext);
         } else {
-            IDataType<?, ?> dataType = dataTypes.get(dataTypeName.toLowerCase(Locale.ROOT));
-            Validate.isTrue(dataType != null, "Unknown data type: " + dataTypeName);
+            IDataType<?, ?> dataType = DATA_TYPES.get(dataTypeName.toLowerCase(Locale.ROOT));
+            ValidateUtils.isTrue(dataType != null, "Unknown data type: " + dataTypeName);
             return dataType;
         }
     }

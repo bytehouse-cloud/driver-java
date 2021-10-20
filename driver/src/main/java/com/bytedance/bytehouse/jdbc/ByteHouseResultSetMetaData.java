@@ -17,14 +17,14 @@ import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.data.type.complex.DataTypeNullable;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSetMetaData;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.settings.BHConstants;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class ByteHouseResultSetMetaData implements SQLResultSetMetaData {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSetMetaData.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseResultSetMetaData.class);
 
     private final Block header;
 

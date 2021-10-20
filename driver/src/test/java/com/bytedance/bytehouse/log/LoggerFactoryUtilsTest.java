@@ -18,29 +18,28 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("PMD.MoreThanOneLogger")
-class LoggerFactoryTest {
+class LoggerFactoryUtilsTest {
 
     @Test
     void test() {
-        LoggerFactoryAdaptor originalAdaptor = LoggerFactory.currentAdaptor();
+        LoggerFactoryAdaptor originalAdaptor = LoggerFactoryUtils.currentAdaptor();
 
-        LoggerFactory.setAdaptor(new JdkLoggerFactoryAdaptor());
-        Logger logger1 = LoggerFactory.getLogger("haha");
+        LoggerFactoryUtils.setAdaptor(new JdkLoggerFactoryAdaptor());
+        Logger logger1 = LoggerFactoryUtils.getLogger("haha");
         assertEquals("haha", logger1.getName());
         assertEquals(JdkLogger.class, logger1.getClass());
-        Logger logger2 = LoggerFactory.getLogger(LoggerFactoryTest.class);
-        assertEquals(LoggerFactoryTest.class.getName(), logger2.getName());
+        Logger logger2 = LoggerFactoryUtils.getLogger(LoggerFactoryUtilsTest.class);
+        assertEquals(LoggerFactoryUtilsTest.class.getName(), logger2.getName());
         assertEquals(JdkLogger.class, logger2.getClass());
 
-        LoggerFactory.setAdaptor(new Slf4jLoggerFactoryAdaptor());
-        Logger logger3 = LoggerFactory.getLogger("haha");
+        LoggerFactoryUtils.setAdaptor(new Slf4jLoggerFactoryAdaptor());
+        Logger logger3 = LoggerFactoryUtils.getLogger("haha");
         assertEquals("haha", logger3.getName());
         assertEquals(Slf4jLogger.class, logger3.getClass());
-        Logger logger4 = LoggerFactory.getLogger(LoggerFactoryTest.class);
-        assertEquals(LoggerFactoryTest.class.getName(), logger4.getName());
+        Logger logger4 = LoggerFactoryUtils.getLogger(LoggerFactoryUtilsTest.class);
+        assertEquals(LoggerFactoryUtilsTest.class.getName(), logger4.getName());
         assertEquals(Slf4jLogger.class, logger4.getClass());
 
-        LoggerFactory.setAdaptor(originalAdaptor);
+        LoggerFactoryUtils.setAdaptor(originalAdaptor);
     }
 }

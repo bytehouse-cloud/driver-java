@@ -21,7 +21,6 @@ import java.net.Socket;
 /**
  * {@link SocketBuffedWriter} directly writes into the outputStream of the socket.
  */
-@SuppressWarnings("PMD.AvoidReassigningParameters")
 public class SocketBuffedWriter implements BuffedWriter {
 
     private final OutputStream out;
@@ -68,21 +67,24 @@ public class SocketBuffedWriter implements BuffedWriter {
     @Override
     public void writeBinary(
             final byte[] bytes,
-            int offset,
-            int length
+            final int offset,
+            final int length
     ) throws IOException {
-        while (remaining() < length) {
+        int currOffset = offset;
+        int remainingLength = length;
+
+        while (remaining() < remainingLength) {
             final int num = remaining();
-            System.arraycopy(bytes, offset, writtenBuf, position, num);
+            System.arraycopy(bytes, currOffset, writtenBuf, position, num);
             position += num;
 
             flushToTarget(true);
-            offset += num;
-            length -= num;
+            currOffset += num;
+            remainingLength -= num;
         }
 
-        System.arraycopy(bytes, offset, writtenBuf, position, length);
-        position += length;
+        System.arraycopy(bytes, currOffset, writtenBuf, position, remainingLength);
+        position += remainingLength;
     }
 
     @Override

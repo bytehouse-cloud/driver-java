@@ -67,7 +67,6 @@ public class BinaryDeserializer {
     /**
      * read a short.
      */
-    @SuppressWarnings({"PointlessBitwiseExpression", "PMD.AvoidUsingShortType"})
     public short readShort() throws IOException {
         // @formatter:off
         return (short) (((switcher.get().readBinary() & 0xFF) << 0)
@@ -78,7 +77,6 @@ public class BinaryDeserializer {
     /**
      * Read a int.
      */
-    @SuppressWarnings("PointlessBitwiseExpression")
     public int readInt() throws IOException {
         // @formatter:off
         return ((switcher.get().readBinary() & 0xFF) << 0)
@@ -91,7 +89,6 @@ public class BinaryDeserializer {
     /**
      * read a long.
      */
-    @SuppressWarnings("PointlessBitwiseExpression")
     public long readLong() throws IOException {
         // @formatter:off
         return ((switcher.get().readBinary() & 0xFFL) << 0)
@@ -136,7 +133,6 @@ public class BinaryDeserializer {
         }
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
     public float readFloat() throws IOException {
         // @formatter:off
         return Float.intBitsToFloat(
@@ -147,7 +143,6 @@ public class BinaryDeserializer {
         // @formatter:on
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
     public double readDouble() throws IOException {
         // @formatter:off
         return Double.longBitsToDouble(

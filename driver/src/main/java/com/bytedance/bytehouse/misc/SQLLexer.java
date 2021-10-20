@@ -133,7 +133,7 @@ public class SQLLexer {
 
     public StringView stringView() throws SQLException {
         skipAnyWhitespace();
-        Validate.isTrue(isCharacter('\''), "expect string to be quoted with single quote");
+        ValidateUtils.isTrue(isCharacter('\''), "expect string to be quoted with single quote");
         return stringLiteralWithQuoted('\'');
     }
 
@@ -199,7 +199,7 @@ public class SQLLexer {
 
     private StringView stringLiteralWithQuoted(char quoted) throws SQLException {
         int start = currPos;
-        Validate.isTrue(data.charAt(currPos) == quoted);
+        ValidateUtils.isTrue(data.charAt(currPos) == quoted);
         for (currPos++; currPos < data.length(); currPos++) {
             if (data.charAt(currPos) == '\\')
                 currPos++;

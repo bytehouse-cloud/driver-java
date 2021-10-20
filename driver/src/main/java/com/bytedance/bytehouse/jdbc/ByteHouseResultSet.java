@@ -19,10 +19,10 @@ import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.jdbc.statement.ByteHouseStatement;
 import com.bytedance.bytehouse.jdbc.wrapper.SQLResultSet;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.misc.CheckedIterator;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import java.math.BigDecimal;
@@ -42,10 +42,9 @@ import java.util.Calendar;
 /**
  * Bytehouse implementation of {@link ResultSet}.
  */
-@SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.GodClass"})
 public class ByteHouseResultSet implements SQLResultSet {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseResultSet.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseResultSet.class);
 
     private final ByteHouseStatement statement;
 
@@ -345,7 +344,7 @@ public class ByteHouseResultSet implements SQLResultSet {
                             + "column count: {}, row count: {}",
                     currentRowNum, position, currentBlock.columnCnt(), currentBlock.rowCnt());
         }
-        Validate.isTrue(currentRowNum >= 0 && currentRowNum < currentBlock.rowCnt(),
+        ValidateUtils.isTrue(currentRowNum >= 0 && currentRowNum < currentBlock.rowCnt(),
                 "No row information was obtained. You must call "
                         + "ResultSet.next() before that.");
         final IColumn column = (lastFetchBlock = currentBlock).getColumn(
@@ -421,9 +420,9 @@ public class ByteHouseResultSet implements SQLResultSet {
 
     @Override
     public boolean wasNull() throws SQLException {
-        Validate.isTrue(lastFetchBlock != null, "Please call Result.next()");
-        Validate.isTrue(lastFetchColumnIdx >= 0, "Please call Result.getXXX()");
-        Validate.isTrue(
+        ValidateUtils.isTrue(lastFetchBlock != null, "Please call Result.next()");
+        ValidateUtils.isTrue(lastFetchColumnIdx >= 0, "Please call Result.getXXX()");
+        ValidateUtils.isTrue(
                 lastFetchRowIdx >= 0 && lastFetchRowIdx < lastFetchBlock.rowCnt(),
                 "Please call Result.next()"
         );

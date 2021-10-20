@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Serializer JVM objects into bytes and stored them int {@link java.nio.ByteBuffer}.
  */
-@SuppressWarnings("PMD.AvoidReassigningParameters")
 public class BinarySerializer {
 
     private final Switcher<BuffedWriter> switcher;
@@ -46,18 +45,20 @@ public class BinarySerializer {
         this.enableCompression = enableCompression;
     }
 
-    public void writeVarInt(long x) throws IOException {
-        for (int i = 0; i < 9; i++) {
-            byte byt = (byte) (x & 0x7F);
+    public void writeVarInt(final long x) throws IOException {
+        long remain = x;
 
-            if (x > 0x7F) {
+        for (int i = 0; i < 9; i++) {
+            byte byt = (byte) (remain & 0x7F);
+
+            if (remain > 0x7F) {
                 byt |= 0x80;
             }
 
-            x >>= 7;
+            remain >>= 7;
             switcher.get().writeBinary(byt);
 
-            if (x == 0) {
+            if (remain == 0) {
                 return;
             }
         }
@@ -71,7 +72,6 @@ public class BinarySerializer {
         writeVarInt((byte) (x ? 1 : 0));
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
     public void writeShort(final short i) throws IOException {
         // @formatter:off
         switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
@@ -79,7 +79,6 @@ public class BinarySerializer {
         // @formatter:on
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
     public void writeInt(final int i) throws IOException {
         // @formatter:off
         switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
@@ -89,7 +88,6 @@ public class BinarySerializer {
         // @formatter:on
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
     public void writeLong(final long i) throws IOException {
         // @formatter:off
         switcher.get().writeBinary((byte) ((i >> 0) & 0xFF));
@@ -145,7 +143,6 @@ public class BinarySerializer {
         writeInt(x);
     }
 
-    @SuppressWarnings("PointlessBitwiseExpression")
     public void writeDouble(final double datum) throws IOException {
         long x = Double.doubleToLongBits(datum);
         // @formatter:off

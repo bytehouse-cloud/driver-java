@@ -26,7 +26,6 @@ public class LRUCache<K, V> {
 
     private final int cacheSize;
 
-    @SuppressWarnings("PMD.LooseCoupling")
     private final LinkedHashMap<K, V> map;
 
     private final ReentrantReadWriteLock lock;
@@ -37,7 +36,6 @@ public class LRUCache<K, V> {
     public LRUCache(final int cacheSize) {
         this.cacheSize = cacheSize;
         this.map = new LinkedHashMap<K, V>(cacheSize, HASH_TABLE_LOAD_FACTOR, true) {
-            @SuppressWarnings("PMD.CommentRequired")
             @Override
             public boolean removeEldestEntry(final Map.Entry eldest) {
                 return size() > LRUCache.this.cacheSize;

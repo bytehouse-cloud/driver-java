@@ -24,7 +24,7 @@ import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.jdbc.ByteHouseArray;
 import com.bytedance.bytehouse.jdbc.ByteHouseStruct;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import java.time.ZoneId;
 
 /**
@@ -32,7 +32,7 @@ import java.time.ZoneId;
  */
 public class DataTypeConverter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DataTypeConverter.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(DataTypeConverter.class);
 
     private final ZoneId tz;
 

@@ -101,7 +101,6 @@ public class ExceptionUtil {
     }
 
     @Nullable
-    @SuppressWarnings("unchecked")
     public static <T> T recursiveFind(final Throwable th, final Class<T> expectedClz) {
         Throwable nest = th;
         while (nest != null) {

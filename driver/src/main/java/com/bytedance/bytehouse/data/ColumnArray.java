@@ -31,7 +31,7 @@ public class ColumnArray extends AbstractColumn {
     public ColumnArray(String name, DataTypeArray type, Object[] values) {
         super(name, type, values);
         offsets = new ArrayList<>();
-        data = ColumnFactory.createColumn(null, type.getElemDataType(), null);
+        data = ColumnFactoryUtils.createColumn(null, type.getElemDataType(), null);
     }
 
     @Override

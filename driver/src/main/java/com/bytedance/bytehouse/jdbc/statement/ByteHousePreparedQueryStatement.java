@@ -42,7 +42,6 @@ public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
         super(conn, serverContext, parts);
     }
 
-    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private static String[] splitQueryByQuestionMark(final String query) {
         int lastPos = 0;
         final List<String> queryParts = new ArrayList<>();

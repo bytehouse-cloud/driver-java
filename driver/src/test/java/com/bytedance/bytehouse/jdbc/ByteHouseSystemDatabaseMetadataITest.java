@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("PMD")
 class ByteHouseSystemDatabaseMetadataITest extends AbstractITest {
 
     @Test

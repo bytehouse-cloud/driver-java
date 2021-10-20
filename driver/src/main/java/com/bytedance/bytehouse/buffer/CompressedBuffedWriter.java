@@ -14,7 +14,7 @@
 package com.bytedance.bytehouse.buffer;
 
 import com.bytedance.bytehouse.misc.BytesHelper;
-import com.bytedance.bytehouse.misc.ClickHouseCityHash;
+import com.bytedance.bytehouse.misc.ClickHouseCityHashUtils;
 import io.airlift.compress.Compressor;
 import io.airlift.compress.lz4.Lz4Compressor;
 import java.io.IOException;
@@ -70,24 +70,26 @@ public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("PMD.AvoidReassigningParameters")
     public void writeBinary(
             final byte[] bytes,
-            int offset,
-            int length
+            final int offset,
+            final int length
     ) throws IOException {
-        while (remaining() < length) {
+        int currOffset = offset;
+        int remainingLength = length;
+
+        while (remaining() < remainingLength) {
             final int num = remaining();
-            System.arraycopy(bytes, offset, writtenBuf, position, remaining());
+            System.arraycopy(bytes, currOffset, writtenBuf, position, remaining());
             position += num;
 
             flushToTarget(false);
-            offset += num;
-            length -= num;
+            currOffset += num;
+            remainingLength -= num;
         }
 
-        System.arraycopy(bytes, offset, writtenBuf, position, length);
-        position += length;
+        System.arraycopy(bytes, currOffset, writtenBuf, position, remainingLength);
+        position += remainingLength;
         flushToTarget(false);
     }
 
@@ -133,7 +135,7 @@ public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
                     Integer.BYTES
             );
 
-            final long[] checksum = ClickHouseCityHash.cityHash128(
+            final long[] checksum = ClickHouseCityHashUtils.cityHash128(
                     compressedBuffer,
                     CHECKSUM_LENGTH,
                     compressedSize

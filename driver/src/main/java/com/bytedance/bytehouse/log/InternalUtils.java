@@ -44,13 +44,13 @@ package com.bytedance.bytehouse.log;
  * @author Alexander Dorokhine
  * @author Ceki G&uuml;lc&uuml;
  */
-public final class Util {
+public final class InternalUtils {
 
     private static ClassContextSecurityManager securityManager;
 
     private static boolean securityManagerCreationAlreadyAttempted = false;
 
-    private Util() {
+    private InternalUtils() {
     }
 
     public static String safeGetSystemProperty(String key) {
@@ -104,7 +104,7 @@ public final class Util {
         if (securityManager == null)
             return null;
         Class<?>[] trace = securityManager.getClassContext();
-        String thisClassName = Util.class.getName();
+        String thisClassName = InternalUtils.class.getName();
 
         // Advance until Util is found
         int i;

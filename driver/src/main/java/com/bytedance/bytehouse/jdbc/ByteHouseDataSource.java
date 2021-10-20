@@ -16,9 +16,9 @@ package com.bytedance.bytehouse.jdbc;
 import com.bytedance.bytehouse.exception.InvalidValueException;
 import com.bytedance.bytehouse.jdbc.wrapper.BHDataSource;
 import com.bytedance.bytehouse.log.Logger;
-import com.bytedance.bytehouse.log.LoggerFactory;
+import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.misc.StrUtil;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
 import java.io.PrintWriter;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * which test hosts for availability. By default, this option is turned off.
  */
 public final class ByteHouseDataSource implements BHDataSource {
-    private static final Logger LOG = LoggerFactory.getLogger(ByteHouseDataSource.class);
+    private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseDataSource.class);
 
     private final ByteHouseConfig cfg;
 
@@ -110,7 +110,7 @@ public final class ByteHouseDataSource implements BHDataSource {
             }
         }
 
-        Validate.ensure(!allUrls.isEmpty(), "there are no correct urls");
+        ValidateUtils.ensure(!allUrls.isEmpty(), "there are no correct urls");
 
         this.enabledUrls = Collections.unmodifiableList(allUrls);
     }
@@ -119,12 +119,12 @@ public final class ByteHouseDataSource implements BHDataSource {
      * This method is kind of pointless. since there is always only 1 url.
      */
     static List<String> splitUrl(final String url) {
-        Validate.ensure(
+        ValidateUtils.ensure(
                 url.startsWith(ByteHouseJdbcUrlParser.JDBC_PREFIX),
                 "not JDBC url: " + url
         );
         final String bhUrl = url.substring(ByteHouseJdbcUrlParser.JDBC_PREFIX.length());
-        Validate.ensure(
+        ValidateUtils.ensure(
                 bhUrl.startsWith(ByteHouseJdbcUrlParser.BYTEHOUSE_PREFIX),
                 "not ByteHouse url: " + url);
 

@@ -17,7 +17,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesHelper;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -32,11 +32,11 @@ import java.util.Locale;
 public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, BytesHelper {
 
     public static DataTypeCreator<BigDecimal, BigDecimal> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         Number precision = lexer.numberLiteral();
-        Validate.isTrue(lexer.character() == ',');
+        ValidateUtils.isTrue(lexer.character() == ',');
         Number scale = lexer.numberLiteral();
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
         return new DataTypeDecimal("Decimal(" + precision.intValue() + "," + scale.intValue() + ")",
                 precision.intValue(), scale.intValue());
     };

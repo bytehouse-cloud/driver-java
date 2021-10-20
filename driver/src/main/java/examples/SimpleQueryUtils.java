@@ -23,8 +23,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-@SuppressWarnings("PMD.SystemPrintln")
-public class SimpleQuery {
+public class SimpleQueryUtils {
 
     public static void main(String[] args) throws Exception {
         String url = String.format("jdbc:bytehouse:///?region=CN-NORTH-1-STAGING");

@@ -18,7 +18,7 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.data.type.DataTypeUInt64;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -37,11 +37,11 @@ public class DataTypeMap implements IDataType<Map, Object> {
     private final IDataType<?, ?> keyDataType;
 
     public static DataTypeCreator<Map, Object> creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         IDataType<?, ?> keyDataType = DataTypeFactory.get(lexer, serverContext);
-        Validate.isTrue(lexer.character() == ',');
+        ValidateUtils.isTrue(lexer.character() == ',');
         IDataType<?, ?> valueDataType = DataTypeFactory.get(lexer, serverContext);
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
 
         return new DataTypeMap(keyDataType, valueDataType);
     };
@@ -188,7 +188,7 @@ public class DataTypeMap implements IDataType<Map, Object> {
      */
     @Override
     public Map deserializeText(SQLLexer lexer) throws SQLException {
-        Validate.isTrue(lexer.character() == '{', "expect '{' character for map opening");
+        ValidateUtils.isTrue(lexer.character() == '{', "expect '{' character for map opening");
         Map<Object, Object> map = new HashMap<>();
 
         while (!lexer.eof()) {
@@ -200,7 +200,7 @@ public class DataTypeMap implements IDataType<Map, Object> {
                 lexer.character();
             }
             Object key = keyDataType.deserializeText(lexer);
-            Validate.isTrue(lexer.character() == ':', "expect key-value pair to be separated by ':'");
+            ValidateUtils.isTrue(lexer.character() == ':', "expect key-value pair to be separated by ':'");
             Object value = valueDataType.deserializeText(lexer);
 
             map.put(key, value);

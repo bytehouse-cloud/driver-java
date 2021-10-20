@@ -14,7 +14,7 @@
 package com.bytedance.bytehouse.settings;
 
 import com.bytedance.bytehouse.misc.StrUtil;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.SettingType;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Settings key.
  */
-@SuppressWarnings("PMD.FieldNamingConventions")
 public class SettingKey implements Serializable {
 
     // key always is lower case
@@ -1864,8 +1863,8 @@ public class SettingKey implements Serializable {
         }
 
         public SettingKey build() {
-            Validate.ensure(StrUtil.isNotBlank(name), "name must not blank");
-            Validate.ensure(Objects.nonNull(type), "type must not be null");
+            ValidateUtils.ensure(StrUtil.isNotBlank(name), "name must not blank");
+            ValidateUtils.ensure(Objects.nonNull(type), "type must not be null");
 
             if (StrUtil.isBlank(description)) {
                 description = name;

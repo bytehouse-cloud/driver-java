@@ -15,7 +15,7 @@ package com.bytedance.bytehouse.stream;
 
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import java.sql.SQLException;
 import java.util.BitSet;
 
@@ -62,15 +62,15 @@ public class ValuesNativeInputFormat implements NativeInputFormat {
             if (nextChar == ',') {
                 nextChar = lexer.character();
             }
-            Validate.isTrue(nextChar == '(');
+            ValidateUtils.isTrue(nextChar == '(');
             for (int columnIdx = 0; columnIdx < block.columnCnt(); columnIdx++) {
                 if (columnIdx > 0) {
-                    Validate.isTrue(lexer.character() == ',');
+                    ValidateUtils.isTrue(lexer.character() == ',');
                 }
                 constIdxFlags.set(columnIdx);
                 block.setObject(columnIdx, block.getColumn(columnIdx).type().deserializeText(lexer));
             }
-            Validate.isTrue(lexer.character() == ')');
+            ValidateUtils.isTrue(lexer.character() == ')');
             block.appendRow();
         }
 

@@ -16,7 +16,7 @@ package com.bytedance.bytehouse.data.type.complex;
 import com.bytedance.bytehouse.data.DataTypeFactory;
 import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.Validate;
+import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
@@ -31,9 +31,9 @@ public class DataTypeNullable implements IDataType {
     }
 
     public static DataTypeCreator creator = (lexer, serverContext) -> {
-        Validate.isTrue(lexer.character() == '(');
+        ValidateUtils.isTrue(lexer.character() == '(');
         IDataType nestedType = DataTypeFactory.get(lexer, serverContext);
-        Validate.isTrue(lexer.character() == ')');
+        ValidateUtils.isTrue(lexer.character() == ')');
         return new DataTypeNullable(
                 "Nullable(" + nestedType.name() + ")", nestedType, DataTypeFactory.get("UInt8", serverContext));
     };
@@ -95,10 +95,10 @@ public class DataTypeNullable implements IDataType {
     @Override
     public Object deserializeText(SQLLexer lexer) throws SQLException {
         if (lexer.isCharacter('n') || lexer.isCharacter('N')) {
-            Validate.isTrue(Character.toLowerCase(lexer.character()) == 'n');
-            Validate.isTrue(Character.toLowerCase(lexer.character()) == 'u');
-            Validate.isTrue(Character.toLowerCase(lexer.character()) == 'l');
-            Validate.isTrue(Character.toLowerCase(lexer.character()) == 'l');
+            ValidateUtils.isTrue(Character.toLowerCase(lexer.character()) == 'n');
+            ValidateUtils.isTrue(Character.toLowerCase(lexer.character()) == 'u');
+            ValidateUtils.isTrue(Character.toLowerCase(lexer.character()) == 'l');
+            ValidateUtils.isTrue(Character.toLowerCase(lexer.character()) == 'l');
             return null;
         }
         return nestedDataType.deserializeText(lexer);

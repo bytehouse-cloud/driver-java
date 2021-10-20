@@ -13,7 +13,7 @@
  */
 package com.bytedance.bytehouse.log;
 
-public final class LoggerFactory {
+public final class LoggerFactoryUtils {
 
     private static LoggerFactoryAdaptor adaptor;
 
@@ -27,7 +27,7 @@ public final class LoggerFactory {
         }
     }
 
-    private LoggerFactory() {
+    private LoggerFactoryUtils() {
     }
 
     public static Logger getLogger(Class<?> clazz) {
@@ -44,6 +44,6 @@ public final class LoggerFactory {
 
     // for testing
     public static void setAdaptor(LoggerFactoryAdaptor adaptor) {
-        LoggerFactory.adaptor = adaptor;
+        LoggerFactoryUtils.adaptor = adaptor;
     }
 }
