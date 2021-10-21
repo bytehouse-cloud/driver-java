@@ -6,20 +6,6 @@ The driver is a Type 4 JDBC driver written purely in Java, and is thus platform 
 with ByteHouse using its native network protocol. The driver implements the 
 <a href="https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html">JDBC API</a>.
 
-This project aims to provide official support for Java database connectivity to Bytehouse, to ensure full compatibility
-with ByteHouse. This project is adapted from the open-source
-<a href="https://github.com/housepower/ClickHouse-Native-JDBC">ClickHouse Native JDBC driver project</a>.
-
-For more information, refer to the official 
-<a href="https://bytedance.feishu.cn/wiki/wikcns7hYkiy8nqxxwN2X6LXfFh">ByteHouse JDBC Driver documentation</a>.
-
-## Features
-
-- Data sent to/received from ByteHouse is compressed by default.
-- Implemented in the TCP protocol, and is arguably more performant than in HTTP.
-- Supports secure connection establishment with ByteHouse using TLS.
-- Supports ByteHouse specific query settings.
-
 ## Getting Started
 
 ### Requirements
@@ -32,7 +18,7 @@ in your Java program.
 
 #### Adding Driver as a Gradle Dependency
 ```
-implementation "com.bytedance.bytehouse:driver-java:0.1.0-SNAPSHOT"
+implementation "com.bytedance.bytehouse:driver-java:1.0.0"
 ```
 
 #### Adding Driver as a Maven Dependency
@@ -40,13 +26,32 @@ implementation "com.bytedance.bytehouse:driver-java:0.1.0-SNAPSHOT"
 <dependency>
   <groupId>com.bytedance.bytehouse</groupId>
   <artifactId>driver-java</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
 ## Usage
 
-Your Java application can connect to ByteHouse using either one of two classes, as documented in the 
+### Connect to ByteHouse
+
+To connect to the ByteHouse, you need to specify the ByteHouse URL with your account and user information. You
+can visit [ByteHouse China](bytehouse.cn) (for China-mainland) or [Bytehouse Global](bytehouse.cloud) (for
+non-China-mainland) to register account.
+
+The below login parameters is the same as if you were to login using the web console:
+- Account Name
+- Region
+- User Name
+- Password
+
+### JDBC URL format
+The following is the accepted URL format for [ByteHouse China](bytehouse.cn) & [Bytehouse Global](bytehouse.cloud)
+```
+"jdbc:bytehouse:///?region=CN-NORTH-1&account=YOUR_ACCOUNT_NAME&user=YOUR_USER&password=YOUR_PASSWORD"
+"jdbc:bytehouse:///?region=AP-SOUTHEAST-1&account=YOUR_ACCOUNT_NAME&user=YOUR_USER&password=YOUR_PASSWORD"
+```
+
+Your Java application can connect to ByteHouse using either one of two classes, as documented in the
 <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html">JDBC docs</a>.
 They are the DriverManager and DataSource.
 
@@ -56,173 +61,89 @@ Implements           | Class
 java.sql.Driver      | com.bytedance.bytehouse.jdbc.ByteHouseDriver
 javax.sql.DataSource | com.bytedance.bytehouse.jdbc.ByteHouseDataSource
 
-### Connecting using the DataSource (Recommended)
-```bash
-# how to run
-./gradlew -PmainClass=examples.Main run
+### Connecting using ByteHouseDriver 
+
 ```
-```java
-import com.bytedance.bytehouse.jdbc.ByteHouseDataSource;
+String url = "jdbc:bytehouse:///?region=CN-NORTH-1";
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Properties;
-import javax.sql.DataSource;
+Properties properties = new Properties();
+properties.setProperty("account", "YOUR_ACCOUNT_NAME");
+properties.setProperty("user", "YOUR_USER_NAME");
+properties.setProperty("password", "YOUR_PASSWORD");
 
-public class SimpleQuery {
-    public static void main(String[] args) throws Exception {
-        String url = String.format("jdbc:bytehouse://gateway.aws-cn-north-1.bytehouse.cn:19000");
-        Properties properties = new Properties();
-        properties.setProperty("account", "AWS12345");
-        properties.setProperty("user", "username");
-        properties.setProperty("password", "YOUR_PASSWORD");
-        properties.setProperty("secure", "true");
+Connection connection = new ByteHouseDriver().connect(url, properties);
+```
 
-        DataSource dataSource = new BalancedByteHouseDataSource(url, properties);
+### Connecting using ByteHouseDataSource
 
-        try (Connection connection = dataSource.getConnection()) {
-            createDatabase(connection);
-            createTable(connection);
-            insertTable(connection);
-            insertBatch(connection);
-            selectTable(connection);
-            dropDatabase(connection);
+```
+String url = "jdbc:bytehouse:///?region=CN-NORTH-1";
 
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
+Properties properties = new Properties();
+properties.setProperty("account", "YOUR_ACCOUNT_NAME");
+properties.setProperty("user", "YOUR_USER_NAME");
+properties.setProperty("password", "YOUR_PASSWORD");
 
-    public static void createDatabase(Connection connection) {
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute("CREATE DATABASE IF NOT EXISTS inventory");
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
+Connection connection = new ByteHouseDataSource(url, properties).getConnection();
+```
 
-    public static void createTable(Connection connection) {
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(
-                    "CREATE TABLE IF NOT EXISTS inventory.orders\n" +
-                            "(" +
-                            "    OrderID String," +
-                            "    OrderName String," +
-                            "    OrderPriority Int8" +
-                            ")" +
-                            "    engine = CnchMergeTree()" +
-                            "    partition by OrderID" +
-                            "    order by OrderID"
-            );
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
+### Performing DDL Query
 
-    public static void insertTable(Connection connection) {
-        try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate(
-                    "INSERT INTO inventory.orders VALUES ('54895','Apple',12)"
-            );
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public static void insertBatch(Connection connection) {
-        String insertQuery = "INSERT INTO inventory.orders (OrderID, OrderName, OrderPriority) VALUES (?,'Apple',?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            int insertBatchSize = 10;
-
-            for (int i = 0; i < insertBatchSize; i++) {
-                pstmt.setString(1, "ID" + i);
-                pstmt.setInt(2, i);
-                pstmt.addBatch();
-            }
-            pstmt.executeBatch();
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public static void selectTable(Connection connection) {
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT * FROM inventory.orders");
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int columnsNumber = rsmd.getColumnCount();
-            while (rs.next()) {
-                for (int i = 1; i <= columnsNumber; i++) {
-                    if (i > 1) System.out.print(", ");
-                    String columnValue = rs.getString(i);
-                    System.out.print(columnValue);
-                }
-                System.out.println();
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public static void dropDatabase(Connection connection) {
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DROP DATABASE inventory");
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
+```
+try (Statement stmt = connection.createStatement()) {
+    String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS inventory";
+    stmt.execute(createDatabaseSql);
+    
+    String createTableSql = "CREATE TABLE IF NOT EXISTS inventory.orders (" +
+                    " OrderID String, " +
+                    " OrderName String, " +
+                    " OrderPriority Int8 " +
+                    " ) " +
+                    " engine = CnchMergeTree()" +
+                    " partition by OrderID" +
+                    " order by OrderID";
+    stmt.execute(createTableSql);                 
+} catch (SQLException ex) {
+    ex.printStackTrace();
 }
 ```
 
-### Connecting using the DriverManager
-```bash
-# how to run
-./gradlew -PmainClass=examples.Main run
+### Performing DML Query
+
 ```
-```java
-import java.sql.*;
-import java.util.Properties;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-        String url = "jdbc:bytehouse://localhost:9000";
-        Properties properties = new Properties();
-        properties.setProperty("account", "id");
-        properties.setProperty("user", "test");
-        properties.setProperty("password", "password");
-
-        // Registers the ByteHouse JDBC driver with DriverManager
-        Class.forName("com.bytedance.bytehouse.jdbc.ByteHouseDriver");
-        
-        // Obtain Connection with DriverManager
-        try (Connection connection = DriverManager.getConnection(url, properties)) {
-            try (Statement stmt = connection.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("SELECT 5")) {
-                    while (rs.next()) {
-                        System.out.println(rs.getInt(1));
-                    }
-                }
-            }
-        }
-    }
+try (Statement stmt = connection.createStatement()) {
+    String insertSql = "INSERT INTO inventory.orders VALUES('54895','Apple',12)";
+    stmt.executeUpdate(insertSql);                 
+} catch (SQLException ex) {
+    ex.printStackTrace();
 }
 ```
 
-### JDBC URL format
-The following is the accepted URL format. Arguments in brackets [] are optional.
 ```
-jdbc:bytehouse://host:port/[database]
-    [?propertyName1][=propertyValue1]
-    [&propertyName2][=propertyValue2]...
+String batchInsertSql = "INSERT INTO inventory.orders VALUES(?,'Apple',?)";
+try (PreparedStatement pstmt = connection.prepareStatement(batchInsertSql)) {
+    int insertBatchSize = 10;
+    for (int i = 0; i < insertBatchSize; i++) {
+        pstmt.setString(1, "ID" + i);
+        pstmt.setInt(2, i);
+        pstmt.addBatch();
+    }
+    pstmt.executeBatch();              
+} catch (SQLException ex) {
+    ex.printStackTrace();
+}
 ```
 
-The driver only recognises URL with the correct sub-protocol 'jdbc:bytehouse'.
-Refer to <a href="https://bytedance.feishu.cn/wiki/wikcns7hYkiy8nqxxwN2X6LXfFh">ByteHouse JDBC Driver documentation</a>
-for the list of accepted properties.
+### Performing DQL Query
+
+```
+try (Statement stmt = connection.createStatement()) {
+    String selectSql = "SELECT * FROM inventory.orders";
+    ResultSet rs = stmt.execute(selectSql);              
+} catch (SQLException ex) {
+    ex.printStackTrace();
+}
+```
 
 ## License
 
