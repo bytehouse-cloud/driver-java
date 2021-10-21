@@ -45,9 +45,6 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * @author Ceki Gulcu
- */
 public class MessageFormatterTest {
 
     Integer i1 = 1;

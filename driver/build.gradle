@@ -91,7 +91,7 @@ jar {
         configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
     }
     manifest {
-        attributes 'Main-Class': 'examples.SimpleQuery'
+        attributes 'Main-Class': 'examples.Main'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

@@ -21,7 +21,6 @@ import java.sql.SQLException;
 
 /**
  * {@link Response} contains all the details about different types of supported responses
- * we expect from SQL Gateway.
  */
 public interface Response {
 

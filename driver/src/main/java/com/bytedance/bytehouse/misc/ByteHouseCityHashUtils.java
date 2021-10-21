@@ -16,14 +16,7 @@
  */
 package com.bytedance.bytehouse.misc;
 
-/**
- * @author tamtam180 - kirscheless at gmail.com
- * @see <a href="http://google-opensource.blogspot.jp/2011/04/introducing-cityhash.html"></a>
- * @see <a href="http://code.google.com/p/cityhash"></a>
- *         <p>
- *         NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
- */
-public final class ClickHouseCityHashUtils {
+public final class ByteHouseCityHashUtils {
 
     private static final long K0 = 0xc3a5c85c97cb3127L;
 
@@ -35,7 +28,7 @@ public final class ClickHouseCityHashUtils {
 
     private static final long K_MUL = 0x9ddfea08eb382d69L;
 
-    ClickHouseCityHashUtils() {
+    ByteHouseCityHashUtils() {
         // no creation
     }
 

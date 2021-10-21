@@ -14,7 +14,7 @@
 package com.bytedance.bytehouse.buffer;
 
 import com.bytedance.bytehouse.misc.BytesHelper;
-import com.bytedance.bytehouse.misc.ClickHouseCityHashUtils;
+import com.bytedance.bytehouse.misc.ByteHouseCityHashUtils;
 import io.airlift.compress.Compressor;
 import io.airlift.compress.lz4.Lz4Compressor;
 import java.io.IOException;
@@ -135,7 +135,7 @@ public class CompressedBuffedWriter implements BuffedWriter, BytesHelper {
                     Integer.BYTES
             );
 
-            final long[] checksum = ClickHouseCityHashUtils.cityHash128(
+            final long[] checksum = ByteHouseCityHashUtils.cityHash128(
                     compressedBuffer,
                     CHECKSUM_LENGTH,
                     compressedSize

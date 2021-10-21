@@ -13,33 +13,127 @@
  */
 package examples;
 
+import com.bytedance.bytehouse.jdbc.ByteHouseDriver;
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+@SuppressWarnings("PMD.ClassNamingConventions")
 public class Main {
 
-    public static void main(String[] args) throws Exception {
-        String url = "jdbc:bytehouse://localhost:9000";
+    public static void main(String[] args) {
+        String url = String.format("jdbc:bytehouse:///?region=");
         Properties properties = new Properties();
-        properties.setProperty("account", "id");
-        properties.setProperty("user", "test");
-        properties.setProperty("password", "password");
+        properties.setProperty("account", "");
+        properties.setProperty("user", "");
+        properties.setProperty("password", "");
 
-        // Registers the ByteHouse JDBC driver with DriverManager
-        Class.forName("com.bytedance.bytehouse.jdbc.ByteHouseDriver");
-
-        // Obtain Connection with DriverManager
-        try (Connection connection = DriverManager.getConnection(url, properties)) {
-            try (Statement stmt = connection.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("SELECT 5")) {
-                    while (rs.next()) {
-                        System.out.println(rs.getInt(1));
-                    }
-                }
+        try (Connection connection = new ByteHouseDriver().connect(url, properties)) {
+            try {
+                createDatabase(connection);
+                createTable(connection);
+                insertTable(connection);
+                insertBatch(connection);
+                selectTable(connection);
+            } finally {
+                dropDatabase(connection);
             }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void createDatabase(Connection connection) {
+        final String sql = "CREATE DATABASE IF NOT EXISTS inventory";
+        System.out.println(sql);
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void createTable(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            final String sql = "CREATE TABLE IF NOT EXISTS inventory.orders (" +
+                    " OrderID String, " +
+                    " OrderName String, " +
+                    " OrderPriority Int8 " +
+                    " ) " +
+                    " engine = CnchMergeTree()" +
+                    " partition by OrderID" +
+                    " order by OrderID";
+            System.out.println(sql);
+            stmt.execute(sql);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertTable(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            final String sql = "INSERT INTO inventory.orders "
+                    + " VALUES "
+                    + " ('54895','Apple',12) ";
+            System.out.println(sql);
+            stmt.executeUpdate(sql);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertBatch(Connection connection) {
+        final String insertQuery = "INSERT INTO inventory.orders "
+                + " (OrderID, OrderName, OrderPriority) "
+                + " VALUES "
+                + " (?,'Apple',?) ";
+        System.out.println(insertQuery);
+        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
+            int insertBatchSize = 10;
+            for (int i = 0; i < insertBatchSize; i++) {
+                pstmt.setString(1, "ID" + i);
+                pstmt.setInt(2, i);
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void selectTable(Connection connection) {
+        final String sql = "SELECT * FROM inventory.orders";
+        System.out.println(sql);
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+            System.out.println("---------------------------------------");
+            while (rs.next()) {
+                for (int i = 1; i <= columnsNumber; i++) {
+                    if (i > 1) System.out.print(", ");
+                    String columnValue = rs.getString(i);
+                    System.out.print(columnValue);
+                }
+                System.out.println();
+            }
+            System.out.println("---------------------------------------");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void dropDatabase(Connection connection) {
+        final String sql = "DROP DATABASE inventory";
+        System.out.println(sql);
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 }
