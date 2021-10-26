@@ -15,42 +15,6 @@ java {
     withSourcesJar()
 }
 
-publishing {
-    repositories {
-        maven {
-            url = "https://artifact-maven.byted.org/repository/bytehouse"
-            credentials {
-                username = "$bytedanceRepoUser"
-                password = "$bytedanceRepoPassword"
-            }
-        }
-    }
-    publications {
-        bytedanceNexus(MavenPublication) {
-            artifactId = 'driver-java'
-            from components.java
-            pom {
-                name = 'Bytehouse JDBC Driver'
-                description = 'JDBC Driver for Bytehouse'
-                url = 'https://bytehouse.cloud/'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'rafsan.mazumder'
-                        name = 'Rafsan Mazumder'
-                        email = 'rafsan.mazumder@bytedance.com'
-                    }
-                }
-            }
-        }
-    }
-}
-
 compileJava {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
