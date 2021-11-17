@@ -19,9 +19,7 @@ package com.bytedance.bytehouse.settings;
 public enum ByteHouseRegion {
     INVALID("INVALID-REGION", "INVALID-REGION", 0),
     CN_NORTH_1("CN-NORTH-1", "gateway.aws-cn-north-1.bytehouse.cn", 19000),
-    CN_NORTH_1_STAGING("CN-NORTH-1-STAGING", "gateway.staging.bytehouse.cn", 19000),
-    AP_SOUTHEAST_1("AP-SOUTHEAST-1", "gateway.aws-ap-southeast-1.bytehouse.cloud", 19000),
-    AP_SOUTHEAST_1_STAGING("AP-SOUTHEAST-1-STAGING", "gateway.staging.bytehouse.cloud", 19000);
+    AP_SOUTHEAST_1("AP-SOUTHEAST-1", "gateway.aws-ap-southeast-1.bytehouse.cloud", 19000);
 
     private final String name;
 
