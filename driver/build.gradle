@@ -43,6 +43,30 @@ dependencies {
     testImplementation "org.slf4j:slf4j-simple:1.7.30"
 }
 
+publishing {
+    repositories {
+        maven {
+            name "nexus"
+            url =  "https://artifact-maven.byted.org/repository/releases"
+            credentials {
+                username = "$bytedanceRepoUser"
+                password = "$bytedanceRepoPassword"
+            }
+        }
+    }
+    publications {
+        bytedanceNexus(MavenPublication) {
+            artifactId = 'driver-java'
+            from components.java
+            pom {
+                name = 'Bytehouse JDBC Driver'
+                description = 'JDBC Driver for Bytehouse'
+            }
+        }
+    }
+}
+
+
 configurations {
     // configuration that holds jars to include in the jar
     implementation {
