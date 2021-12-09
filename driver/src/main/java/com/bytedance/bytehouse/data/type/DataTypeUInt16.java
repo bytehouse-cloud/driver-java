@@ -59,6 +59,9 @@ public class DataTypeUInt16 implements BaseDataTypeInt16<Integer, Integer> {
         if (obj instanceof Number) {
             return ((Number) obj).intValue();
         }
+        if (obj instanceof String) {
+            return Integer.valueOf((String) obj);
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Integer.class);
     }
 

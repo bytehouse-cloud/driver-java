@@ -59,6 +59,9 @@ public class DataTypeUInt8 implements BaseDataTypeInt8<Short, Short> {
         if (obj instanceof Number) {
             return ((Number) obj).shortValue();
         }
+        else if (obj instanceof String) {
+            return Short.valueOf((String) obj);
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Short.class);
     }
 

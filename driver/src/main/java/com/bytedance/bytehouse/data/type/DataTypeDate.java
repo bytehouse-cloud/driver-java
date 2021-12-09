@@ -88,6 +88,9 @@ public class DataTypeDate implements IDataType<LocalDate, Date> {
         if (obj instanceof LocalDate) {
             return (LocalDate) obj;
         }
+        if (obj instanceof String) {
+            return Date.valueOf((String) obj).toLocalDate();
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + LocalDate.class);
     }
 

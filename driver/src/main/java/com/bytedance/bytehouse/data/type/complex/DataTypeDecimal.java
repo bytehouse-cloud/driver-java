@@ -205,6 +205,9 @@ public class DataTypeDecimal implements IDataType<BigDecimal, BigDecimal>, Bytes
         if (obj instanceof Number) {
             return BigDecimal.valueOf(((Number) obj).doubleValue());
         }
+        if (obj instanceof String) {
+            return BigDecimal.valueOf(Double.valueOf((String) obj));
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + BigDecimal.class);
     }
 

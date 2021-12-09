@@ -131,6 +131,18 @@ public class DataTypeDateTime implements IDataType<ZonedDateTime, Timestamp> {
         if (obj instanceof ZonedDateTime) {
             return (ZonedDateTime) obj;
         }
+        if (obj instanceof String) {
+            String given = (String) obj;
+            String removedChar = "";
+            for (int i=0; i<given.length(); i++) {
+                if (given.charAt(i) == 'T') {
+                    removedChar += " ";
+                }
+                else removedChar += given.charAt(i);
+            }
+            Timestamp timestamp = Timestamp.valueOf(removedChar);
+            return DateTimeUtil.toZonedDateTime(timestamp, tz);
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + ZonedDateTime.class);
     }
 
