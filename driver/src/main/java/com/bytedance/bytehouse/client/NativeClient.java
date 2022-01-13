@@ -18,7 +18,9 @@ import com.bytedance.bytehouse.buffer.SocketBuffedWriter;
 import com.bytedance.bytehouse.data.Block;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactoryUtils;
+import com.bytedance.bytehouse.misc.AKSKTokenGeneratorWithJWT;
 import com.bytedance.bytehouse.misc.ValidateUtils;
+import com.bytedance.bytehouse.protocol.AKSKHelloRequest;
 import com.bytedance.bytehouse.protocol.DataRequest;
 import com.bytedance.bytehouse.protocol.DataResponse;
 import com.bytedance.bytehouse.protocol.EOFStreamResponse;
@@ -231,6 +233,20 @@ public class NativeClient implements AutoCloseable {
             final String password
     ) throws SQLException {
         sendRequest(new HelloRequest(client, reversion, db, user, password));
+    }
+
+    public void sendHelloAKSK(
+            final String client,
+            final long reversion,
+            final String db,
+            final String accessKey,
+            final String secretKey,
+            final String date,
+            final String region,
+            final String service,
+            final AKSKTokenGeneratorWithJWT tokenGenerator
+            ) throws SQLException {
+        sendRequest(new AKSKHelloRequest(client, reversion, db, accessKey, secretKey, date, region, service, tokenGenerator));
     }
 
     public void sendQuery(

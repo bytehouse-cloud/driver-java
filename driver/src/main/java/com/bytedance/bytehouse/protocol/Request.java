@@ -33,6 +33,7 @@ public interface Request {
 
     enum ProtoType {
         REQUEST_HELLO(0),
+        REQUEST_HELLO_AKSK(8),
         REQUEST_QUERY(1),
         REQUEST_DATA(2),
         REQUEST_PING(4);

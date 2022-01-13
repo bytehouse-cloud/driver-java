@@ -1710,6 +1710,27 @@ public class SettingKey implements Serializable {
             .build();
 
     @ClientConfigKey
+    public static SettingKey accessKey = SettingKey.builder()
+            .withName("access_key")
+            .withType(SettingType.UTF_8)
+            .isSecret()
+            .build();
+
+    @ClientConfigKey
+    public static SettingKey secretKey = SettingKey.builder()
+            .withName("secret_key")
+            .withType(SettingType.UTF_8)
+            .isSecret()
+            .build();
+
+    @ClientConfigKey
+    public static SettingKey isVolcano = SettingKey.builder()
+            .withName("is_volcano")
+            .withType(SettingType.BOOL)
+            .withDescription("indicating if the driver is running against volcano")
+            .build();
+
+    @ClientConfigKey
     public static SettingKey queryTimeout = SettingKey.builder()
             .withName("query_timeout")
             .withType(SettingType.SECONDS)

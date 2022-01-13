@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +50,12 @@ public class ByteHouseConfig implements Serializable {
     private final String user;
 
     private final String password;
+
+    private final String accessKey;
+
+    private final String secretKey;
+
+    private final boolean isVolcano;
 
     private final Duration queryTimeout;
 
@@ -78,6 +85,9 @@ public class ByteHouseConfig implements Serializable {
             final String account,
             final String user,
             final String password,
+            final String accessKey,
+            final String secretKey,
+            final boolean isVolcano,
             final Duration queryTimeout,
             final Duration connectTimeout,
             final boolean tcpKeepAlive,
@@ -96,6 +106,9 @@ public class ByteHouseConfig implements Serializable {
         this.account = account;
         this.user = user;
         this.password = password;
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+        this.isVolcano = isVolcano;
         this.queryTimeout = queryTimeout;
         this.connectTimeout = connectTimeout;
         this.tcpKeepAlive = tcpKeepAlive;
@@ -134,6 +147,22 @@ public class ByteHouseConfig implements Serializable {
 
     public String password() {
         return this.password;
+    }
+
+    public String accessKey() {
+        return this.accessKey;
+    }
+
+    public String secretKey() {
+        return this.secretKey;
+    }
+
+    public boolean isVolcano() {
+        return this.isVolcano;
+    }
+
+    public boolean satisfyVolcanoAttributes() {
+        return isVolcano()  && !Objects.equals(accessKey(), "") && !Objects.equals(secretKey, "");
     }
 
     public Duration queryTimeout() {
@@ -238,6 +267,25 @@ public class ByteHouseConfig implements Serializable {
         return Builder.builder(this)
                 .user(user)
                 .password(password)
+                .build();
+    }
+
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withAKSKCredentials(final String accessKey, final String secretKey) {
+        return Builder.builder(this)
+                .accessKey(accessKey)
+                .secretKey(secretKey)
+                .build();
+    }
+
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withIsVolcano(final boolean isVolcano) {
+        return Builder.builder(this)
+                .isVolcano(isVolcano)
                 .build();
     }
 
@@ -369,6 +417,12 @@ public class ByteHouseConfig implements Serializable {
 
         private String password;
 
+        private String accessKey;
+
+        private String secretKey;
+
+        private boolean isVolcano;
+
         private Duration queryTimeout;
 
         private Duration connectTimeout;
@@ -411,6 +465,9 @@ public class ByteHouseConfig implements Serializable {
                     .account(cfg.account())
                     .user(cfg.user())
                     .password(cfg.password())
+                    .accessKey(cfg.accessKey())
+                    .secretKey(cfg.secretKey())
+                    .isVolcano(cfg.isVolcano())
                     .queryTimeout(cfg.queryTimeout())
                     .connectTimeout(cfg.connectTimeout())
                     .tcpKeepAlive(cfg.tcpKeepAlive())
@@ -465,6 +522,21 @@ public class ByteHouseConfig implements Serializable {
 
         public Builder password(final String password) {
             this.withSetting(SettingKey.password, password);
+            return this;
+        }
+
+        public Builder accessKey(final String accessKey) {
+            this.withSetting(SettingKey.accessKey, accessKey);
+            return this;
+        }
+
+        public Builder secretKey(final String secretKey) {
+            this.withSetting(SettingKey.secretKey, secretKey);
+            return this;
+        }
+
+        public Builder isVolcano(final boolean isVolcano) {
+            this.withSetting(SettingKey.isVolcano, isVolcano);
             return this;
         }
 
@@ -546,6 +618,9 @@ public class ByteHouseConfig implements Serializable {
             this.account = (String) this.settings.getOrDefault(SettingKey.account, "");
             this.user = (String) this.settings.getOrDefault(SettingKey.user, "default");
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
+            this.accessKey = (String) this.settings.getOrDefault(SettingKey.accessKey, "");
+            this.secretKey = (String) this.settings.getOrDefault(SettingKey.secretKey, "");
+            this.isVolcano = (boolean) this.settings.getOrDefault(SettingKey.isVolcano, false);
             this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.queryTimeout, Duration.ZERO);
             this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connectTimeout, Duration.ZERO);
             this.tcpKeepAlive = (boolean) this.settings.getOrDefault(SettingKey.tcpKeepAlive, false);
@@ -567,6 +642,9 @@ public class ByteHouseConfig implements Serializable {
                     account,
                     user,
                     password,
+                    accessKey,
+                    secretKey,
+                    isVolcano,
                     queryTimeout,
                     connectTimeout,
                     tcpKeepAlive,

@@ -123,4 +123,57 @@ class ByteHouseConfigTest {
         assertEquals(ByteHouseRegion.CN_NORTH_1.getPort(), cfg.port());
         assertTrue(cfg.secure());
     }
+
+    @Test
+    public void testValidVolcanoConfig() {
+        ByteHouseConfig volcanoConfig = ByteHouseConfig.Builder.builder()
+                .region("REGION")
+                .host("HOST")
+                .port(-1)
+                .secure(false)
+                .isVolcano(true)
+                .accessKey("ACCESS_KEY")
+                .secretKey("SECRET_KEY")
+                .build();
+
+        assertEquals(volcanoConfig.isVolcano(), true);
+        assertEquals(volcanoConfig.accessKey(), "ACCESS_KEY");
+        assertEquals(volcanoConfig.secretKey(), "SECRET_KEY");
+        assertEquals(volcanoConfig.satisfyVolcanoAttributes(), true);
+    }
+
+    @Test
+    public void testInvalidVolcanoConfig() {
+        ByteHouseConfig volcanoConfig = ByteHouseConfig.Builder.builder()
+                .region("REGION")
+                .host("HOST")
+                .port(-1)
+                .secure(false)
+                .isVolcano(true)
+                .accessKey("ACCESS_KEY")
+                .build();
+
+        assertEquals(volcanoConfig.isVolcano(), true);
+        assertEquals(volcanoConfig.accessKey(), "ACCESS_KEY");
+        assertEquals(volcanoConfig.secretKey(), "");
+        assertEquals(volcanoConfig.satisfyVolcanoAttributes(), false);
+    }
+
+    @Test
+    public void testVolcanoEngineConfig() {
+        ByteHouseConfig volcanoConfig = ByteHouseConfig.Builder.builder()
+                .region("CN_BEIJING")
+                .secure(true)
+                .isVolcano(true)
+                .accessKey("ACCESS_KEY")
+                .secretKey("SECRET_KEY")
+                .build();
+
+        assertEquals(volcanoConfig.isVolcano(), true);
+        assertEquals(volcanoConfig.accessKey(), "ACCESS_KEY");
+        assertEquals(volcanoConfig.secretKey(), "SECRET_KEY");
+        assertEquals(volcanoConfig.satisfyVolcanoAttributes(), true);
+        assertEquals(volcanoConfig.host(), "bytehouse-cn-beijing.volces.com");
+        assertEquals(volcanoConfig.port(), 19000);
+    }
 }

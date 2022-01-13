@@ -34,6 +34,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -144,6 +145,11 @@ public class ByteHouseResultSet implements SQLResultSet {
     }
 
     @Override
+    public Time getTime(final String columnLabel) throws SQLException {
+        return getTime(this.findColumn(columnLabel));
+    }
+
+    @Override
     public BigDecimal getBigDecimal(final String name) throws SQLException {
         return this.getBigDecimal(this.findColumn(name));
     }
@@ -166,6 +172,16 @@ public class ByteHouseResultSet implements SQLResultSet {
     @Override
     public Array getArray(final String name) throws SQLException {
         return this.getArray(this.findColumn(name));
+    }
+
+    @Override
+    public Date getDate(final int columnIndex, final Calendar cal) throws SQLException {
+        return getDate(columnIndex);
+    }
+
+    @Override
+    public Date getDate(final String columnLabel, final Calendar cal) throws SQLException {
+        return getDate(columnLabel);
     }
 
     @Override
@@ -263,6 +279,12 @@ public class ByteHouseResultSet implements SQLResultSet {
         if (date == null)
             return null;
         return Date.valueOf(date);
+    }
+
+    @Override
+    public Time getTime(final int columnIndex) throws SQLException {
+        final ZonedDateTime dateTime = (ZonedDateTime) getInternalObject(columnIndex);
+        return new Time(dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond());
     }
 
     @Override
@@ -381,6 +403,11 @@ public class ByteHouseResultSet implements SQLResultSet {
     @Override
     public int getFetchDirection() throws SQLException {
         return ResultSet.FETCH_FORWARD;
+    }
+
+    @Override
+    public void setFetchSize(final int rows) throws SQLException {
+
     }
 
     /**

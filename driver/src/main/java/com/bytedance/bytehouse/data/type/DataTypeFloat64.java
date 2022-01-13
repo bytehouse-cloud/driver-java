@@ -70,6 +70,9 @@ public class DataTypeFloat64 implements IDataType<Double, Double> {
         if (obj instanceof Number) {
             return ((Number) obj).doubleValue();
         }
+        if (obj instanceof String) {
+            return Double.valueOf((String) obj);
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Double.class);
     }
 

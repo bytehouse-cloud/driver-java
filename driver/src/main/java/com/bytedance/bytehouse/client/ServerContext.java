@@ -13,11 +13,15 @@
  */
 package com.bytedance.bytehouse.client;
 
+import com.bytedance.bytehouse.misc.AKSKTokenGeneratorWithJWT;
 import com.bytedance.bytehouse.protocol.HelloResponse;
 import com.bytedance.bytehouse.settings.BHConstants;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
+import java.util.Date;
+import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -39,6 +43,10 @@ public class ServerContext {
     private final long versionPatch;
 
     private final ByteHouseConfig configure;
+
+    private static final String DATE_FORMAT = "yyyyMMdd";
+
+    public static final String SERVICE = "bytehouse";
 
     ServerContext(
             final long majorVersion,
@@ -67,13 +75,29 @@ public class ServerContext {
     ) throws SQLException {
         try {
             final long revision = BHConstants.CLIENT_REVISION;
-            nativeClient.sendHello(
-                    "client",
-                    revision,
-                    configure.database(),
-                    configure.fullUsername(),
-                    configure.password()
-            );
+            if (configure.satisfyVolcanoAttributes()) {
+                final String currentDate = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+                final String region = configure.region().toLowerCase(Locale.ROOT).replace('_', '-');
+                nativeClient.sendHelloAKSK(
+                        "client",
+                        revision,
+                        configure.database(),
+                        configure.accessKey(),
+                        configure.secretKey(),
+                        currentDate,
+                        region,
+                        SERVICE,
+                        new AKSKTokenGeneratorWithJWT(configure.secretKey(), configure.accessKey(), currentDate, region, SERVICE)
+                );
+            } else {
+                nativeClient.sendHello(
+                        "client",
+                        revision,
+                        configure.database(),
+                        configure.fullUsername(),
+                        configure.password()
+                );
+            }
 
             final HelloResponse response = nativeClient.receiveHello(
                     configure.queryTimeout(), null

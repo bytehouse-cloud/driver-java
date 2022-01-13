@@ -58,6 +58,9 @@ public class DataTypeInt64 implements BaseDataTypeInt64<Long, Long> {
         if (obj instanceof Number) {
             return ((Number) obj).longValue();
         }
+        if (obj instanceof String) {
+            return Long.parseLong((String) obj);
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Long.class);
     }
 
