@@ -105,7 +105,7 @@ https://artifact.bytedance.com/repository/releases/com/bytedance/bytehouse/drive
 * Download the driver-java-#.#.#-all.jar file.
 ## Usage
 ### Creating ByteHouse Account
-You need to have ByteHouse account in order to use JDBC Driver. You can simply create a free account with the process 
+You need to create ByteHouse account in order to use JDBC Driver. You can simply create a free account with the process 
 mentioned in our official website documentation: https://docs.bytehouse.cloud/en/docs/quick-start
 <br/><br/>
 You can also create ByteHouse account through Volcano Engine by ByteDance: 
@@ -114,12 +114,12 @@ https://www.volcengine.com/product/bytehouse-cloud
 #### URL Format for password authentication
 For password authentication, Region, Account ID, User ID & Password parameters are required. 
 ```java
-    String connectionURL = String.format("jdbc:bytehouse:///?region=%s/?account=%s&user=%s&password=%s", REGION, ACCOUNT, USER, PASSWORD);
+    String connectionURL = String.format("jdbc:bytehouse:///?region=%s&account=%s&user=%s&password=%s", REGION, ACCOUNT, USER, PASSWORD);
 ```
 #### URL Format for AK/SK authentication
 For AK/SK authentication, Region, Access Key & Secret Key parameters are required. 
 ```java
-    String connectionURL = String.format("jdbc:bytehouse:///?region=%s/?access_key=%s&secret_key=%s&is_volcano=true", REGION, ACCESS_KEY, SECRET_KEY);
+    String connectionURL = String.format("jdbc:bytehouse:///?region=%s&access_key=%s&secret_key=%s&is_volcano=true", REGION, ACCESS_KEY, SECRET_KEY);
 ```
 #### URL Format for IP & Port
 You can directly use Host Name / IP & Port addresses instead of region.
@@ -218,7 +218,7 @@ or can throw exception message. An example case of setting virtual warehouse is 
 ```java
     try (Statement stmt = connection.createStatement()) {
         String selectSql = "SELECT * FROM inventory.orders";
-        ResultSet rs = stmt.execute(selectSql);              
+        ResultSet rs = stmt.executeQuery(selectSql);              
     } catch (SQLException ex) {
         ex.printStackTrace();
     }
