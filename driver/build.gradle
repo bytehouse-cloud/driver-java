@@ -1,0 +1,85 @@
+plugins {
+    id 'java-library'
+    id 'checkstyle'
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id "pmd"
+    id 'maven-publish'
+    id 'java'
+}
+
+group = 'com.bytedance.bytehouse'
+version = '1.0.0'
+description 'ByteHouse JDBC Driver'
+
+java {
+    withSourcesJar()
+}
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+    options.encoding = "UTF-8"
+}
+
+compileTestJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+    options.encoding = "UTF-8"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "io.airlift:aircompressor:0.18" // for LZ4 compression logic
+    implementation "org.roaringbitmap:RoaringBitmap:0.9.15" // for BitMap datatype implementation
+    implementation 'com.auth0:java-jwt:3.18.2'
+    compileOnly "org.slf4j:slf4j-api:1.7.30"
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+
+    testImplementation "org.mockito:mockito-core:3.6.28"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    testImplementation "com.google.guava:guava:16.0.1"
+    testImplementation "org.slf4j:slf4j-simple:1.7.30"
+}
+
+configurations {
+    // configuration that holds jars to include in the jar
+    implementation {
+        canBeResolved = true
+    }
+}
+
+shadowJar {
+    zip64 true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Explicit strategy to exclude duplicates
+}
+
+tasks.named("test") {
+    useJUnitPlatform {}
+}
+
+jar {
+    from {
+        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes 'Main-Class': 'examples.Main'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+checkstyle {
+    configFile file("../config/checkstyle/checkstyle.xml")
+    configProperties 'checkstyle.header.file': file("../config/checkstyle/license.header")
+}
+
+pmd {
+    toolVersion = "6.39.0"
+    sourceSets = [sourceSets.main]
+    ruleSetFiles = files(
+            ".././config/pmd/quickstart.xml"
+    )
+    rulesMinimumPriority = 1
+}
