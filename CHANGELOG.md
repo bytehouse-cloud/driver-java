@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 ### Fixed
+- Fix getDate() with Calendar and getTimestamp() with Calendar
 
 ## [1.0.0] - 2022-01-17
 
