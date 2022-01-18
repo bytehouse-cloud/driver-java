@@ -176,7 +176,12 @@ public class ByteHouseResultSet implements SQLResultSet {
 
     @Override
     public Date getDate(final int columnIndex, final Calendar cal) throws SQLException {
-        return getDate(columnIndex);
+        final LocalDate date = (LocalDate) getInternalObject(columnIndex);
+        if (date == null) {
+            return null;
+        }
+        cal.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), 0, 0, 0);
+        return new Date(cal.getTimeInMillis());
     }
 
     @Override
@@ -270,7 +275,12 @@ public class ByteHouseResultSet implements SQLResultSet {
             return null;
         }
         final ZonedDateTime zts = (ZonedDateTime) data;
-        return DateTimeUtil.toTimestamp(zts, cal.getTimeZone().toZoneId());
+        cal.set(zts.getYear(), zts.getMonthValue() - 1, zts.getDayOfMonth(), zts.getHour(), zts.getMinute(),
+                zts.getSecond());
+        Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
+        timestamp.setNanos(zts.getNano());
+
+        return timestamp;
     }
 
     @Override
