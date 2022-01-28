@@ -19,6 +19,7 @@ import com.bytedance.bytehouse.jdbc.ByteHouseConnection;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -61,6 +62,16 @@ public class ByteHousePreparedQueryStatement extends AbstractPreparedStatement {
         }
         queryParts.add(query.substring(lastPos));
         return queryParts.toArray(new String[0]);
+    }
+
+    @Override
+    public ResultSetMetaData getMetaData() throws SQLException {
+        if (getResultSet() == null) {
+            return this.executeQuery().getMetaData();
+        }
+        else {
+            return getResultSet().getMetaData();
+        }
     }
 
     @Override

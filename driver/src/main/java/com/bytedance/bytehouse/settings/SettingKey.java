@@ -1667,6 +1667,13 @@ public class SettingKey implements Serializable {
             .build();
 
     @ClientConfigKey
+    public static SettingKey booleanColumnPrefix = SettingKey.builder()
+            .withName("boolean_column_prefix")
+            .withType(SettingType.UTF_8)
+            .withDescription("prefix for boolean column")
+            .build();
+
+    @ClientConfigKey
     public static SettingKey region = SettingKey.builder()
             .withName("region")
             .withType(SettingType.UTF_8)
@@ -1728,6 +1735,13 @@ public class SettingKey implements Serializable {
             .withName("is_volcano")
             .withType(SettingType.BOOL)
             .withDescription("indicating if the driver is running against volcano")
+            .build();
+
+    @ClientConfigKey
+    public static SettingKey isTableau = SettingKey.builder()
+            .withName("is_tableau")
+            .withType(SettingType.BOOL)
+            .withDescription("indicating if the driver is running against tableau")
             .build();
 
     @ClientConfigKey
