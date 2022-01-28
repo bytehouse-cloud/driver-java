@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1006,7 +1007,13 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                     row.add(columnName);
 
                     //data type
-                    row.add(dataType.sqlTypeId());
+                    System.out.println(this.connection.cfg().booleanColumnPrefix());
+                    if (!Objects.equals(this.connection.cfg().booleanColumnPrefix(), "") && columnName.startsWith(this.connection.cfg().booleanColumnPrefix())) {
+                        row.add(Types.BOOLEAN);
+                    } else {
+                        row.add(dataType.sqlTypeId());
+                    }
+
                     //type name
                     row.add(dataType.name());
                     // column size / precision

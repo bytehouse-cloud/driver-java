@@ -22,6 +22,9 @@ import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.log.Logging;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
 import com.bytedance.bytehouse.misc.SQLParserUtils;
+import com.bytedance.bytehouse.misc.SqlParserCaseExpressionUtils;
+import com.bytedance.bytehouse.misc.SqlParserDateFormatUtils;
+import com.bytedance.bytehouse.misc.SqlParserOrExpressionUtils;
 import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.settings.ByteHouseConfig;
 import com.bytedance.bytehouse.settings.SettingKey;
@@ -82,6 +85,13 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
      */
     @Override
     public boolean execute(final String query) throws SQLException {
+        // Resolve case expression
+        if (creator.cfg().isTableau()) {
+            final String modifiedQuery = SqlParserCaseExpressionUtils.resolve(query);
+            final String modifiedQuery2 = SqlParserDateFormatUtils.resolve(modifiedQuery);
+            final String modifiedQuery3 = SqlParserOrExpressionUtils.resolve(modifiedQuery2);
+            return executeQuery(modifiedQuery3) != null;
+        }
         return executeQuery(query) != null;
     }
 
