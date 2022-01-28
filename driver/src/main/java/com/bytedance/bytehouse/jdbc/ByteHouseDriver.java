@@ -64,7 +64,7 @@ public class ByteHouseDriver implements Driver {
                 .withJdbcUrl(url)
                 .withProperties(properties)
                 .build();
-        return connect(url, cfg);
+        return ByteHouseConnection.createByteHouseConnection(cfg);
     }
 
     ByteHouseConnection connect(final String url, final ByteHouseConfig cfg) throws SQLException {

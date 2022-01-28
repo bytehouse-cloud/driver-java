@@ -55,6 +55,8 @@ public class ByteHouseConfig implements Serializable {
 
     private final String secretKey;
 
+    private final boolean isTableau;
+
     private final boolean isVolcano;
 
     private final Duration queryTimeout;
@@ -75,6 +77,8 @@ public class ByteHouseConfig implements Serializable {
 
     private final long maxBlockSize;
 
+    private final String booleanColumnPrefix;
+
     private final Map<SettingKey, Serializable> settings;
 
     private ByteHouseConfig(
@@ -87,6 +91,7 @@ public class ByteHouseConfig implements Serializable {
             final String password,
             final String accessKey,
             final String secretKey,
+            final boolean isTableau,
             final boolean isVolcano,
             final Duration queryTimeout,
             final Duration connectTimeout,
@@ -97,6 +102,7 @@ public class ByteHouseConfig implements Serializable {
             final boolean enableCompression,
             final String charset,
             final long maxBlockSize,
+            final String booleanColumnPrefix,
             final Map<SettingKey, Serializable> settings
     ) {
         this.region = region;
@@ -108,6 +114,7 @@ public class ByteHouseConfig implements Serializable {
         this.password = password;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
+        this.isTableau = isTableau;
         this.isVolcano = isVolcano;
         this.queryTimeout = queryTimeout;
         this.connectTimeout = connectTimeout;
@@ -118,6 +125,7 @@ public class ByteHouseConfig implements Serializable {
         this.enableCompression = enableCompression;
         this.charset = charset;
         this.maxBlockSize = maxBlockSize;
+        this.booleanColumnPrefix = booleanColumnPrefix;
         this.settings = settings;
     }
 
@@ -155,6 +163,10 @@ public class ByteHouseConfig implements Serializable {
 
     public String secretKey() {
         return this.secretKey;
+    }
+
+    public boolean isTableau() {
+        return this.isTableau;
     }
 
     public boolean isVolcano() {
@@ -199,6 +211,10 @@ public class ByteHouseConfig implements Serializable {
 
     public long maxBlockSize() {
         return maxBlockSize;
+    }
+
+    public String booleanColumnPrefix() {
+        return booleanColumnPrefix;
     }
 
     public Map<SettingKey, Serializable> settings() {
@@ -277,6 +293,15 @@ public class ByteHouseConfig implements Serializable {
         return Builder.builder(this)
                 .accessKey(accessKey)
                 .secretKey(secretKey)
+                .build();
+    }
+
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withIsTableau(final boolean isTableau) {
+        return Builder.builder(this)
+                .isTableau(isTableau)
                 .build();
     }
 
@@ -421,6 +446,8 @@ public class ByteHouseConfig implements Serializable {
 
         private String secretKey;
 
+        private boolean isTableau;
+
         private boolean isVolcano;
 
         private Duration queryTimeout;
@@ -440,6 +467,8 @@ public class ByteHouseConfig implements Serializable {
         private Charset charset;
 
         private long maxBlockSize;
+
+        private String booleanColumnPrefix;
 
         private Map<SettingKey, Serializable> settings = new HashMap<>();
 
@@ -467,6 +496,7 @@ public class ByteHouseConfig implements Serializable {
                     .password(cfg.password())
                     .accessKey(cfg.accessKey())
                     .secretKey(cfg.secretKey())
+                    .isTableau(cfg.isTableau())
                     .isVolcano(cfg.isVolcano())
                     .queryTimeout(cfg.queryTimeout())
                     .connectTimeout(cfg.connectTimeout())
@@ -477,6 +507,7 @@ public class ByteHouseConfig implements Serializable {
                     .enableCompression(cfg.enableCompression())
                     .charset(cfg.charset())
                     .maxBlockSize(cfg.maxBlockSize())
+                    .booleanColumnPrefix(cfg.booleanColumnPrefix())
                     .withSettings(cfg.settings());
         }
 
@@ -535,6 +566,11 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
+        public Builder isTableau(final boolean isTableau) {
+            this.withSetting(SettingKey.isTableau, isTableau);
+            return this;
+        }
+
         public Builder isVolcano(final boolean isVolcano) {
             this.withSetting(SettingKey.isVolcano, isVolcano);
             return this;
@@ -590,6 +626,11 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
+        public Builder booleanColumnPrefix(final String booleanColumnPrefix) {
+            this.withSetting(SettingKey.booleanColumnPrefix, booleanColumnPrefix);
+            return this;
+        }
+
         public Builder settings(final Map<SettingKey, Serializable> settings) {
             this.settings = settings;
             return this;
@@ -620,6 +661,7 @@ public class ByteHouseConfig implements Serializable {
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
             this.accessKey = (String) this.settings.getOrDefault(SettingKey.accessKey, "");
             this.secretKey = (String) this.settings.getOrDefault(SettingKey.secretKey, "");
+            this.isTableau = (boolean) this.settings.getOrDefault(SettingKey.isTableau, false);
             this.isVolcano = (boolean) this.settings.getOrDefault(SettingKey.isVolcano, false);
             this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.queryTimeout, Duration.ZERO);
             this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connectTimeout, Duration.ZERO);
@@ -630,6 +672,7 @@ public class ByteHouseConfig implements Serializable {
             this.enableCompression = (boolean) this.settings.getOrDefault(SettingKey.enableCompression, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
             this.maxBlockSize = (long) this.settings.getOrDefault(SettingKey.max_block_size, 65536L);
+            this.booleanColumnPrefix = (String) this.settings.getOrDefault(SettingKey.booleanColumnPrefix, "");
 
             useDefaultIfNotSet();
             purgeClientSettings();
@@ -644,6 +687,7 @@ public class ByteHouseConfig implements Serializable {
                     password,
                     accessKey,
                     secretKey,
+                    isTableau,
                     isVolcano,
                     queryTimeout,
                     connectTimeout,
@@ -654,6 +698,7 @@ public class ByteHouseConfig implements Serializable {
                     enableCompression,
                     charset.name(),
                     maxBlockSize,
+                    booleanColumnPrefix,
                     settings
             );
         }
@@ -677,6 +722,7 @@ public class ByteHouseConfig implements Serializable {
             if (StrUtil.isBlank(this.password)) this.password = "";
             if (this.queryTimeout.isNegative()) this.queryTimeout = Duration.ZERO;
             if (this.connectTimeout.isNegative()) this.connectTimeout = Duration.ZERO;
+            if (StrUtil.isBlank(this.booleanColumnPrefix)) this.booleanColumnPrefix = "";
         }
 
         /**
