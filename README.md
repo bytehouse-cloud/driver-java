@@ -692,6 +692,19 @@ pstmt.executeBatch();
 ```
 ## Integration with BI Tools
 ### Tableau Integration
+1. Download the Connector file (.taco)
+2. Move the .taco file here:
+   * Windows: C:\Users\[Windows User]\Documents\My Tableau Repository\Connectors
+   * macOS: /Users/[user]/Documents/My Tableau Repository/Connectors
+3. Start Tableau and under **Connect**, select the [ByteHouse JDBC Connector] connector. (**Note:** You’ll be prompted if the driver is not yet installed.
+4. Driver Installation:
+   * Go to the driver download page https://artifact.bytedance.com/repository/releases/com/bytedance/bytehouse/driver-java/
+   * Click on the directory for the version that you need. The most recent version is not always at the end of the list.
+   * Download the driver-java-#.#.#-all.jar file. Minimum required driver version: 1.1.0
+   * Move jar file into the following directory:
+     * Windows: C:\Program Files\Tableau\Drivers
+     * macOS: /Users/[user]/Library/Tableau/Drivers
+5. Relaunch Tableau and connect using the [ByteHouse JDBC Connector] connector.
 ### DataGrip Integration
 ### DBeaver Integration
 ## Parameters Reference
