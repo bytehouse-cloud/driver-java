@@ -98,7 +98,7 @@ public class AbstractITest implements Serializable {
         }
     }
 
-    private String generateRandomString() {
+    protected String generateRandomString() {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
         int targetStringLength = 10;

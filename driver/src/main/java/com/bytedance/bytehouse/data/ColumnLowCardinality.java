@@ -118,7 +118,7 @@ public class ColumnLowCardinality extends AbstractColumn implements BytesHelper 
 
     private void updateValueIndicesRaw() {
         int rowNum = valueIndicesList.size();
-        int idxSize = minIndexSize(rowNum);
+        int idxSize = minIndexSize(objectToIndex.size());
         valueIndicesRaw = new byte[rowNum * idxSize];
         for (int i = 0; i < rowNum; i++) {
             putIndex(idxSize, valueIndicesList.get(i), i, valueIndicesRaw);
