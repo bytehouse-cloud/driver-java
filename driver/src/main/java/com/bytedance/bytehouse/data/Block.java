@@ -148,6 +148,10 @@ public class Block {
         }
     }
 
+    public void updatePlaceholderIndex(final int columnIdx, final int value) {
+        placeholderIndexes[columnIdx] = value;
+    }
+
     /**
      * Initiate to write data cached in JVM memory(which is under this instance of {@link Block}
      * into the serializer(which is connected to {@link java.net.SocketOutputStream}.
