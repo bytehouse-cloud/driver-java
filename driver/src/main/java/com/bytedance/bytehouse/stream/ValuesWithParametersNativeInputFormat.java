@@ -45,9 +45,11 @@ public class ValuesWithParametersNativeInputFormat implements NativeInputFormat 
             }
         }
 
+        int placeholderSeen = 0;
         for (int columnIdx = 0; columnIdx < block.columnCnt(); columnIdx++) {
-            if (constIdxFlags.get(columnIdx)) {
-                block.incPlaceholderIndexes(columnIdx);
+            if (!constIdxFlags.get(columnIdx)) {
+                block.updatePlaceholderIndex(placeholderSeen, columnIdx);
+                placeholderSeen++;
             }
         }
         ValidateUtils.isTrue(lexer.character() == ')');
