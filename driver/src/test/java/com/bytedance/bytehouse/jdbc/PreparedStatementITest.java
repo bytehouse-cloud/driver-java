@@ -20,10 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import org.junit.jupiter.api.Test;
 
@@ -157,6 +159,34 @@ public class PreparedStatementITest extends AbstractITest {
             finally {
                 statement.execute(String.format("DROP DATABASE %s", databaseName));
                 statement.getConnection().close();
+            }
+        });
+    }
+
+    @Test
+    public void testPlaceholderWithValues() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(date Date, datetime DateTime, uuid UUID, int Int32, date2 Date)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+
+                String preparedStatementInsertSql = String.format("INSERT INTO %s VALUES (?, '2012-01-01 00:00:00', ?, 5, ?)", tableName);
+                PreparedStatement preparedStatement = statement.getConnection().prepareStatement(preparedStatementInsertSql);
+
+                preparedStatement.setObject(1, Date.valueOf(LocalDate.of(2012, 9, 9)));
+                preparedStatement.setObject(2, "23bdba3e-7d0b-41f9-a555-e6b4eb5e3f0b");
+                preparedStatement.setObject(3, Date.valueOf(LocalDate.of(2025, 9, 10)));
+                preparedStatement.addBatch();
+
+                preparedStatement.executeBatch();
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
             }
         });
     }
