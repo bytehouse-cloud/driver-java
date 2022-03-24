@@ -166,7 +166,7 @@ public class NativeClient implements AutoCloseable {
 
             final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
             // Java 8 uses only TLS 1.2 by default. This line enables all supported protocols, including TLS 1.3
-            sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
+//            sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
 
             return sslSocket;
         }
