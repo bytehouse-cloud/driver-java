@@ -1731,6 +1731,13 @@ public class SettingKey implements Serializable {
             .build();
 
     @ClientConfigKey
+    public static SettingKey apiKey = SettingKey.builder()
+            .withName("api_key")
+            .withType(SettingType.UTF_8)
+            .isSecret()
+            .build();
+
+    @ClientConfigKey
     public static SettingKey isVolcano = SettingKey.builder()
             .withName("is_volcano")
             .withType(SettingType.BOOL)
