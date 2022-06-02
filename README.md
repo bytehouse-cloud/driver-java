@@ -169,6 +169,20 @@ or can throw exception message. An example case of setting virtual warehouse is 
         ex.printStackTrace();
     }
 ```
+### Setting Role
+When using ByteHouse, you need to select an "Active Role", and all your behaviour will be restricted by the permissions
+assigned to this Active Role.
+
+User can set the active role using ByteHouseStatement object. After setting the active role, user can obtain
+the connection object from ByteHouseStatement object and can subsequently use the same connection object to perform
+database operations with the same active role.
+```java
+    try (Statement stmt = connection.createStatement()) {
+        stmt.execute("SET ROLE role_name");
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+    }
+```
 ### Performing SQL Queries
 #### DDL Query
 ```java
