@@ -20,7 +20,13 @@ for connecting to ByteHouse datasource.
         + [Connecting using ByteHouseDriver](#connecting-using-bytehousedriver)
         + [Connecting using ByteHouseDataSource](#connecting-using-bytehousedatasource)
     * [Setting Virtual WareHouse](#setting-virtual-warehouse)
+        + [Statement Object](#statement-object)
+        + [Properties](#properties)
+        + [Connection URL](#connection-url)
     * [Setting Role](#setting-role)
+        + [Statement Object](#statement-object)
+        + [Properties](#properties)
+        + [Connection URL](#connection-url)
     * [Performing SQL Queries](#performing-sql-queries)
         + [DDL Query](#ddl-query)
         + [DML Query](#dml-query)
@@ -156,13 +162,15 @@ javax.sql.DataSource | com.bytedance.bytehouse.jdbc.ByteHouseDataSource
 A virtual warehouse is a cluster of computing resources in Bytehouse that we can scale out on demand. A warehouse 
 provides the required resources, such as CPU, memory, and temporary storage, to perform the database operations.
 
-User can set the virtual warehouse using ByteHouseStatement object. After setting the virtual warehouse, user can obtain
-the connection object from ByteHouseStatement object and can subsequently use the same connection object to perform 
+User can set the virtual warehouse using ByteHouseStatement object / Properties / Connection URL. After setting the 
+virtual warehouse, user can obtain the connection object and can subsequently use the same connection object to perform 
 database operations with the same virtual warehouse.
 
 If users wants to change virtual warehouse, they have to create new connection object with the above mentioned 
 procedure. In case, there is no virtual warehouse stated, the server may use the default virtual warehouse, if there is,
-or can throw exception message. An example case of setting virtual warehouse is shown below:
+or can throw exception message. 
+
+#### Statement Object
 ```java
     try (Statement stmt = connection.createStatement()) {
         stmt.execute("SET WAREHOUSE vw_name");
@@ -170,19 +178,36 @@ or can throw exception message. An example case of setting virtual warehouse is 
         ex.printStackTrace();
     }
 ```
+#### Properties
+```java
+    properties.setProperty("virtual_warehouse", "virtual_warehouse_name");
+```
+#### Connection URL
+```java
+    connectionURL = String.format("jdbc:bytehouse://%s&virtual_warehouse=%s", CONNECTION_URL, VIRTUAL_WAREHOUSE_NAME);
+```
 ### Setting Role
 When using ByteHouse, you need to select an "Active Role", and all your behaviour will be restricted by the permissions
 assigned to this Active Role.
 
-User can set the active role using ByteHouseStatement object. After setting the active role, user can obtain
-the connection object from ByteHouseStatement object and can subsequently use the same connection object to perform
-database operations with the same active role.
+User can set the active role using ByteHouseStatement object / Properties / Connection URL. After setting the active 
+role, user can obtain the connection object from ByteHouseStatement object and can subsequently use the same connection 
+object to perform database operations with the same active role.
+#### Statement Object
 ```java
     try (Statement stmt = connection.createStatement()) {
         stmt.execute("SET ROLE role_name");
     } catch (SQLException ex) {
         ex.printStackTrace();
     }
+```
+#### Properties
+```java
+    properties.setProperty("active_role", "active_role_name");
+```
+#### Connection URL
+```java
+    connectionURL = String.format("jdbc:bytehouse://%s&active_role=%s", CONNECTION_URL, ACTIVE_ROLE_NAME);
 ```
 ### Performing SQL Queries
 #### DDL Query
