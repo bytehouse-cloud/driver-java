@@ -20,6 +20,7 @@ for connecting to ByteHouse datasource.
         + [Connecting using ByteHouseDriver](#connecting-using-bytehousedriver)
         + [Connecting using ByteHouseDataSource](#connecting-using-bytehousedatasource)
     * [Setting Virtual WareHouse](#setting-virtual-warehouse)
+    * [Setting Role](#setting-role)
     * [Performing SQL Queries](#performing-sql-queries)
         + [DDL Query](#ddl-query)
         + [DML Query](#dml-query)
