@@ -18,6 +18,7 @@ import com.bytedance.bytehouse.jdbc.wrapper.SQLStruct;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.misc.ValidateUtils;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -25,7 +26,7 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ByteHouseStruct implements SQLStruct {
+public class ByteHouseStruct implements SQLStruct, Serializable {
 
     private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseStruct.class);
 

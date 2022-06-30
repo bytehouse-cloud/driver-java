@@ -21,10 +21,11 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
+import java.io.Serializable;
 
 import static com.bytedance.bytehouse.misc.PrimitiveConverter.box;
 
-public class ByteHouseArray implements SQLArray {
+public class ByteHouseArray implements SQLArray, Serializable {
 
     private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseArray.class);
 
