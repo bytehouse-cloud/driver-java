@@ -1198,14 +1198,14 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                             .replace("(", "")
                             .replace(")", "")
                             .split(",");
-                    for (int j = 1; j <= colNames.length; j++) {
+                    for (int j = 0; j < colNames.length; ++j) {
                         builder.addRow(
                                 catalog,
                                 schema,
                                 table,
                                 keyType,
                                 colNames[j].trim(),
-                                j
+                                j + 1
                         );
                     }
                 }
