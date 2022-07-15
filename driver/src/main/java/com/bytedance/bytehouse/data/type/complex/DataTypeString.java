@@ -14,6 +14,7 @@
 package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.data.type.SerializableCharset;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.SQLLexer;
@@ -29,10 +30,10 @@ public class DataTypeString implements IDataType<CharSequence, String> {
 
     public static final DataTypeCreator<CharSequence, String> CREATOR = (lexer, serverContext) -> new DataTypeString(serverContext.getConfigure().charset());
 
-    private final Charset charset;
+    private final SerializableCharset serializableCharset;
 
     public DataTypeString(Charset charset) {
-        this.charset = charset;
+        this.serializableCharset = new SerializableCharset(charset);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class DataTypeString implements IDataType<CharSequence, String> {
         if (data instanceof BytesCharSeq) {
             serializer.writeBytesBinary(((BytesCharSeq) data).bytes());
         } else {
-            serializer.writeStringBinary(data.toString(), charset);
+            serializer.writeStringBinary(data.toString(), this.serializableCharset.get());
         }
     }
 
@@ -86,7 +87,7 @@ public class DataTypeString implements IDataType<CharSequence, String> {
     @Override
     public String deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
         byte[] bs = deserializer.readBytesBinary();
-        return new String(bs, charset);
+        return new String(bs, this.serializableCharset.get());
     }
 
     @Override

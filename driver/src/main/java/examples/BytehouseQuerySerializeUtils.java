@@ -14,7 +14,10 @@
 package examples;
 
 import com.bytedance.bytehouse.jdbc.ByteHouseDriver;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -34,13 +37,19 @@ public class BytehouseQuerySerializeUtils {
 
         final Properties properties = new Properties();
 
-        final String url = "jdbc:bytehouse:///?region=AP-SOUTHEAST-1";
+        final String url = "jdbc:bytehouse:///?region=BOE";
+        properties.setProperty("access_key", "");
+        properties.setProperty("secret_key", "");
+        properties.setProperty("is_volcano", "true");
+        properties.setProperty("secure", "true");
+        properties.setProperty("vw", "test");
 
         final ByteHouseDriver driver = new ByteHouseDriver();
         Connection connection = driver.connect(url, properties);
 
         createDatabase(connection);
         createTable(connection);
+        insertTable(connection);
         getAndSerialize(connection);
         dropDatabase(connection);
     }
@@ -68,8 +77,9 @@ public class BytehouseQuerySerializeUtils {
     public static void createTable(Connection connection) {
         try (Statement stmt = connection.createStatement()) {
             final String sql = "CREATE TABLE IF NOT EXISTS test_hieu.orders_test (" +
-                    " Arr8 Array(UInt8), " +
-                    " OrderID String, " +
+                    " Arr8 Array(String), " +
+                    " Arr9 Array(FixedString(10)), " +
+                    " OrderID FixedString(10), " +
                     " OrderName String, " +
                     " OrderPriority Int8 " +
                     " ) " +
@@ -83,9 +93,21 @@ public class BytehouseQuerySerializeUtils {
         }
     }
 
+    public static void insertTable(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            final String sql = "INSERT INTO test_hieu.orders_test "
+                    + " (Arr8, Arr9, OrderID, OrderName, OrderPriority) "
+                    + " VALUES "
+                    + " (['1', '2'], ['3', '4'], '1', 'Apple', 1) ";
+            System.out.println(sql);
+            stmt.executeUpdate(sql);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public static void getAndSerialize(Connection connection) {
-        final String sql = "SELECT * FROM test_hieu.orders3";
+        final String sql = "SELECT * FROM test_hieu.orders_test";
         System.out.println(sql);
         try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
@@ -93,7 +115,9 @@ public class BytehouseQuerySerializeUtils {
             System.out.println(rows);
             RawResult rawResult = new RawResult();
             rawResult.rows = rows;
-            System.out.println(serialize(rawResult));
+            byte[] serializedBytes = serialize(rawResult);
+            System.out.println(serializedBytes);
+            System.out.println(deserialize(serializedBytes).rows);
         } catch (SQLException ex) {
             ex.printStackTrace();
         } catch (IOException e) {
@@ -150,4 +174,25 @@ public class BytehouseQuerySerializeUtils {
         }
     }
 
+    public static RawResult deserialize(byte[] serializedBytes) throws IOException {
+        ByteArrayInputStream bis = null;
+        ObjectInput in = null;
+        try {
+            bis = new ByteArrayInputStream(serializedBytes);
+            in = new ObjectInputStream(bis);
+            return (RawResult) in.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                bis.close();
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
+        return null;
+    }
 }

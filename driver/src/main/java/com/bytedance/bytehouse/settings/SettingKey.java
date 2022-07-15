@@ -1661,8 +1661,13 @@ public class SettingKey implements Serializable {
             .withType(SettingType.UTF_8)
             .build();
 
-    public static SettingKey virtual_warehouse = SettingKey.builder()
-            .withName("virtual_warehouse")
+    public static SettingKey vw_id = SettingKey.builder()
+            .withName("virtual_warehouse") // Taking value as virtual warehouse id
+            .withType(SettingType.UTF_8)
+            .build();
+
+    public static SettingKey vw_name = SettingKey.builder()
+            .withName("vw") // Taking value as virtual warehouse name
             .withType(SettingType.UTF_8)
             .build();
 
