@@ -13,26 +13,22 @@
  */
 package com.bytedance.bytehouse.data.type;
 
-import java.io.Serializable;
+import com.bytedance.bytehouse.io.StringBasedSerializable;
 import java.nio.charset.Charset;
-import java.util.Objects;
 
-public class SerializableCharset implements Serializable {
+public class SerializableCharset extends StringBasedSerializable<Charset> {
 
-    private transient Charset charset;
-
-    private final String charsetStr;
-
-    public SerializableCharset(Charset charset) {
-        Objects.requireNonNull(charset);
-        this.charset = charset;
-        this.charsetStr = charset.toString();
+    public SerializableCharset(final Charset charset) {
+        super(charset);
     }
 
-    public Charset get() {
-        if (charset == null) {
-            this.charset = Charset.forName(charsetStr);
-        }
-        return this.charset;
+    @Override
+    protected String toBackedString(Charset charset) {
+        return charset.toString();
+    }
+
+    @Override
+    protected Charset fromBackedString(String str) {
+        return Charset.forName(str);
     }
 }
