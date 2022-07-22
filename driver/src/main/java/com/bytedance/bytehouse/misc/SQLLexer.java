@@ -13,6 +13,7 @@
  */
 package com.bytedance.bytehouse.misc;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
 
 /**
@@ -24,6 +25,38 @@ public class SQLLexer {
     private final String data;
 
     private int currPos;
+
+    private class NumberTypeRep {
+        final boolean isHex;
+        final boolean isBinary;
+        final boolean isDouble;
+        final boolean hasExponent;
+        final boolean hasSigned;
+        final int start;
+
+        NumberTypeRep(
+            boolean isHex, boolean isBinary,
+            boolean isDouble, boolean hasExponent,
+            boolean hasSigned, int start
+        ) {
+            this.isHex = isHex;
+            this.isBinary = isBinary;
+            this.isDouble = isDouble;
+            this.hasExponent = hasExponent;
+            this.hasSigned = hasSigned;
+            this.start = start;
+        }
+
+        String getNormalStr() {
+            return new StringView(data, this.start, currPos).toString();
+        }
+
+        String getSignedStr() {
+            String signed = this.hasSigned ? data.charAt(this.start) + "" : "";
+            int begin = this.start + (this.hasSigned ? 3 : 2);
+            return signed + new StringView(data, begin, currPos);
+        }
+    }
 
     public SQLLexer(final int startingPos, final String data) {
         this.currPos = startingPos;
@@ -50,7 +83,31 @@ public class SQLLexer {
         return Integer.parseInt(new StringView(data, start, currPos).toString());
     }
 
+    public BigInteger bigIntegerLiteral() {
+        NumberTypeRep typeRep = preprocessGenericNumberLiteral();
+        if (typeRep.isBinary) {
+            return new BigInteger(typeRep.getSignedStr(), 2);
+        } else if (typeRep.isHex) {
+            return new BigInteger(typeRep.getSignedStr(), 16);
+        } else {
+            return new BigInteger(typeRep.getNormalStr());
+        }
+    }
+
     public Number numberLiteral() {
+        NumberTypeRep typeRep = preprocessGenericNumberLiteral();
+        if (typeRep.isBinary) {
+            return Long.parseLong(typeRep.getSignedStr(), 2);
+        } else if (typeRep.isDouble || typeRep.hasExponent) {
+            return Double.valueOf(typeRep.getNormalStr());
+        } else if (typeRep.isHex) {
+            return Long.parseLong(typeRep.getSignedStr(), 16);
+        } else {
+            return Long.parseLong(typeRep.getNormalStr());
+        }
+    }
+
+    private NumberTypeRep preprocessGenericNumberLiteral() {
         skipAnyWhitespace();
 
         int start = currPos;
@@ -111,20 +168,7 @@ public class SQLLexer {
                 }
             }
         }
-
-        if (isBinary) {
-            String signed = hasSigned ? data.charAt(start) + "" : "";
-            int begin = start + (hasSigned ? 3 : 2);
-            return Long.parseLong(signed + new StringView(data, begin, currPos), 2);
-        } else if (isDouble || hasExponent) {
-            return Double.valueOf(new StringView(data, start, currPos).toString());
-        } else if (isHex) {
-            String signed = hasSigned ? data.charAt(start) + "" : "";
-            int begin = start + (hasSigned ? 3 : 2);
-            return Long.parseLong(signed + new StringView(data, begin, currPos), 16);
-        } else {
-            return Long.parseLong(new StringView(data, start, currPos).toString());
-        }
+        return new NumberTypeRep(isHex, isBinary, isDouble, hasExponent, hasSigned, start);
     }
 
     public String stringLiteral() throws SQLException {

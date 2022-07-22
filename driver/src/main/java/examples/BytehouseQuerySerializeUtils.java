@@ -47,11 +47,11 @@ public class BytehouseQuerySerializeUtils {
         final ByteHouseDriver driver = new ByteHouseDriver();
         Connection connection = driver.connect(url, properties);
 
+        dropDatabase(connection);
         createDatabase(connection);
         createTable(connection);
         insertTable(connection);
         getAndSerialize(connection);
-        dropDatabase(connection);
     }
 
     public static void createDatabase(Connection connection) {
@@ -65,7 +65,7 @@ public class BytehouseQuerySerializeUtils {
     }
 
     public static void dropDatabase(Connection connection) {
-        final String sql = "DROP DATABASE test_hieu";
+        final String sql = "DROP DATABASE IF EXISTS test_hieu";
         System.out.println(sql);
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(sql);
@@ -81,7 +81,7 @@ public class BytehouseQuerySerializeUtils {
                     " Arr9 Array(FixedString(10)), " +
                     " OrderID FixedString(10), " +
                     " OrderName String, " +
-                    " OrderPriority Int8 " +
+                    " OrderPriority UInt64 " +
                     " ) " +
                     " engine = CnchMergeTree()" +
                     " partition by OrderID" +
@@ -98,7 +98,7 @@ public class BytehouseQuerySerializeUtils {
             final String sql = "INSERT INTO test_hieu.orders_test "
                     + " (Arr8, Arr9, OrderID, OrderName, OrderPriority) "
                     + " VALUES "
-                    + " (['1', '2'], ['3', '4'], '1', 'Apple', 1) ";
+                    + " (['1', '2'], ['3', '4'], '1', 'Apple', 10672915355300043251) ";
             System.out.println(sql);
             stmt.executeUpdate(sql);
         } catch (SQLException ex) {

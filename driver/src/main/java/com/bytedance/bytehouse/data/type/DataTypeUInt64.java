@@ -78,7 +78,7 @@ public class DataTypeUInt64 implements BaseDataTypeInt64<BigInteger, BigInteger>
 
     @Override
     public BigInteger deserializeText(SQLLexer lexer) throws SQLException {
-        return BigInteger.valueOf(lexer.numberLiteral().longValue());
+        return lexer.bigIntegerLiteral();
     }
 
     @Override
