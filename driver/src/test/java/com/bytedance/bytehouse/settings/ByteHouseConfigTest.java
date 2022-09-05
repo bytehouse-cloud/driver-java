@@ -162,7 +162,7 @@ class ByteHouseConfigTest {
     @Test
     public void testVolcanoEngineConfig() {
         ByteHouseConfig volcanoConfig = ByteHouseConfig.Builder.builder()
-                .region("CN_BEIJING")
+                .region("CN-BEIJING")
                 .secure(true)
                 .isVolcano(true)
                 .accessKey("ACCESS_KEY")
