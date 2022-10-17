@@ -65,9 +65,9 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                 ResultSet columns = dm.getColumns(null, databaseName, tableName, null);
                 assertTrue(columns.next());
                 assertEquals(columns.getString("TABLE_CAT"), "default");
-                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toLowerCase());
-                assertEquals(columns.getString("TABLE_NAME"), tableName.toLowerCase());
-                assertEquals(columns.getString("COLUMN_NAME"), "colString".toLowerCase());
+                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toUpperCase());
+                assertEquals(columns.getString("TABLE_NAME"), tableName.toUpperCase());
+                assertEquals(columns.getString("COLUMN_NAME"), "colString");
                 assertEquals(columns.getInt("DATA_TYPE"), Types.VARCHAR);
                 assertEquals(columns.getString("TYPE_NAME"), "String");
                 assertEquals(columns.getInt("COLUMN_SIZE"), 0);
@@ -90,9 +90,9 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                 assertEquals(columns.getString("IS_GENERATEDCOLUMN"), "NO");
                 assertTrue(columns.next());
                 assertEquals(columns.getString("TABLE_CAT"), "default");
-                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toLowerCase());
-                assertEquals(columns.getString("TABLE_NAME"), tableName.toLowerCase());
-                assertEquals(columns.getString("COLUMN_NAME"), "colInt".toLowerCase());
+                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toUpperCase());
+                assertEquals(columns.getString("TABLE_NAME"), tableName.toUpperCase());
+                assertEquals(columns.getString("COLUMN_NAME"), "colInt");
                 assertEquals(columns.getInt("DATA_TYPE"), Types.INTEGER);
                 assertEquals(columns.getString("TYPE_NAME"), "Int32");
                 assertEquals(columns.getInt("COLUMN_SIZE"), 11);
@@ -115,9 +115,9 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                 assertEquals(columns.getString("IS_GENERATEDCOLUMN"), "NO");
                 assertTrue(columns.next());
                 assertEquals(columns.getString("TABLE_CAT"), "default");
-                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toLowerCase());
-                assertEquals(columns.getString("TABLE_NAME"), tableName.toLowerCase());
-                assertEquals(columns.getString("COLUMN_NAME"), "colFloat".toLowerCase());
+                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toUpperCase());
+                assertEquals(columns.getString("TABLE_NAME"), tableName.toUpperCase());
+                assertEquals(columns.getString("COLUMN_NAME"), "colFloat");
                 assertEquals(columns.getInt("DATA_TYPE"), Types.FLOAT);
                 assertEquals(columns.getString("TYPE_NAME"), "Nullable(Float32)");
                 assertEquals(columns.getInt("COLUMN_SIZE"), 0);

@@ -30,7 +30,7 @@ public class ByteHouseSQLExceptionITest extends AbstractITest {
                 statement.executeQuery("DROP TABLE test");
             } catch (SQLException e) {
                 assertTrue(e instanceof ByteHouseSQLException);
-                assertEquals(0, e.getErrorCode()); // gateway default error code
+                assertEquals(81, e.getErrorCode()); // gateway default error code
                 assertEquals(e.getErrorCode(), e.getErrorCode());
             }
         });

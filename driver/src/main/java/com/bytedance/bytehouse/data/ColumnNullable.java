@@ -56,6 +56,10 @@ public class ColumnNullable extends AbstractColumn {
             serializer.writeByte(sign);
         }
 
+        if (data instanceof ColumnArray) {
+            ((ColumnArray) data).flushOffsets(serializer);
+        }
+
         if (immediate)
             buffer.writeTo(serializer);
     }
