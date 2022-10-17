@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +39,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class ByteHouseConfig implements Serializable {
 
+    private static final String apiKeyUser = "bytehouse";
+
     private final String region;
 
     private final String host;
@@ -54,6 +58,8 @@ public class ByteHouseConfig implements Serializable {
     private final String accessKey;
 
     private final String secretKey;
+
+    private final String apiKey;
 
     private final boolean isTableau;
 
@@ -91,6 +97,7 @@ public class ByteHouseConfig implements Serializable {
             final String password,
             final String accessKey,
             final String secretKey,
+            final String apiKey,
             final boolean isTableau,
             final boolean isVolcano,
             final Duration queryTimeout,
@@ -114,6 +121,7 @@ public class ByteHouseConfig implements Serializable {
         this.password = password;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
+        this.apiKey = apiKey;
         this.isTableau = isTableau;
         this.isVolcano = isVolcano;
         this.queryTimeout = queryTimeout;
@@ -150,10 +158,16 @@ public class ByteHouseConfig implements Serializable {
     }
 
     public String user() {
+        if (!StrUtil.isBlank(this.apiKey)) {
+            return apiKeyUser;
+        }
         return this.user;
     }
 
     public String password() {
+        if (!StrUtil.isBlank(this.apiKey)) {
+            return this.apiKey;
+        }
         return this.password;
     }
 
@@ -163,6 +177,10 @@ public class ByteHouseConfig implements Serializable {
 
     public String secretKey() {
         return this.secretKey;
+    }
+
+    public String apiKey() {
+        return this.apiKey;
     }
 
     public boolean isTableau() {
@@ -222,6 +240,9 @@ public class ByteHouseConfig implements Serializable {
     }
 
     public String fullUsername() {
+        if (!StrUtil.isBlank(this.apiKey)) {
+            return apiKeyUser;
+        }
         if (StrUtil.isBlank(this.account)) {
             return this.user;
         }
@@ -293,6 +314,12 @@ public class ByteHouseConfig implements Serializable {
         return Builder.builder(this)
                 .accessKey(accessKey)
                 .secretKey(secretKey)
+                .build();
+    }
+
+    public ByteHouseConfig withAPIKeyCredentials(final String apiKey) {
+        return Builder.builder(this)
+                .apiKey(apiKey)
                 .build();
     }
 
@@ -446,6 +473,8 @@ public class ByteHouseConfig implements Serializable {
 
         private String secretKey;
 
+        private String apiKey;
+
         private boolean isTableau;
 
         private boolean isVolcano;
@@ -496,6 +525,7 @@ public class ByteHouseConfig implements Serializable {
                     .password(cfg.password())
                     .accessKey(cfg.accessKey())
                     .secretKey(cfg.secretKey())
+                    .apiKey(cfg.apiKey())
                     .isTableau(cfg.isTableau())
                     .isVolcano(cfg.isVolcano())
                     .queryTimeout(cfg.queryTimeout())
@@ -563,6 +593,11 @@ public class ByteHouseConfig implements Serializable {
 
         public Builder secretKey(final String secretKey) {
             this.withSetting(SettingKey.secretKey, secretKey);
+            return this;
+        }
+
+        public Builder apiKey(final String apiKey) {
+            this.withSetting(SettingKey.apiKey, apiKey);
             return this;
         }
 
@@ -661,6 +696,7 @@ public class ByteHouseConfig implements Serializable {
             this.password = (String) this.settings.getOrDefault(SettingKey.password, "");
             this.accessKey = (String) this.settings.getOrDefault(SettingKey.accessKey, "");
             this.secretKey = (String) this.settings.getOrDefault(SettingKey.secretKey, "");
+            this.apiKey = (String) this.settings.getOrDefault(SettingKey.apiKey, "");
             this.isTableau = (boolean) this.settings.getOrDefault(SettingKey.isTableau, false);
             this.isVolcano = (boolean) this.settings.getOrDefault(SettingKey.isVolcano, false);
             this.queryTimeout = (Duration) this.settings.getOrDefault(SettingKey.queryTimeout, Duration.ZERO);
@@ -687,6 +723,7 @@ public class ByteHouseConfig implements Serializable {
                     password,
                     accessKey,
                     secretKey,
+                    apiKey,
                     isTableau,
                     isVolcano,
                     queryTimeout,

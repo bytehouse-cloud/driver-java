@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,10 +23,11 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
+import java.io.Serializable;
 
 import static com.bytedance.bytehouse.misc.PrimitiveConverter.box;
 
-public class ByteHouseArray implements SQLArray {
+public class ByteHouseArray implements SQLArray, Serializable {
 
     private static final Logger LOG = LoggerFactoryUtils.getLogger(ByteHouseArray.class);
 

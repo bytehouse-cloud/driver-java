@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +22,7 @@ import com.bytedance.bytehouse.misc.SQLLexer;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.ZoneId;
 
@@ -29,7 +32,7 @@ import java.time.ZoneId;
  * @param <CK>   Java class the ByteHouse data type will be internally represented as.
  * @param <JDBC> Main JDBC type the CK Java class will be converted to and fro.
  */
-public interface IDataType<CK, JDBC> {
+public interface IDataType<CK, JDBC> extends Serializable {
 
     /**
      * Returns ByteHouse data type name.

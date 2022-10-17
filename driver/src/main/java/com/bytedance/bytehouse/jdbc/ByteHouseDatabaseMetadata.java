@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1124,8 +1126,17 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
             final String schema,
             final String table
     ) throws SQLException {
-        // FIXME: 17/8/21 check this for gateway
-        return getEmptyResultSet();
+        return getKeysFromByteHouse(
+                catalog, schema, table,
+                Arrays.asList(
+                        "PrimaryKey",
+                        "ClusterKey",
+                        "OrderByKey",
+                        "PartitionKey",
+                        "SampleKey",
+                        "UniqueKey"
+                )
+        );
     }
 
     /**
@@ -1152,6 +1163,57 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
     ) throws SQLException {
         // FIXME: 17/8/21 check this for gateway
         return getEmptyResultSet();
+    }
+
+    private ByteHouseResultSet getKeysFromByteHouse(
+            final String catalog,
+            final String schema,
+            final String table,
+            final List<String> keyTypes
+    ) throws SQLException {
+        final ByteHouseResultSetBuilder builder = ByteHouseResultSetBuilder
+                .builder(6, connection.serverContext())
+                .cfg(connection.cfg())
+                .columnNames(
+                        "TABLE_CAT",
+                        "TABLE_SCHEM",
+                        "TABLE_NAME",
+                        "COLUMN_TYPE",
+                        "COLUMN_NAME",
+                        "KEY_SEQ"
+                )
+                .columnTypes(
+                        "String",
+                        "String",
+                        "String",
+                        "String",
+                        "String",
+                        "String"
+                );
+
+        final String sql = String.format("SHOW TABLE KEYS `%s`.`%s`", schema, table);
+        try (ResultSet rs = request(sql)) {
+            if (rs.next()) {
+                for (String keyType: keyTypes) {
+                    String[] colNames = rs
+                            .getString(keyType)
+                            .replace("(", "")
+                            .replace(")", "")
+                            .split(",");
+                    for (int j = 0; j < colNames.length; ++j) {
+                        builder.addRow(
+                                catalog,
+                                schema,
+                                table,
+                                keyType,
+                                colNames[j].trim(),
+                                j + 1
+                        );
+                    }
+                }
+            }
+        }
+        return builder.build();
     }
 
     /**

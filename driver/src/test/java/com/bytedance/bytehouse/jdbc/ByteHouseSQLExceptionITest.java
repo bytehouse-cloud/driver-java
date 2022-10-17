@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,7 +32,7 @@ public class ByteHouseSQLExceptionITest extends AbstractITest {
                 statement.executeQuery("DROP TABLE test");
             } catch (SQLException e) {
                 assertTrue(e instanceof ByteHouseSQLException);
-                assertEquals(0, e.getErrorCode()); // gateway default error code
+                assertEquals(81, e.getErrorCode()); // gateway default error code
                 assertEquals(e.getErrorCode(), e.getErrorCode());
             }
         });

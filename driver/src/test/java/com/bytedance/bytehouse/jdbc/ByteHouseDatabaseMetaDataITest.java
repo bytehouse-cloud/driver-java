@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,9 +67,9 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                 ResultSet columns = dm.getColumns(null, databaseName, tableName, null);
                 assertTrue(columns.next());
                 assertEquals(columns.getString("TABLE_CAT"), "default");
-                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toLowerCase());
-                assertEquals(columns.getString("TABLE_NAME"), tableName.toLowerCase());
-                assertEquals(columns.getString("COLUMN_NAME"), "colString".toLowerCase());
+                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toUpperCase());
+                assertEquals(columns.getString("TABLE_NAME"), tableName.toUpperCase());
+                assertEquals(columns.getString("COLUMN_NAME"), "colString");
                 assertEquals(columns.getInt("DATA_TYPE"), Types.VARCHAR);
                 assertEquals(columns.getString("TYPE_NAME"), "String");
                 assertEquals(columns.getInt("COLUMN_SIZE"), 0);
@@ -90,9 +92,9 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                 assertEquals(columns.getString("IS_GENERATEDCOLUMN"), "NO");
                 assertTrue(columns.next());
                 assertEquals(columns.getString("TABLE_CAT"), "default");
-                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toLowerCase());
-                assertEquals(columns.getString("TABLE_NAME"), tableName.toLowerCase());
-                assertEquals(columns.getString("COLUMN_NAME"), "colInt".toLowerCase());
+                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toUpperCase());
+                assertEquals(columns.getString("TABLE_NAME"), tableName.toUpperCase());
+                assertEquals(columns.getString("COLUMN_NAME"), "colInt");
                 assertEquals(columns.getInt("DATA_TYPE"), Types.INTEGER);
                 assertEquals(columns.getString("TYPE_NAME"), "Int32");
                 assertEquals(columns.getInt("COLUMN_SIZE"), 11);
@@ -115,9 +117,9 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                 assertEquals(columns.getString("IS_GENERATEDCOLUMN"), "NO");
                 assertTrue(columns.next());
                 assertEquals(columns.getString("TABLE_CAT"), "default");
-                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toLowerCase());
-                assertEquals(columns.getString("TABLE_NAME"), tableName.toLowerCase());
-                assertEquals(columns.getString("COLUMN_NAME"), "colFloat".toLowerCase());
+                assertEquals(columns.getString("TABLE_SCHEM"), databaseName.toUpperCase());
+                assertEquals(columns.getString("TABLE_NAME"), tableName.toUpperCase());
+                assertEquals(columns.getString("COLUMN_NAME"), "colFloat");
                 assertEquals(columns.getInt("DATA_TYPE"), Types.FLOAT);
                 assertEquals(columns.getString("TYPE_NAME"), "Nullable(Float32)");
                 assertEquals(columns.getInt("COLUMN_SIZE"), 0);
@@ -165,6 +167,68 @@ public class ByteHouseDatabaseMetaDataITest extends AbstractITest {
                     if (rs.getString(1).equals(databaseName)) testDatabaseFound = true;
                 }
                 assertTrue(testDatabaseFound);
+            }
+            finally {
+                getStatement(statement).execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
+
+    @Test
+    void getTableKeysITest() throws Exception {
+        String databaseName = getDatabaseName();
+        String tableName = getTableName();
+        String resourceName = databaseName + "." + tableName;
+
+        withStatement(statement -> {
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(
+                        String.format(
+                                "CREATE TABLE %s (id String, order_key Int64, cust_key Int64) "
+                                        + "ENGINE=CnchMergeTree() order by (order_key, cust_key)",
+                                resourceName
+                        )
+                );
+
+                DatabaseMetaData dm = statement.getConnection().getMetaData();
+                ResultSet rs = dm.getPrimaryKeys(null, databaseName, tableName);
+                int rowVersion = 0;
+                while (rs.next()) {
+                    System.out.println(
+                            String.format("New Key: (%s, %s, %s, %s, %s, %s",
+                                    rs.getString("TABLE_CAT"),
+                                    rs.getString("TABLE_SCHEM"),
+                                    rs.getString("TABLE_NAME"),
+                                    rs.getString("COLUMN_TYPE"),
+                                    rs.getString("COLUMN_NAME"),
+                                    rs.getString("KEY_SEQ")
+                            )
+                    );
+
+                    if (rowVersion == 0) {
+                        assertEquals(rs.getString("COLUMN_TYPE"), "PrimaryKey");
+                        assertEquals(rs.getString("COLUMN_NAME"), "order_key");
+                        assertEquals(rs.getString("KEY_SEQ"), "1");
+                    }
+                    if (rowVersion == 1) {
+                        assertEquals(rs.getString("COLUMN_TYPE"), "PrimaryKey");
+                        assertEquals(rs.getString("COLUMN_NAME"), "cust_key");
+                        assertEquals(rs.getString("KEY_SEQ"), "2");
+                    }
+                    if (rowVersion == 3) {
+                        assertEquals(rs.getString("COLUMN_TYPE"), "OrderByKey");
+                        assertEquals(rs.getString("COLUMN_NAME"), "order_key");
+                        assertEquals(rs.getString("KEY_SEQ"), "1");
+                    }
+                    if (rowVersion == 4) {
+                        assertEquals(rs.getString("COLUMN_TYPE"), "OrderByKey");
+                        assertEquals(rs.getString("COLUMN_NAME"), "cust_key");
+                        assertEquals(rs.getString("KEY_SEQ"), "2");
+                    }
+
+                    rowVersion += 1;
+                }
             }
             finally {
                 getStatement(statement).execute(String.format("DROP DATABASE %s", databaseName));

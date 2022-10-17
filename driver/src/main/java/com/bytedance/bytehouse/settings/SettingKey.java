@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1661,8 +1663,13 @@ public class SettingKey implements Serializable {
             .withType(SettingType.UTF_8)
             .build();
 
-    public static SettingKey virtual_warehouse = SettingKey.builder()
-            .withName("virtual_warehouse")
+    public static SettingKey vw_id = SettingKey.builder()
+            .withName("virtual_warehouse") // Taking value as virtual warehouse id
+            .withType(SettingType.UTF_8)
+            .build();
+
+    public static SettingKey vw_name = SettingKey.builder()
+            .withName("vw") // Taking value as virtual warehouse name
             .withType(SettingType.UTF_8)
             .build();
 
@@ -1726,6 +1733,13 @@ public class SettingKey implements Serializable {
     @ClientConfigKey
     public static SettingKey secretKey = SettingKey.builder()
             .withName("secret_key")
+            .withType(SettingType.UTF_8)
+            .isSecret()
+            .build();
+
+    @ClientConfigKey
+    public static SettingKey apiKey = SettingKey.builder()
+            .withName("api_key")
             .withType(SettingType.UTF_8)
             .isSecret()
             .build();
