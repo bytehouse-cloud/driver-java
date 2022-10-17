@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +26,31 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class InsertComplexTypeITest extends AbstractITest {
+
+    @Test
+    public void successfullyNullableArrayDataType() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(timestamp Nullable(Datetime), "
+                        + "brand Nullable(String), user_id String, order_id String, price Decimal(20, 2),"
+                        + " discount Decimal(20, 2), withdraw_pirce Decimal(20, 2), order_type Nullable(String),"
+                        + " activity_type Nullable(String), user_type Nullable(Array(String)), "
+                        + "user_level Nullable(String), store Nullable(String))"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                statement.execute(String.format("INSERT INTO %s VALUES ('2022-10-13 12:12:12', "
+                        + "'ylo', '1', '2', 0.1, 0.2, 0.3, 'order1', '22', ['1', '1', '0', '0'], "
+                        + "'level', 'hello')", tableName));
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
 
     @Test
     public void successfullyArrayDataType() throws Exception {

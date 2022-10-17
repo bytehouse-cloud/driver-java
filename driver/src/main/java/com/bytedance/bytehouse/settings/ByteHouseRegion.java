@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +23,7 @@ public enum ByteHouseRegion {
     CN_NORTH_1("CN-NORTH-1", "gateway.aws-cn-north-1.bytehouse.cn", 19000),
     AP_SOUTHEAST_1("AP-SOUTHEAST-1", "gateway.aws-ap-southeast-1.bytehouse.cloud", 19000),
     BOE("BOE", "gateway.volc-boe.offline.bytehouse.cn", 19000),
-    CN_BEIJING("CN_BEIJING", "bytehouse-cn-beijing.volces.com", 19000);
+    CN_BEIJING("CN-BEIJING", "bytehouse-cn-beijing.volces.com", 19000);
 
     private final String name;
 

@@ -1,4 +1,6 @@
 /*
+ * This file may have been modified by ByteDance Ltd. and/or its affiliates.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +17,7 @@ package com.bytedance.bytehouse.data.type.complex;
 
 import com.bytedance.bytehouse.client.ServerContext;
 import com.bytedance.bytehouse.data.IDataType;
+import com.bytedance.bytehouse.data.type.SerializableCharset;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.BytesCharSeq;
 import com.bytedance.bytehouse.misc.SQLLexer;
@@ -42,12 +45,13 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
 
     private final String defaultValue;
 
-    private final Charset charset;
+    private final SerializableCharset serializableCharset;
 
     public DataTypeFixedString(String name, int n, ServerContext serverContext) {
         this.n = n;
         this.name = name;
-        this.charset = serverContext.getConfigure().charset();
+        Charset charset = serverContext.getConfigure().charset();
+        this.serializableCharset = new SerializableCharset(charset);
 
         byte[] data = new byte[n];
         for (int i = 0; i < n; i++) {
@@ -96,7 +100,7 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
         if (data instanceof BytesCharSeq) {
             writeBytes((((BytesCharSeq) data).bytes()), serializer);
         } else {
-            writeBytes(data.toString().getBytes(charset), serializer);
+            writeBytes(data.toString().getBytes(this.serializableCharset.get()), serializer);
         }
     }
 
@@ -116,7 +120,8 @@ public class DataTypeFixedString implements IDataType<CharSequence, String> {
 
     @Override
     public String deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
-        return new String(deserializer.readBytes(n), charset);
+        byte[] bs = deserializer.readBytes(n);
+        return new String(bs, this.serializableCharset.get());
     }
 
     @Override
