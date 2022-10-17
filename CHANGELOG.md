@@ -9,6 +9,24 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.10] - 2022-10-17
+
+### Added
+- Support API Key authentication
+- Support Show ByteHouse table keys
+- Add virtual warehouse name settings
+
+### Changed
+- Upgrade JWT version to v3.19.2
+- Refactor serializable character set
+- Update Volcano region name to CN-BEIJING
+- Update License header to include claims
+
+### Fixed
+- Fix Datatype serialization issues
+- Fix UInt64 lexer for parsing
+- Fix insertion query for Nullable array datatype
+
 ## [1.1.1] - 2022-03-24
 
 ### Changed
