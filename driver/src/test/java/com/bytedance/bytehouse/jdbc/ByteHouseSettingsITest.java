@@ -15,6 +15,7 @@
  */
 package com.bytedance.bytehouse.jdbc;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class ByteHouseSettingsITest extends AbstractITest {
@@ -33,5 +34,22 @@ public class ByteHouseSettingsITest extends AbstractITest {
                 statement.execute(String.format("DROP DATABASE %s", databaseName));
             }
         }, "ansi_sql", true);
+    }
+
+    @Ignore
+    public void successfullySetDictTableFullMode() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE IF NOT EXISTS %s", databaseName));
+                statement.execute(String.format("CREATE TABLE IF NOT EXISTS %s(id Int)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        }, "dict_table_full_mode", 1);
     }
 }

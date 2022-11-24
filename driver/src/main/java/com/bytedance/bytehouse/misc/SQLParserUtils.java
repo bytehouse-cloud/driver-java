@@ -27,10 +27,13 @@ import javax.annotation.concurrent.Immutable;
 public final class SQLParserUtils {
 
     static final Pattern TXN_LABEL_BRACKET_REGEX = Pattern
-            .compile("insertion_label\\s*=\\s*'[a-zA-Z0-9\\-#]+'\\s*\\(");
+            .compile("insertion_label\\s*=\\s*'[a-zA-Z0-9\\-#()]+'\\s*");
 
-    private static final Pattern VALUES_BRACKET_REGEX = Pattern
-            .compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
+    private static final Pattern GENERIC_INSERT_VALUES_BRACKET_REGEX = Pattern
+            .compile(
+                    "((?i)VALUES(?-i)\\s*\\()|((?i)FORMAT VALUES SETTINGS(?-i)\\s+([a-zA-Z_]\\w*|`[a-zA-Z_]\\w*`)"
+                    + "\\s*=\\s*(\\S+|'.+')(\\s*,\\s*([a-zA-Z_]\\w*|`[a-zA-Z_]\\w*`)\\s*=\\s*(\\S+|'.+'))*\\s+\\()"
+            );
 
     private static final Pattern VALUES_REGEX = Pattern
             .compile("[V|v][A|a][L|l][U|u][E|e][S|s]");
@@ -47,31 +50,20 @@ public final class SQLParserUtils {
      * 2. value part: the part that contains the insertion values. <br>
      */
     public static InsertQueryParts splitInsertQuery(final String query) {
-        if (query.contains("insertion_label")) {
-            // labelled transaction
-
-            final Matcher matcher = TXN_LABEL_BRACKET_REGEX.matcher(query);
-            if (matcher.find()) {
-                return new InsertQueryParts(
-                        query.substring(0, matcher.end() - 1).trim(),
-                        query.substring(matcher.end() - 1).trim()
-                );
-            } else {
-                throw new IllegalArgumentException(
-                        "invalid syntax for labelled transaction: " + query);
-            }
+        if (query.contains("insertion_label") && !TXN_LABEL_BRACKET_REGEX.matcher(query).find()) {
+            throw new IllegalArgumentException(
+                    "invalid syntax for labelled transaction: " + query);
+        }
+        final Matcher matcher = GENERIC_INSERT_VALUES_BRACKET_REGEX.matcher(query);
+        if (matcher.find()) {
+            final int idxBracket = matcher.end() - 1;
+            return new InsertQueryParts(
+                    query.substring(0, idxBracket).trim(),
+                    query.substring(idxBracket).trim()
+            );
         } else {
-            // normal insertion
-            final Matcher matcher = VALUES_BRACKET_REGEX.matcher(query);
-            if (matcher.find()) {
-                return new InsertQueryParts(
-                        query.substring(0, matcher.end() - 1).trim(),
-                        query.substring(matcher.end() - 1).trim()
-                );
-            } else {
-                throw new IllegalArgumentException(
-                        "invalid syntax for insert query: " + query);
-            }
+            throw new IllegalArgumentException(
+                    "invalid syntax for insert query: " + query);
         }
     }
 

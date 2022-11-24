@@ -1648,6 +1648,11 @@ public class SettingKey implements Serializable {
             .withType(SettingType.BOOL)
             .build();
 
+    public static SettingKey dict_table_full_mode = SettingKey.builder()
+            .withName("dict_table_full_mode")
+            .withType(SettingType.INT_32)
+            .build();
+
     public static SettingKey enable_query_metadata = SettingKey.builder()
             .withName("enable_query_metadata")
             .withType(SettingType.BOOL)
