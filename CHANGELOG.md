@@ -9,6 +9,16 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.12] - 2022-11-24
+
+### Added
+- Add settings dict_table_full_mode
+- Enable generic settings in query
+
+### Changed
+
+### Fixed
+
 ## [1.1.10] - 2022-10-17
 
 ### Added

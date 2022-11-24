@@ -108,14 +108,32 @@ class SQLParserUtilsTest {
                                 null
                         ),
                         Arguments.of(
+                                "insert into table (col1, col2) VALUES(?,?)",
+                                "insert into table (col1, col2) VALUES",
+                                "(?,?)",
+                                null
+                        ),
+                        Arguments.of(
                                 "insert into table (col1, col2) FORMAT Values SETTINGS insertion_label = 'xxx' ('a','b')",
                                 "insert into table (col1, col2) FORMAT Values SETTINGS insertion_label = 'xxx'",
                                 "('a','b')",
                                 null
                         ),
                         Arguments.of(
+                                "insert into table (col1, col2) FORMAT Values SETTINGS preload_checksums_and_primary_index_cache = 0, max_threads_for_cnch_dump = 16 ('a','b')",
+                                "insert into table (col1, col2) FORMAT Values SETTINGS preload_checksums_and_primary_index_cache = 0, max_threads_for_cnch_dump = 16",
+                                "('a','b')",
+                                null
+                        ),
+                        Arguments.of(
                                 "insert into table (col1, col2) FORMAT Values SETTINGS insertion_label='xxx' ('a','b')",
                                 "insert into table (col1, col2) FORMAT Values SETTINGS insertion_label='xxx'",
+                                "('a','b')",
+                                null
+                        ),
+                        Arguments.of(
+                                "insert into table (col1, col2) FORMAT Values SETTINGS insertion_label='(xxx)' ('a','b')",
+                                "insert into table (col1, col2) FORMAT Values SETTINGS insertion_label='(xxx)'",
                                 "('a','b')",
                                 null
                         ),
