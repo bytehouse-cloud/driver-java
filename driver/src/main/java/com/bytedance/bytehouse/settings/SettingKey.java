@@ -946,12 +946,12 @@ public class SettingKey implements Serializable {
 
     public static SettingKey receive_timeout = SettingKey.builder()
             .withName("receive_timeout")
-            .withType(SettingType.SECONDS)
+            .withType(SettingType.INT_64)
             .build();
 
     public static SettingKey send_timeout = SettingKey.builder()
             .withName("send_timeout")
-            .withType(SettingType.SECONDS)
+            .withType(SettingType.INT_64)
             .build();
 
     public static SettingKey tcp_keep_alive_timeout = SettingKey.builder()
@@ -1019,7 +1019,7 @@ public class SettingKey implements Serializable {
 
     public static SettingKey max_execution_time = SettingKey.builder()
             .withName("max_execution_time")
-            .withType(SettingType.SECONDS)
+            .withType(SettingType.INT_64)
             .build();
 
     public static SettingKey timeout_before_checking_execution_speed = SettingKey.builder()

@@ -17,6 +17,13 @@ package com.bytedance.bytehouse.jdbc;
 
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ByteHouseSettingsITest extends AbstractITest {
     @Test
@@ -51,5 +58,42 @@ public class ByteHouseSettingsITest extends AbstractITest {
                 statement.execute(String.format("DROP DATABASE %s", databaseName));
             }
         }, "dict_table_full_mode", 1);
+    }
+
+    @Test
+    public void successfullySetServerTimeout() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE IF NOT EXISTS %s", databaseName));
+                statement.execute(String.format("CREATE TABLE IF NOT EXISTS %s(arrayString Array(String))"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                PreparedStatement pstmtSmallTimeout = getConnection("send_timeout", 1, "max_block_size", 20000000, "receive_timeout", 1).
+                        prepareStatement(String.format("INSERT INTO %s VALUES(?)", tableName));
+                PreparedStatement pstmtLargeTimeout = getConnection("send_timeout", 10, "max_block_size", 20000000, "receive_timeout", 10).
+                        prepareStatement(String.format("INSERT INTO %s VALUES(?)", tableName));
+
+                Array insertionData = pstmtSmallTimeout.getConnection().createArrayOf("String", Arrays.asList("aa", "bb", "cc").toArray());
+                for (int i=0; i<5000000; i++) {
+                    pstmtSmallTimeout.setObject(1, insertionData);
+                    pstmtSmallTimeout.addBatch();
+                    pstmtLargeTimeout.setObject(1, insertionData);
+                    pstmtLargeTimeout.addBatch();
+                }
+
+                assertThrows(SQLException.class, () -> {
+                    pstmtSmallTimeout.executeBatch();
+                });
+                assertDoesNotThrow(() -> {
+                    pstmtLargeTimeout.executeBatch();
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
     }
 }

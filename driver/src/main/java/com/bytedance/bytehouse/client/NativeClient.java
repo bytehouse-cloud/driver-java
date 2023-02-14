@@ -52,7 +52,6 @@ import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Map;
-import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSocket;
@@ -252,13 +251,14 @@ public class NativeClient implements AutoCloseable {
     }
 
     public void sendQuery(
+            final String queryId,
             final String query,
             final ClientContext info,
             final Map<SettingKey, Serializable> settings,
             final boolean enableCompression
     ) throws SQLException {
         sendQuery(
-                UUID.randomUUID().toString(),
+                queryId,
                 QueryRequest.STAGE_COMPLETE,
                 info,
                 query,

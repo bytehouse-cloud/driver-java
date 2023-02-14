@@ -356,9 +356,10 @@ public class ByteHouseConnection implements BHConnection {
     /**
      * Get metadata for a insert query.
      */
-    public Block getSampleBlock(final String insertQuery) throws SQLException {
+    public Block getSampleBlock(final String queryId, final String insertQuery) throws SQLException {
         final NativeClient nativeClient = getHealthyNativeClient();
         nativeClient.sendQuery(
+                queryId,
                 insertQuery,
                 nativeCtx.clientCtx(),
                 cfg.get().settings(),
@@ -374,6 +375,7 @@ public class ByteHouseConnection implements BHConnection {
      * Used by Statement objects to send and receive queries using this connection.
      */
     public QueryResult sendQueryRequest(
+            final String queryId,
             final String query,
             final ByteHouseConfig cfg
     ) throws SQLException {
@@ -391,7 +393,7 @@ public class ByteHouseConnection implements BHConnection {
         final Duration queryTimeout = cfg.queryTimeout();
 
         try {
-            nativeClient.sendQuery(query, nativeCtx.clientCtx(), settings, enableCompression);
+            nativeClient.sendQuery(queryId, query, nativeCtx.clientCtx(), settings, enableCompression);
         } finally {
             return nativeClient.receiveQuery(queryTimeout, nativeCtx.serverCtx());
         }

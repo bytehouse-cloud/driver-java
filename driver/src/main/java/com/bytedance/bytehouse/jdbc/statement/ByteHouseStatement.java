@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 /**
  * {@link Statement} implementation for Bytehouse.
  */
-public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
+public class ByteHouseStatement extends ByteHouseQueryId implements Statement, SQLWrapper, Logging {
 
     static final Pattern TXN_LABEL_REGEX = Pattern
             .compile("insertion_label\\s?=\\s?'[a-zA-Z0-9\\-]+'");
@@ -107,6 +107,7 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
             lastResultSet.close();
         }
 
+        final String queryId = consumeQueryId();
         return ExceptionUtil.rethrowSQLException(() -> {
 
             if (SQLParserUtils.isInsertQuery(query)) {
@@ -115,7 +116,7 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
 
                 final SQLParserUtils.InsertQueryParts parts = SQLParserUtils.splitInsertQuery(query);
                 final String insertQuery = parts.queryPart;
-                block = creator.getSampleBlock(insertQuery);
+                block = creator.getSampleBlock(queryId, insertQuery);
                 block.initWriteBuffer();
                 new ValuesNativeInputFormat(0, parts.valuePart).fill(block);
                 updateCount = creator.sendInsertRequest(block);
@@ -124,7 +125,7 @@ public class ByteHouseStatement implements Statement, SQLWrapper, Logging {
                 final SQLParserUtils.DbTable dbTable = SQLParserUtils.extractDBAndTableName(query);
                 // other statement we return 0.
                 updateCount = -1;
-                final QueryResult result = creator.sendQueryRequest(query, cfg);
+                final QueryResult result = creator.sendQueryRequest(queryId, query, cfg);
                 lastResultSet = new ByteHouseResultSet(
                         this,
                         cfg,

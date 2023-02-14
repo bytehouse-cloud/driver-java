@@ -161,7 +161,8 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
             return;
         }
         ExceptionUtil.rethrowSQLException(() -> {
-            this.block = creator.getSampleBlock(insertQueryPart);
+            String queryId = consumeQueryId();
+            this.block = creator.getSampleBlock(queryId, insertQueryPart);
             this.block.initWriteBuffer();
             this.blockInit = true;
             new ValuesWithParametersNativeInputFormat(0, valuePart).fill(block);
