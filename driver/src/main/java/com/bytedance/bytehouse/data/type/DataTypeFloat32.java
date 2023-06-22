@@ -71,6 +71,8 @@ public class DataTypeFloat32 implements IDataType<Float, Float> {
     public Float convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
         if (obj instanceof Number) {
             return ((Number) obj).floatValue();
+        } else if (obj instanceof String) {
+            return Float.parseFloat((String) obj);
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Float.class);
     }

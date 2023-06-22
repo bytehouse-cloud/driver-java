@@ -75,6 +75,8 @@ public class ByteHouseConfig implements Serializable {
 
     private final boolean secure;
 
+    private final String formatCSVDelimiter;
+
     private final boolean skipVerification;
 
     private final boolean enableCompression;
@@ -84,6 +86,8 @@ public class ByteHouseConfig implements Serializable {
     private final long maxBlockSize;
 
     private final String booleanColumnPrefix;
+
+    private final boolean insertInfileLocal;
 
     private final Map<SettingKey, Serializable> settings;
 
@@ -105,11 +109,13 @@ public class ByteHouseConfig implements Serializable {
             final boolean tcpKeepAlive,
             final boolean tcpNoDelay,
             final boolean secure,
+            final String formatCSVDelimiter,
             final boolean skipVerification,
             final boolean enableCompression,
             final String charset,
             final long maxBlockSize,
             final String booleanColumnPrefix,
+            final boolean insertInfileLocal,
             final Map<SettingKey, Serializable> settings
     ) {
         this.region = region;
@@ -129,11 +135,13 @@ public class ByteHouseConfig implements Serializable {
         this.tcpKeepAlive = tcpKeepAlive;
         this.tcpNoDelay = tcpNoDelay;
         this.secure = secure;
+        this.formatCSVDelimiter = formatCSVDelimiter;
         this.skipVerification = skipVerification;
         this.enableCompression = enableCompression;
         this.charset = charset;
         this.maxBlockSize = maxBlockSize;
         this.booleanColumnPrefix = booleanColumnPrefix;
+        this.insertInfileLocal = insertInfileLocal;
         this.settings = settings;
     }
 
@@ -215,6 +223,10 @@ public class ByteHouseConfig implements Serializable {
         return secure;
     }
 
+    public String formatCSVDelimiter() {
+        return formatCSVDelimiter;
+    }
+
     public boolean skipVerification() {
         return skipVerification;
     }
@@ -233,6 +245,10 @@ public class ByteHouseConfig implements Serializable {
 
     public String booleanColumnPrefix() {
         return booleanColumnPrefix;
+    }
+
+    public boolean insertInfileLocal() {
+        return insertInfileLocal;
     }
 
     public Map<SettingKey, Serializable> settings() {
@@ -386,6 +402,12 @@ public class ByteHouseConfig implements Serializable {
                 .build();
     }
 
+    public ByteHouseConfig withFormatCSVDelimiter(final String formatCSVDelimiter) {
+        return Builder.builder(this)
+                .formatCSVDelimiter(formatCSVDelimiter)
+                .build();
+    }
+
     /**
      * cloning method.
      */
@@ -401,6 +423,15 @@ public class ByteHouseConfig implements Serializable {
     public ByteHouseConfig withEnableCompression(final boolean enableCompression) {
         return Builder.builder(this)
                 .enableCompression(enableCompression)
+                .build();
+    }
+
+    /**
+     * cloning method.
+     */
+    public ByteHouseConfig withInsertInfileLocal(final boolean insertInfileLocal) {
+        return Builder.builder(this)
+                .insertInfileLocal(insertInfileLocal)
                 .build();
     }
 
@@ -489,6 +520,8 @@ public class ByteHouseConfig implements Serializable {
 
         private boolean secure;
 
+        private String formatCSVDelimiter;
+
         private boolean skipVerification;
 
         private boolean enableCompression;
@@ -498,6 +531,8 @@ public class ByteHouseConfig implements Serializable {
         private long maxBlockSize;
 
         private String booleanColumnPrefix;
+
+        private boolean insertInfileLocal;
 
         private Map<SettingKey, Serializable> settings = new HashMap<>();
 
@@ -533,11 +568,13 @@ public class ByteHouseConfig implements Serializable {
                     .tcpKeepAlive(cfg.tcpKeepAlive())
                     .tcpNoDelay(cfg.tcpNoDelay())
                     .secure(cfg.secure())
+                    .formatCSVDelimiter(cfg.formatCSVDelimiter())
                     .skipVerification(cfg.skipVerification())
                     .enableCompression(cfg.enableCompression())
                     .charset(cfg.charset())
                     .maxBlockSize(cfg.maxBlockSize())
                     .booleanColumnPrefix(cfg.booleanColumnPrefix())
+                    .insertInfileLocal(cfg.insertInfileLocal())
                     .withSettings(cfg.settings());
         }
 
@@ -646,6 +683,11 @@ public class ByteHouseConfig implements Serializable {
             return this;
         }
 
+        public Builder insertInfileLocal(final boolean insertInfileLocal) {
+            this.withSetting(SettingKey.insertInfileLocal, insertInfileLocal);
+            return this;
+        }
+
         public Builder charset(final String charset) {
             this.withSetting(SettingKey.charset, charset);
             return this;
@@ -663,6 +705,11 @@ public class ByteHouseConfig implements Serializable {
 
         public Builder booleanColumnPrefix(final String booleanColumnPrefix) {
             this.withSetting(SettingKey.booleanColumnPrefix, booleanColumnPrefix);
+            return this;
+        }
+
+        public Builder formatCSVDelimiter(final String formatCSVDelimiter) {
+            this.withSetting(SettingKey.formatCSVDelimiter, formatCSVDelimiter);
             return this;
         }
 
@@ -709,6 +756,8 @@ public class ByteHouseConfig implements Serializable {
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));
             this.maxBlockSize = (long) this.settings.getOrDefault(SettingKey.max_block_size, 65536L);
             this.booleanColumnPrefix = (String) this.settings.getOrDefault(SettingKey.booleanColumnPrefix, "");
+            this.insertInfileLocal = (boolean) this.settings.getOrDefault(SettingKey.insertInfileLocal, false);
+            this.formatCSVDelimiter = (String) this.settings.getOrDefault(SettingKey.formatCSVDelimiter, ",");
 
             useDefaultIfNotSet();
             purgeClientSettings();
@@ -731,11 +780,13 @@ public class ByteHouseConfig implements Serializable {
                     tcpKeepAlive,
                     tcpNoDelay,
                     secure,
+                    formatCSVDelimiter,
                     skipVerification,
                     enableCompression,
                     charset.name(),
                     maxBlockSize,
                     booleanColumnPrefix,
+                    insertInfileLocal,
                     settings
             );
         }

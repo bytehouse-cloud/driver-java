@@ -60,6 +60,8 @@ public class DataTypeUInt32 implements BaseDataTypeInt32<Long, Long> {
     public Long convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
         if (obj instanceof Number) {
             return ((Number) obj).longValue();
+        } else if (obj instanceof String) {
+            return Long.parseLong((String) obj);
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Long.class);
     }

@@ -59,6 +59,8 @@ public class DataTypeInt16 implements BaseDataTypeInt16<Short, Short> {
     public Short convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
         if (obj instanceof Number) {
             return ((Number) obj).shortValue();
+        } else if (obj instanceof String) {
+            return Short.parseShort((String) obj);
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Short.class);
     }

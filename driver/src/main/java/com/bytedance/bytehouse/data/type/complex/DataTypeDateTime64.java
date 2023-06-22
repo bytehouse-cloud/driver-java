@@ -20,7 +20,6 @@ import com.bytedance.bytehouse.data.IDataType;
 import com.bytedance.bytehouse.exception.ByteHouseSQLException;
 import com.bytedance.bytehouse.misc.DateTimeUtil;
 import com.bytedance.bytehouse.misc.SQLLexer;
-import com.bytedance.bytehouse.misc.StringView;
 import com.bytedance.bytehouse.misc.ValidateUtils;
 import com.bytedance.bytehouse.serde.BinaryDeserializer;
 import com.bytedance.bytehouse.serde.BinarySerializer;
@@ -121,9 +120,6 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
 
     @Override
     public ZonedDateTime deserializeText(SQLLexer lexer) throws SQLException {
-        StringView dataTypeName = lexer.bareWord();
-        ValidateUtils.isTrue(dataTypeName.checkEquals("toDateTime64"));
-        ValidateUtils.isTrue(lexer.character() == '(');
         ValidateUtils.isTrue(lexer.character() == '\'');
         int year = lexer.numberLiteral().intValue();
         ValidateUtils.isTrue(lexer.character() == '-');
@@ -140,7 +136,6 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
         int second = seconds.intValue();
         int nanos = seconds.subtract(BigDecimal.valueOf(second)).movePointRight(9).intValue();
         ValidateUtils.isTrue(lexer.character() == '\'');
-        ValidateUtils.isTrue(lexer.character() == ')');
 
         return ZonedDateTime.of(year, month, day, hours, minutes, second, nanos, tz);
     }
@@ -172,6 +167,10 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
         }
         if (obj instanceof ZonedDateTime) {
             return (ZonedDateTime) obj;
+        }
+        if (obj instanceof String) {
+            Timestamp timestamp = Timestamp.valueOf((String) obj);
+            return DateTimeUtil.toZonedDateTime(timestamp, tz);
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + ZonedDateTime.class);
     }

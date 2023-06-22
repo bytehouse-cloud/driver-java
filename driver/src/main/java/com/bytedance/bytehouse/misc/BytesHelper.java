@@ -56,16 +56,16 @@ public interface BytesHelper {
     /**
      * Below code borrowed from netty HeapByteBufUtil
      */
-    default byte getByte(byte[] memory, int index) {
-        return memory[index];
+    default int getByteAsInt(byte[] memory, int index) {
+        return memory[index] & 0xff;
     }
 
     default short getShort(byte[] memory, int index) {
         return (short) (memory[index] << 8 | memory[index + 1] & 0xFF);
     }
 
-    default short getShortLE(byte[] memory, int index) {
-        return (short) (memory[index] & 0xff | memory[index + 1] << 8);
+    default int getShortAsIntLE(byte[] memory, int index) {
+        return memory[index] & 0xff | (memory[index + 1] & 0xff) << 8;
     }
 
     default int getUnsignedMedium(byte[] memory, int index) {
@@ -93,6 +93,10 @@ public interface BytesHelper {
         // @formatter:on
     }
 
+    /**
+     * Returns an index up to 2147483647 since only int can be used as
+     * array index and int is signed.
+     */
     default int getIntLE(byte[] memory, int index) {
         // @formatter:off
         return memory[index] & 0xff |
@@ -117,6 +121,8 @@ public interface BytesHelper {
 
     /**
      * LongLE =>  Long Little Endian.
+     * Although long can have a very big range, but realistically only values
+     * up to 2147483647 are valid as array index.
      */
     default long getLongLE(byte[] memory, int index) {
         // @formatter:off

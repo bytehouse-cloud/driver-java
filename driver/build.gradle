@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'com.bytedance.bytehouse'
-version = '1.1.15'
+version = '1.1.20'
 description 'ByteHouse JDBC Driver'
 
 java {
@@ -36,6 +36,7 @@ dependencies {
     implementation "org.roaringbitmap:RoaringBitmap:0.9.15" // for BitMap datatype implementation
     implementation 'com.auth0:java-jwt:3.19.2'
     implementation group: 'org.json', name: 'json', version: '20210307'
+    implementation 'org.apache.commons:commons-csv:1.5'
     compileOnly "org.slf4j:slf4j-api:1.7.30"
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 

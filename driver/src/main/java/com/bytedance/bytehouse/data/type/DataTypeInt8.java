@@ -59,6 +59,8 @@ public class DataTypeInt8 implements BaseDataTypeInt8<Byte, Byte> {
     public Byte convertJdbcToJavaType(Object obj, ZoneId tz) throws ByteHouseSQLException {
         if (obj instanceof Number) {
             return ((Number) obj).byteValue();
+        } else if (obj instanceof String) {
+            return Byte.parseByte((String) obj);
         }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + Byte.class);
     }

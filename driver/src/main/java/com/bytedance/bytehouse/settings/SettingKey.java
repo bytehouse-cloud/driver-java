@@ -1811,10 +1811,23 @@ public class SettingKey implements Serializable {
             .build();
 
     @ClientConfigKey
+    public static SettingKey insertInfileLocal = SettingKey.builder()
+            .withName("insert_infile_local")
+            .withType(SettingType.BOOL)
+            .withDescription("defines whether insert infile syntax loads from local")
+            .build();
+
+    @ClientConfigKey
     public static SettingKey charset = SettingKey.builder()
             .withName("charset")
             .withType(SettingType.UTF_8)
             .withDescription("charset for converting between Bytes and String")
+            .build();
+
+    @ClientConfigKey
+    public static SettingKey formatCSVDelimiter = SettingKey.builder()
+            .withName("format_csv_delimiter")
+            .withType(SettingType.UTF_8)
             .build();
 
     private final String name;

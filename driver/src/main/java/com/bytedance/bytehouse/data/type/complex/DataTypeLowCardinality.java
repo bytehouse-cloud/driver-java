@@ -110,8 +110,22 @@ public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesH
             final int numOfUniqueValues = (int) getLongLE(header, 16);
             final Object[] uniqueValues = keys.deserializeBinaryBulk(numOfUniqueValues, deserializer);
             final long numOfRows = deserializer.readLong();
-            final int indexByteSize = header[8] + 1;
-            valueIndicesRaw = deserializer.readBytes((int) (numOfRows * indexByteSize));
+
+            int indexByteSize = 1;
+            switch (header[8]) {
+                case 1:
+                    indexByteSize = 2;
+                    break;
+                case 2:
+                    indexByteSize = 4;
+                    break;
+                case 3:
+                    indexByteSize = 8;
+                    break;
+            }
+
+            int numOfBytesToRead = (int) numOfRows * indexByteSize;
+            valueIndicesRaw = deserializer.readBytes(numOfBytesToRead);
             final Object[] res = new Object[rows];
 
             for (int i = 0; i < rows; i++) {
@@ -126,12 +140,20 @@ public class DataTypeLowCardinality implements IDataType<Object, Object>, BytesH
     private int getIndex(int indexByteSize, int row) {
         switch (indexByteSize) {
             case 1:
-                return valueIndicesRaw[row];
+                return getByteAsInt(valueIndicesRaw, row);
             case 2:
-                return getShortLE(valueIndicesRaw, 2 * row);
-            case 3:
-                return getIntLE(valueIndicesRaw, 4 * row);
+                return getShortAsIntLE(valueIndicesRaw, 2 * row);
             case 4:
+                /*
+                 * The driver will crash if the number of unique values exceeds
+                 * 2147483647, because int is signed.
+                 */
+                return getIntLE(valueIndicesRaw, 4 * row);
+            case 8:
+                /*
+                 * The driver will crash if the number of unique values exceeds
+                 * 2147483647, because int is signed.
+                 */
                 return (int) getLongLE(valueIndicesRaw, 8 * row);
             default:
                 throw new IllegalStateException("supposed unreachable execution path");

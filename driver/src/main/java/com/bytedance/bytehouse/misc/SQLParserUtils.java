@@ -35,8 +35,16 @@ public final class SQLParserUtils {
                     + "\\s*=\\s*(\\S+|'.+')(\\s*,\\s*([a-zA-Z_]\\w*|`[a-zA-Z_]\\w*`)\\s*=\\s*(\\S+|'.+'))*\\s+\\()"
             );
 
+    private static final Pattern GENERIC_INSERT_INFILE_VALUES_BRACKET_REGEX = Pattern
+            .compile(
+                    "(\\s*FORMAT\\s*)(\\s*[a-zA-Z0-9\\-#()]+\\s*)(\\s*INFILE\\s*)(\\s*[a-zA-Z0-9_\\-#()\\'\\.\\/]+\\s*)"
+            );
+
     private static final Pattern VALUES_REGEX = Pattern
             .compile("[V|v][A|a][L|l][U|u][E|e][S|s]");
+
+    private static final Pattern INFILE_REGEX = Pattern
+            .compile("(?i)INFILE(?-i)");
 
     private static final Pattern SELECT_DB_TABLE = Pattern.compile("(?i)FROM\\s+(\\S+\\.)?(\\S+)");
 
@@ -67,9 +75,51 @@ public final class SQLParserUtils {
         }
     }
 
+    public static InsertInfileQueryParts splitInsertInfileQuery(final String query) {
+        final Matcher matcher = GENERIC_INSERT_INFILE_VALUES_BRACKET_REGEX.matcher(query);
+        if (matcher.find()) {
+            final int queryEndIdx = matcher.start();
+            String fileLocation = matcher.group(4).trim();
+            if (fileLocation.startsWith("'") && fileLocation.endsWith("'")) {
+                fileLocation = fileLocation.substring(1, fileLocation.length()-1);
+            }
+            String format = matcher.group(2).trim();
+            if (!format.toLowerCase(Locale.ROOT).equals("csvwithnames") && !format.toLowerCase(Locale.ROOT).equals("csv")) {
+                throw new IllegalArgumentException(
+                        "invalid syntax for insert infile query: " + query);
+            }
+            return new InsertInfileQueryParts(
+                    query.substring(0, queryEndIdx).trim(),
+                    format,
+                    fileLocation
+            );
+        } else {
+            throw new IllegalArgumentException(
+                    "invalid syntax for insert infile query: " + query);
+        }
+    }
+
+    public static boolean isInsertInfileQuery(final String query) {
+        final Matcher matcher = INFILE_REGEX.matcher(query);
+        return matcher.find() && query.trim().toUpperCase(Locale.ROOT).startsWith("INSERT");
+    }
+
     public static boolean isInsertQuery(final String query) {
         final Matcher matcher = VALUES_REGEX.matcher(query);
         return matcher.find() && query.trim().toUpperCase(Locale.ROOT).startsWith("INSERT");
+    }
+
+    public static String appendQuestionMarks(final String sql, int count) {
+        StringBuilder appended = new StringBuilder(sql + " VALUES (");
+        for (int i=0; i<count; i++) {
+            if (i == count-1) {
+                appended.append("?");
+            } else {
+                appended.append("?, ");
+            }
+        }
+        appended.append(")");
+        return appended.toString();
     }
 
     public static DbTable extractDBAndTableName(final String sql) {
@@ -166,6 +216,22 @@ public final class SQLParserUtils {
                     "queryPart='" + queryPart + '\'' +
                     ", valuePart='" + valuePart + '\'' +
                     '}';
+        }
+    }
+
+    @Immutable
+    public static class InsertInfileQueryParts {
+
+        public final String queryPart;
+
+        public final String formatPart;
+
+        public final String fileLocationPart;
+
+        public InsertInfileQueryParts(final String queryPart, final String formatPart, final String fileLocationPart) {
+            this.queryPart = queryPart;
+            this.formatPart = formatPart;
+            this.fileLocationPart = fileLocationPart;
         }
     }
 }

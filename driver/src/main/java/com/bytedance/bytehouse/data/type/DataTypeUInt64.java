@@ -70,6 +70,9 @@ public class DataTypeUInt64 implements BaseDataTypeInt64<BigInteger, BigInteger>
         if (obj instanceof Number) {
             return BigInteger.valueOf(((Number) obj).longValue());
         }
+        if (obj instanceof String) {
+            return BigInteger.valueOf(Long.parseLong((String) obj));
+        }
         throw new ByteHouseSQLException(-1, obj.getClass() + " cannot convert to " + BigInteger.class);
     }
 

@@ -24,11 +24,13 @@ import com.bytedance.bytehouse.jdbc.ByteHouseResultSet;
 import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
+import com.bytedance.bytehouse.misc.InfileCSVReaderUtils;
 import com.bytedance.bytehouse.misc.SQLParserUtils;
 import com.bytedance.bytehouse.stream.ValuesWithParametersNativeInputFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 
 public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement {
 
@@ -103,6 +105,18 @@ public class ByteHousePreparedInsertStatement extends AbstractPreparedStatement 
         }
         rowInsertedCount += creator.sendBlock(block);
         block.reuseBlock();
+    }
+
+    public int executeCSVBlock(InfileCSVReaderUtils.CSVBlock csvBlock, boolean hasHeader) throws SQLException {
+        for (List<String> recordList: csvBlock.getRows()) {
+            for (int i=0; i<recordList.size(); i++) {
+                int headerIndex = hasHeader ? this.block.getPositionByName(csvBlock.getHeaders().get(i)) : (i+1);
+                this.setObject(headerIndex, recordList.get(i));
+            }
+            this.addBatch();
+        }
+        this.executeBatch();
+        return csvBlock.getRowCount();
     }
 
     @Override

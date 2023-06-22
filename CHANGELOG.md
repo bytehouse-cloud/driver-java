@@ -9,6 +9,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.20] - 2022-06-22
+
+### Added
+- Support custom query ID
+- Support local infile insertion
+
+### Changed
+
+### Fixed
+- Fix index out of bound issue affecting LowCardinality data
+
 ## [1.1.12] - 2022-11-24
 
 ### Added

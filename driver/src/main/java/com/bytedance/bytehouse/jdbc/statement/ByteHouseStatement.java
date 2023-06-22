@@ -23,6 +23,7 @@ import com.bytedance.bytehouse.log.Logger;
 import com.bytedance.bytehouse.log.LoggerFactoryUtils;
 import com.bytedance.bytehouse.log.Logging;
 import com.bytedance.bytehouse.misc.ExceptionUtil;
+import com.bytedance.bytehouse.misc.InfileCSVReaderUtils;
 import com.bytedance.bytehouse.misc.SQLParserUtils;
 import com.bytedance.bytehouse.misc.SqlParserCaseExpressionUtils;
 import com.bytedance.bytehouse.misc.SqlParserDateFormatUtils;
@@ -54,6 +55,8 @@ public class ByteHouseStatement extends ByteHouseQueryId implements Statement, S
             .compile("[V|v][A|a][L|l][U|u][E|e][S|s]\\s*\\(");
 
     private static final Pattern SELECT_DB_TABLE = Pattern.compile("(?i)FROM\\s+(\\S+\\.)?(\\S+)");
+
+    private static final String CSV_WITH_HEADER_IDENTIFIER = "csvwithnames";
 
     protected final ByteHouseConnection creator;
 
@@ -121,6 +124,14 @@ public class ByteHouseStatement extends ByteHouseQueryId implements Statement, S
                 new ValuesNativeInputFormat(0, parts.valuePart).fill(block);
                 updateCount = creator.sendInsertRequest(block);
                 return updateCount;
+            } else if (this.cfg.insertInfileLocal() && SQLParserUtils.isInsertInfileQuery(query)) {
+                final SQLParserUtils.InsertInfileQueryParts parts = SQLParserUtils.splitInsertInfileQuery(query);
+
+                boolean hasHeader = parts.formatPart.equals(CSV_WITH_HEADER_IDENTIFIER);
+                InfileCSVReaderUtils.CSVBlock csvBlock = InfileCSVReaderUtils.fromCSV(parts.fileLocationPart, this.creator.cfg().formatCSVDelimiter(), hasHeader);
+                final String insertQuery = SQLParserUtils.appendQuestionMarks(parts.queryPart, csvBlock.getColumnCount());
+                ByteHousePreparedInsertStatement preparedStatement = (ByteHousePreparedInsertStatement) this.creator.prepareStatement(insertQuery);
+                return updateCount = preparedStatement.executeCSVBlock(csvBlock, hasHeader);
             } else {
                 final SQLParserUtils.DbTable dbTable = SQLParserUtils.extractDBAndTableName(query);
                 // other statement we return 0.

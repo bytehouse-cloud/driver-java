@@ -15,6 +15,7 @@
  */
 package com.bytedance.bytehouse.misc;
 
+import static com.bytedance.bytehouse.misc.SQLParserUtils.splitInsertInfileQuery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -23,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -31,6 +33,37 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 class SQLParserUtilsTest {
 
+    @Test
+    public void testSplitInfileInsertQuery() {
+        SQLParserUtils.InsertInfileQueryParts parts = splitInsertInfileQuery("INSERT INTO db.table   FORMAT csvwithnames "
+                + "INFILE '/Users/rafsanmazumder/IdeaProjects/code.byted.org/bytehouse/driver-java/driver/src/test/resources/test2.csv'    ");
+        assertEquals(parts.queryPart, "INSERT INTO db.table");
+        assertEquals(parts.formatPart, "csvwithnames");
+        assertEquals(parts.fileLocationPart, "/Users/rafsanmazumder/IdeaProjects/code.byted.org/bytehouse/driver-java/driver/src/test/resources/test2.csv");
+
+        parts = splitInsertInfileQuery("INSERT INTO db.table   FORMAT csvwithnames INFILE test2.csv");
+        assertEquals(parts.queryPart, "INSERT INTO db.table");
+        assertEquals(parts.formatPart, "csvwithnames");
+        assertEquals(parts.fileLocationPart, "test2.csv");
+
+        parts = splitInsertInfileQuery("INSERT INTO db.table   FORMAT CSVWITHNAMES INFILE test2.csv");
+        assertEquals(parts.queryPart, "INSERT INTO db.table");
+        assertEquals(parts.formatPart, "CSVWITHNAMES");
+        assertEquals(parts.fileLocationPart, "test2.csv");
+
+        parts = splitInsertInfileQuery("INSERT INTO db.table    FORMAT    csvwithnames    "
+                + "INFILE   "
+                + "test2.csv");
+        assertEquals(parts.queryPart, "INSERT INTO db.table");
+        assertEquals(parts.formatPart, "csvwithnames");
+        assertEquals(parts.fileLocationPart, "test2.csv");
+
+        assertThrows(IllegalArgumentException.class, () -> splitInsertInfileQuery("INSERT INTO db.table format csvwithnames INFILE test2.csv"));
+        assertThrows(IllegalArgumentException.class, () -> splitInsertInfileQuery("INSERT INTO db.table formatcsvwithnames INFILE test2.csv"));
+        assertThrows(IllegalArgumentException.class, () -> splitInsertInfileQuery("INSERT INTO db.table format csvwithnames INFILE"));
+        assertThrows(IllegalArgumentException.class, () -> splitInsertInfileQuery("INSERT INTO db.table format INFILE test2.csv"));
+        assertThrows(IllegalArgumentException.class, () -> splitInsertInfileQuery("INSERT INTO db.table FORMAT CSVWITHNAMS INFILE test2.csv"));
+    }
 
     @Nested
     static class IsInsertQueryTest {
