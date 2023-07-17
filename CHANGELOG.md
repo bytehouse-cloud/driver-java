@@ -9,6 +9,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.22] - 2022-07-17
+
+### Added
+- Add region enum for AWS-US-EAST
+
+### Changed
+
+### Fixed
+- Fix getPrimaryKeys order type to be short
+- Fix DateTime64 enforcing space on parsing
+
 ## [1.1.20] - 2022-06-22
 
 ### Added

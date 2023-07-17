@@ -1188,7 +1188,7 @@ public final class ByteHouseDatabaseMetadata implements BHDatabaseMetadata, SQLH
                         "String",
                         "String",
                         "String",
-                        "String"
+                        "Int8"
                 );
 
         final String sql = String.format("SHOW TABLE KEYS `%s`.`%s`", schema, table);

@@ -56,7 +56,6 @@ public class DataTypeDateTime64 implements IDataType<ZonedDateTime, Timestamp> {
                     "scale=" + scale + " out of range [" + DataTypeDateTime64.MIN_SCALE + "," + DataTypeDateTime64.MAX_SCALA + "]");
             if (lexer.isCharacter(',')) {
                 ValidateUtils.isTrue(lexer.character() == ',');
-                ValidateUtils.isTrue(lexer.isWhitespace());
                 String dataTimeZone = lexer.stringLiteral();
                 ValidateUtils.isTrue(lexer.character() == ')');
                 return new DataTypeDateTime64("DateTime64(" + scale + ", '" + dataTimeZone + "')", scale, serverContext);
