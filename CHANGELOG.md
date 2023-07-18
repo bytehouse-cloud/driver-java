@@ -9,6 +9,16 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.23] - 2022-07-18
+
+### Added
+
+### Changed
+
+### Fixed
+- Fix JDBC Url passing to not replace database if empty
+
+
 ## [1.1.22] - 2022-07-17
 
 ### Added

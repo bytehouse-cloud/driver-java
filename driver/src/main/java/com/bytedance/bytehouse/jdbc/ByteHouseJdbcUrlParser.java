@@ -64,7 +64,9 @@ public final class ByteHouseJdbcUrlParser {
             final Map<SettingKey, Serializable> settings = new HashMap<>();
             settings.put(SettingKey.host, host);
             settings.put(SettingKey.port, port);
-            settings.put(SettingKey.database, database);
+            if (!database.trim().isEmpty()) {
+                settings.put(SettingKey.database, database);
+            }
             settings.putAll(extractQueryParameters(uri.getQuery()));
 
             return settings;
