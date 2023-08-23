@@ -9,7 +9,16 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-## [1.1.23] - 2022-07-18
+## [1.1.24] - 2023-08-22
+
+### Added
+- Added Taco file for a tableau connector
+
+### Changed
+
+### Fixed
+
+## [1.1.23] - 2023-07-18
 
 ### Added
 
