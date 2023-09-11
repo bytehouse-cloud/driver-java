@@ -87,7 +87,7 @@ for connecting to ByteHouse datasource.
     }
     
     dependencies {
-        implementation 'com.bytedance.bytehouse:driver-java:1.0.0'
+        implementation 'com.bytedance.bytehouse:driver-java:1.1.24'
     }
 ```
 ### Adding Driver as a Maven Dependency
@@ -102,7 +102,7 @@ for connecting to ByteHouse datasource.
         <dependency>
             <groupId>com.bytedance.bytehouse</groupId>
             <artifactId>driver-java</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.24</version>
         </dependency>
 ```
 ### Direct Download
