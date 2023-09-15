@@ -9,6 +9,15 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.26] - 2023-09-15
+
+### Added
+- Supported null value insertion to non-nullable column, defaulting to zero-value
+
+### Changed
+
+### Fixed
+
 ## [1.1.24] - 2023-08-22
 
 ### Added

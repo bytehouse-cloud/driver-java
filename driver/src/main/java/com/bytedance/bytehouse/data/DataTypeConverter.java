@@ -46,10 +46,13 @@ public class DataTypeConverter {
      * Converts JDBC type to Java type.
      */
     public Object convertJdbcToJava(IDataType<?, ?> type, Object obj) throws ByteHouseSQLException {
+        // clickhouse / cnch allows null value to be inserted in a non-nullable column
         if (obj == null) {
-            if (type.nullable() || type instanceof DataTypeNothing)
+            if (type.nullable() || type instanceof DataTypeNothing) {
                 return null;
-            throw new ByteHouseSQLException(-1, "type[" + type.name() + "] doesn't support null value");
+            } else {
+                return type.defaultValue();
+            }
         }
         // handle special types
         if (type instanceof DataTypeNullable) {

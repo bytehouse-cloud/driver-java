@@ -55,7 +55,7 @@ public class DataTypeArray implements IDataType<ByteHouseArray, Array> {
         this.name = name;
         this.elemDataType = elemDataType;
         this.offsetIDataType = offsetIDataType;
-        this.defaultValue = new ByteHouseArray(elemDataType, new Object[]{elemDataType.defaultValue()});
+        this.defaultValue = new ByteHouseArray(elemDataType, new Object[]{});
     }
 
     @Override
