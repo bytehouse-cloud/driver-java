@@ -21,7 +21,9 @@ import com.bytedance.bytehouse.data.type.DataTypeInt16;
 import com.bytedance.bytehouse.data.type.DataTypeInt32;
 import com.bytedance.bytehouse.data.type.DataTypeInt64;
 import com.bytedance.bytehouse.data.type.DataTypeInt8;
+import com.bytedance.bytehouse.data.type.DataTypeUInt128;
 import com.bytedance.bytehouse.data.type.DataTypeUInt16;
+import com.bytedance.bytehouse.data.type.DataTypeUInt256;
 import com.bytedance.bytehouse.data.type.DataTypeUInt32;
 import com.bytedance.bytehouse.data.type.DataTypeUInt64;
 import com.bytedance.bytehouse.data.type.DataTypeUInt8;
@@ -41,6 +43,10 @@ public class ByteHouseArrayITest extends AbstractITest {
     private static final Long UINT32_MAX_VALUE = 4294967295L;
     private static final BigInteger UINT64_MIN_VALUE = BigInteger.valueOf(0L);
     private static final BigInteger UINT64_MAX_VALUE = new BigInteger("18446744073709551615");
+    private static final BigInteger UINT128_MIN_VALUE = BigInteger.valueOf(0L);
+    private static final BigInteger UINT128_MAX_VALUE = new BigInteger("340282366920938463463374607431768211455");
+    private static final BigInteger UINT256_MIN_VALUE = BigInteger.valueOf(0L);
+    private static final BigInteger UINT256_MAX_VALUE = new BigInteger("115792089237316195423570985008687907853269984665640564039457584007913129639935");
 
     private static final Byte INT8_MIN_VALUE = -128;
     private static final Byte INT8_MAX_VALUE = 127;
@@ -67,21 +73,25 @@ public class ByteHouseArrayITest extends AbstractITest {
 
             try {
                 statement.execute(String.format("CREATE DATABASE %s", databaseName));
-                statement.execute(String.format("CREATE TABLE %s(ua8 Array(UInt8), ua16 Array(UInt16), ua32 Array(UInt32), ua64 Array(UInt64))"
+                statement.execute(String.format("CREATE TABLE %s(ua8 Array(UInt8), ua16 Array(UInt16), ua32 Array(UInt32), ua64 Array(UInt64), ua128 Array(UInt128), ua256 Array(UInt256))"
                         + " ENGINE=CnchMergeTree() order by tuple()", tableName));
 
-                String insertSql = String.format("INSERT INTO %s VALUES (?, ?, ?, ?)", tableName);
+                String insertSql = String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?)", tableName);
                 PreparedStatement preparedStatement = statement.getConnection().prepareStatement(insertSql);
 
                 Short[] ua8Array = new Short[]{UINT8_MIN_VALUE, UINT8_MAX_VALUE};
                 Integer[] ua16Array = new Integer[]{UINT16_MIN_VALUE, UINT16_MAX_VALUE};
                 Long[] ua32Array = new Long[]{UINT32_MIN_VALUE, UINT32_MAX_VALUE};
                 BigInteger[] ua64Array = new BigInteger[]{UINT64_MIN_VALUE, UINT64_MAX_VALUE};
+                BigInteger[] ua128Array = new BigInteger[]{UINT128_MIN_VALUE, UINT128_MAX_VALUE};
+                BigInteger[] ua256Array = new BigInteger[]{UINT256_MIN_VALUE, UINT256_MAX_VALUE};
 
                 preparedStatement.setArray(1, new ByteHouseArray(new DataTypeUInt8(), new Short[]{UINT8_MIN_VALUE, UINT8_MAX_VALUE}));
                 preparedStatement.setArray(2, new ByteHouseArray(new DataTypeUInt16(), new Integer[]{UINT16_MIN_VALUE, UINT16_MAX_VALUE}));
                 preparedStatement.setArray(3, new ByteHouseArray(new DataTypeUInt32(), new Long[]{UINT32_MIN_VALUE, UINT32_MAX_VALUE}));
                 preparedStatement.setArray(4, new ByteHouseArray(new DataTypeUInt64(), new BigInteger[]{UINT64_MIN_VALUE, UINT64_MAX_VALUE}));
+                preparedStatement.setArray(5, new ByteHouseArray(new DataTypeUInt128(), new BigInteger[]{UINT128_MIN_VALUE, UINT128_MAX_VALUE}));
+                preparedStatement.setArray(6, new ByteHouseArray(new DataTypeUInt256(), new BigInteger[]{UINT256_MIN_VALUE, UINT256_MAX_VALUE}));
                 preparedStatement.addBatch();
                 preparedStatement.executeBatch();
 
@@ -91,10 +101,14 @@ public class ByteHouseArrayITest extends AbstractITest {
                     Integer[] ua16ArrayResult = (Integer[]) rs.getArray(2).getArray();
                     Long[] ua32ArrayResult = (Long[]) rs.getArray(3).getArray();
                     BigInteger[] ua64ArrayResult = (BigInteger[]) rs.getArray(4).getArray();
+                    BigInteger[] ua128ArrayResult = (BigInteger[]) rs.getArray(5).getArray();
+                    BigInteger[] ua256ArrayResult = (BigInteger[]) rs.getArray(6).getArray();
                     assertArrayEquals(ua8Array, ua8ArrayResult);
                     assertArrayEquals(ua16Array, ua16ArrayResult);
                     assertArrayEquals(ua32Array, ua32ArrayResult);
                     assertArrayEquals(ua64Array, ua64ArrayResult);
+                    assertArrayEquals(ua128Array, ua128ArrayResult);
+                    assertArrayEquals(ua256Array, ua256ArrayResult);
                 }
             }
             finally {

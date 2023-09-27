@@ -9,6 +9,15 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.27] - 2023-09-20
+
+### Added
+- Supported uint128 and uint256 data types
+
+### Changed
+
+### Fixed
+
 ## [1.1.26] - 2023-09-15
 
 ### Added

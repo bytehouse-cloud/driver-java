@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,6 +30,10 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DataTypesITest extends AbstractITest {
     @Test
@@ -157,6 +162,69 @@ public class DataTypesITest extends AbstractITest {
                     pstmt.addBatch();
 
                     pstmt.executeBatch();
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
+
+    @Test
+    public void testDataTypeUInt128() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id UInt128)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?)", tableName), pstmt -> {
+
+                    pstmt.setObject(1, new BigInteger("340282366920938463463374607431768211455"));
+                    pstmt.addBatch();
+
+                    pstmt.executeBatch();
+
+                    ResultSet rs = pstmt.executeQuery(String.format("SELECT * FROM %s", tableName));
+                    assertTrue(rs.next());
+                    assertEquals("340282366920938463463374607431768211455", rs.getString(1));
+                    assertEquals(new BigDecimal("340282366920938463463374607431768211455"), rs.getBigDecimal(1));
+                    assertFalse(rs.next());
+
+                });
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
+
+    @Test
+    public void testDataTypeUInt256() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s(id UInt256)"
+                        + " ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?)", tableName), pstmt -> {
+
+                    pstmt.setObject(1, new BigInteger("115792089237316195423570985008687907853269984665640564039457584007913129639935"));
+                    pstmt.addBatch();
+
+                    pstmt.executeBatch();
+
+                    ResultSet rs = pstmt.executeQuery(String.format("SELECT * FROM %s", tableName));
+                    assertTrue(rs.next());
+                    assertEquals("115792089237316195423570985008687907853269984665640564039457584007913129639935", rs.getString(1));
+                    assertEquals(new BigDecimal("115792089237316195423570985008687907853269984665640564039457584007913129639935"), rs.getBigDecimal(1));
+                    assertFalse(rs.next());
                 });
             }
             finally {
