@@ -26,7 +26,9 @@ import com.bytedance.bytehouse.data.type.DataTypeInt16;
 import com.bytedance.bytehouse.data.type.DataTypeInt32;
 import com.bytedance.bytehouse.data.type.DataTypeInt64;
 import com.bytedance.bytehouse.data.type.DataTypeInt8;
+import com.bytedance.bytehouse.data.type.DataTypeUInt128;
 import com.bytedance.bytehouse.data.type.DataTypeUInt16;
+import com.bytedance.bytehouse.data.type.DataTypeUInt256;
 import com.bytedance.bytehouse.data.type.DataTypeUInt32;
 import com.bytedance.bytehouse.data.type.DataTypeUInt64;
 import com.bytedance.bytehouse.data.type.DataTypeUInt8;
@@ -153,6 +155,8 @@ public final class DataTypeFactory {
         registerType(creators, new DataTypeUInt16());
         registerType(creators, new DataTypeUInt32());
         registerType(creators, new DataTypeUInt64());
+        registerType(creators, new DataTypeUInt128());
+        registerType(creators, new DataTypeUInt256());
 
         registerType(creators, new DataTypeDate());
         return creators;

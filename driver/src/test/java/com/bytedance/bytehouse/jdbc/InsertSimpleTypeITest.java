@@ -434,4 +434,36 @@ public class InsertSimpleTypeITest extends AbstractITest {
             }, "charset", charset);
         }
     }
+
+    @Test
+    public void successfullyNullForNonNullableColumn() throws Exception {
+        withStatement(statement -> {
+            String databaseName = getDatabaseName();
+            String tableName = databaseName + "." + getTableName();
+
+            try {
+                statement.execute(String.format("CREATE DATABASE %s", databaseName));
+                statement.execute(String.format("CREATE TABLE %s (s1 Int, s2 String, s3 Array(String), s4 Date) ENGINE=CnchMergeTree() order by tuple()", tableName));
+
+                withPreparedStatement(String.format("INSERT INTO %s VALUES(?, ?, ?, ?)", tableName), pstmt -> {
+                    for (int i = 1; i <= 4; i++) {
+                        pstmt.setObject(i, null);
+                    }
+                    pstmt.addBatch();
+                    pstmt.executeBatch();
+                });
+
+                ResultSet resultSet = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
+                while (resultSet.next()) {
+                    assertEquals(resultSet.getObject(1), 0);
+                    assertEquals(resultSet.getObject(2), "");
+                    assertEquals(((CharSequence[]) resultSet.getArray(3).getArray()).length, 0);
+                    assertEquals(resultSet.getObject(4).toString(), LocalDate.ofEpochDay(0).toString());
+                }
+            }
+            finally {
+                statement.execute(String.format("DROP DATABASE %s", databaseName));
+            }
+        });
+    }
 }
