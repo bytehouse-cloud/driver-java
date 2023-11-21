@@ -1,9 +1,19 @@
+
 # ByteHouse JDBC Driver Change Log
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+## [1.1.31] - 2023-11-22
+
+### Added
+- Support prepareStatement(String sqlString, int resultSetType, int resultSetConcurrency)
 
 ### Changed
 

@@ -232,6 +232,21 @@ public class ByteHouseConnection implements BHConnection {
     }
 
     /**
+         This function implementation is just return prepareStatement(query)
+
+         In open source, they fix:
+         - resultSetType = ResultSet.TYPE_FORWARD_ONLY;
+         - resultSetConcurrency = ResultSet.CONCUR_READ_ONLY;
+
+         even though passing resultSetType, resultSetConcurrency in the constructor;
+         those 2 values are also the default value of BytehouseStatement resultSetType and resultSetConcurrencyType
+     * */
+    @Override
+    public PreparedStatement prepareStatement(final String query, int resultSetType, int resultSetConcurrency) throws SQLException {
+        return prepareStatement(query);
+    }
+
+    /**
      * Use DatabaseMetaData.getClientInfoProperties() to retrieve client info properties supported.
      * Currently no properties are supported.
      */
