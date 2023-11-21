@@ -80,6 +80,12 @@ public interface BHConnection extends Connection, SQLWrapper, Logging {
     }
 
     @Override
+    default PreparedStatement prepareStatement(String query, int resultSetType, int resultSetConcurrency) throws SQLException {
+        logger().debug("invoke unimplemented method #prepareStatement(String query, int resultSetType, int resultSetConcurrency)");
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
     default CallableStatement prepareCall(String sql) throws SQLException {
         logger().debug("invoke unimplemented method #prepareCall(String sql)");
         throw new SQLFeatureNotSupportedException();
@@ -184,12 +190,6 @@ public interface BHConnection extends Connection, SQLWrapper, Logging {
     @Override
     default Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         logger().debug("invoke unimplemented method #createStatement(int resultSetType, int resultSetConcurrency)");
-        throw new SQLFeatureNotSupportedException();
-    }
-
-    @Override
-    default PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        logger().debug("invoke unimplemented method #prepareStatement(String sql, int resultSetType, int resultSetConcurrency)");
         throw new SQLFeatureNotSupportedException();
     }
 
