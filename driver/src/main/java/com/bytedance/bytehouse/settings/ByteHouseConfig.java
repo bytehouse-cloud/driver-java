@@ -750,7 +750,7 @@ public class ByteHouseConfig implements Serializable {
             this.connectTimeout = (Duration) this.settings.getOrDefault(SettingKey.connectTimeout, Duration.ZERO);
             this.tcpKeepAlive = (boolean) this.settings.getOrDefault(SettingKey.tcpKeepAlive, false);
             this.tcpNoDelay = (boolean) this.settings.getOrDefault(SettingKey.tcpNoDelay, true);
-            this.secure = (boolean) this.settings.getOrDefault(SettingKey.secure, false);
+            this.secure = (boolean) this.settings.getOrDefault(SettingKey.secure, true);
             this.skipVerification = (boolean) this.settings.getOrDefault(SettingKey.skipVerification, false);
             this.enableCompression = (boolean) this.settings.getOrDefault(SettingKey.enableCompression, false);
             this.charset = Charset.forName((String) this.settings.getOrDefault(SettingKey.charset, "UTF-8"));

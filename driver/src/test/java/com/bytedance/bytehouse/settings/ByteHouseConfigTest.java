@@ -41,11 +41,11 @@ class ByteHouseConfigTest {
         assertEquals(Duration.ZERO, cfg.connectTimeout());
         assertFalse(cfg.tcpKeepAlive());
         assertTrue(cfg.tcpNoDelay());
-        assertFalse(cfg.secure());
+        assertTrue(cfg.secure());
         assertFalse(cfg.skipVerification());
         assertEquals(StandardCharsets.UTF_8, cfg.charset());
         assertEquals("jdbc:bytehouse://127.0.0.1:9000/?query_timeout=0&connect_timeout=0" +
-                        "&charset=UTF-8&tcp_keep_alive=false&tcp_no_delay=true&secure=false&skip_verification=false" +
+                        "&charset=UTF-8&tcp_keep_alive=false&tcp_no_delay=true&secure=true&skip_verification=false" +
                         "&enable_compression=false",
                 cfg.jdbcUrl());
     }
@@ -96,7 +96,7 @@ class ByteHouseConfigTest {
                 .port(9000)
                 .withSetting(SettingKey.region, "")
                 .build();
-        assertFalse(cfg.secure());
+        assertTrue(cfg.secure());
         assertEquals("localhost", cfg.host());
         assertEquals(9000, cfg.port());
 
@@ -105,7 +105,7 @@ class ByteHouseConfigTest {
                 .port(9000)
                 .region("")
                 .build();
-        assertFalse(cfg2.secure());
+        assertTrue(cfg2.secure());
         assertEquals("localhost", cfg2.host());
         assertEquals(9000, cfg2.port());
     }
