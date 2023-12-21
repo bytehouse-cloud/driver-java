@@ -10,10 +10,21 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.32] - 2023-12-11
+
+### Added
+- Set secure parameter as true by default
+
+### Changed
+
 ## [1.1.31] - 2023-11-22
 
 ### Added
 - Support prepareStatement(String sqlString, int resultSetType, int resultSetConcurrency)
+
+### Changed
+
+### Fixed
 
 ## [1.1.27] - 2023-09-20
 
