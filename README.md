@@ -180,12 +180,15 @@ or can throw exception message.
 ```
 #### Properties
 ```java
-    properties.setProperty("virtual_warehouse", "virtual_warehouse_name");
+    properties.setProperty("virtual_warehouse", VIRTUAL_WAREHOUSE_ID);
 ```
 #### Connection URL
 ```java
-    connectionURL = String.format("jdbc:bytehouse://%s&virtual_warehouse=%s", CONNECTION_URL, VIRTUAL_WAREHOUSE_NAME);
+    connectionURL = String.format("jdbc:bytehouse://%s&virtual_warehouse=%s", CONNECTION_URL, VIRTUAL_WAREHOUSE_ID);
 ```
+
+Where VIRTUAL_WAREHOUSE_ID follows "vw-1234567890-vw-name" format
+
 ### Setting Role
 When using ByteHouse, you need to select an "Active Role", and all your behaviour will be restricted by the permissions
 assigned to this Active Role.

@@ -10,6 +10,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+## [1.1.33] - 2024-01-04
+
+### Added
+- Supported int128 and int256 data types
+
+### Changed
+
 ## [1.1.32] - 2023-12-11
 
 ### Added
